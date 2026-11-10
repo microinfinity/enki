@@ -79,23 +79,30 @@ Android APK via the JNI bridge.
 
 ## 4. Application Entry Point
 
-On Android you define `enki_android_main()` instead of `main()`:
+ENKI uses a unified, cross-platform entry point architecture. You write a standard `int main()` with `enki::runApp()` — exactly the same as on desktop!
+
+When building for Android (`__ANDROID__`), `<enki/app/app.hpp>` automatically redirects `main` to `enki_user_main` via a macro bridge. The framework's built-in `android_app_glue.cpp` provides the native entry points (`ANativeActivity_onCreate` and `enki_android_main`), starts the rendering worker thread, initializes the EGL window surface, and executes your `main()` function:
 
 ```cpp
-// my_app.cpp
+// main.cpp
 #include <enki/app/app.hpp>
-#include <enki/platform/platform.hpp>
+#include <enki/widgets/container.hpp>
+#include <enki/widgets/text.hpp>
 
-extern "C" int enki_android_main(enki::Platform& platform) {
-    auto app = enki::App::create(platform, MyRootWidget());
+using namespace enki;
 
-    while (platform.pollEvents()) {
-        app->render();
-    }
+int main() {
+    // Optional: query the physical screen dimensions on Android before runApp
+    Size screen = getScreenSize();
 
-    return 0;
+    AppConfig config;
+    config.title = "My Enki App";
+
+    return runApp(std::make_shared<MyRootWidget>(), config);
 }
 ```
+
+No `#ifdef __ANDROID__` or manual event loops are needed in your application code.
 
 The `ANativeActivity_onCreate` entry point is provided automatically by
 `android_app_glue.cpp`. Your APK manifest should declare:

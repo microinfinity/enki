@@ -66,17 +66,22 @@ enum class TimelineLineStyle {
 namespace enki {
 
 struct TimelineItem {
-    std::string        id          = "";
-    std::string        title       = "";
-    std::string        timestamp   = "";
-    std::string        description = "";
-    std::string        details     = "";          ///< Expandable markdown/text details
-    std::string        icon        = "";          ///< Emoji or glyph
-    std::string        badge_text  = "";
+    std::string        id                = "";
+    std::string        title             = "";
+    std::string        timestamp         = "";
+    std::string        description       = "";
+    std::string        details           = "";          ///< Expandable markdown/text details
+    std::string        icon              = "";          ///< Emoji or glyph
+    std::string        badge_text        = "";
+    Color              badge_bg          = 0;
+    Color              badge_fg          = 0;
 
-    TimelineItemStatus status      = TimelineItemStatus::Pending;
-    TimelineNodeShape  node_shape  = TimelineNodeShape::Circle;
-    bool               is_expanded = false;
+    TimelineItemStatus status            = TimelineItemStatus::Pending;
+    TimelineNodeShape  node_shape        = TimelineNodeShape::Circle;
+    Color              custom_node_color = 0;
+
+    bool               is_expanded       = false;
+    bool               is_clickable      = true;
 
     TimelineItem() = default;
     TimelineItem(std::string id, std::string title, std::string time,
@@ -104,10 +109,23 @@ struct Timeline {
 
     float                                node_size          = 24.0f;
     float                                line_thickness     = 2.0f;
-    float                                item_spacing       = 24.0f;
-    float                                card_width         = 320.0f;
-    float                                card_border_radius = 8.0f;
+    float                                item_spacing       = 20.0f;
+    float                                card_width         = 380.0f;
 
+    Color                                completed_color    = 0xFF10B981;
+    Color                                active_color       = 0xFF38BDF8;
+    Color                                pending_color      = 0xFF475569;
+    Color                                warning_color      = 0xFFF59E0B;
+    Color                                failed_color       = 0xFFEF4444;
+    Color                                line_color         = 0xFF334155;
+    Color                                card_bg_color      = 0xFF1E293B;
+    Color                                card_border_color  = 0xFF334155;
+    Color                                title_color        = 0xFFF8FAFC;
+    Color                                timestamp_color    = 0xFF94A3B8;
+    Color                                desc_color         = 0xFFCBD5E1;
+    Color                                details_bg_color   = 0xFF0F172A;
+
+    float                                card_border_radius = 8.0f;
     bool                                 is_stepper         = false;
 
     // Callbacks
@@ -127,12 +145,32 @@ struct Timeline {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `controller` | `shared_ptr<TimelineController>`| `nullptr`| Manages timeline items and active stepper step index. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `controller` | `std::shared_ptr<TimelineController>`| `nullptr`| Manages timeline items and active stepper step index. |
 | `orientation` | `TimelineOrientation` | `Vertical` | Direction of the track (`Vertical` or `Horizontal`). |
-| `alignment` | `TimelineAlignment` | `Start` | Placement of cards relative to line (`Start`, `Alternate`, `Center`). |
-| `line_style` | `TimelineLineStyle` | `Solid` | Connector visual style (`Solid`, `Dashed`, `Gradient`). |
+| `alignment` | `TimelineAlignment` | `Start` | Placement of cards relative to line (`Start`, `End`, `Alternate`, `Center`). |
+| `line_style` | `TimelineLineStyle` | `Solid` | Connector visual style (`Solid`, `Dashed`, `Dotted`, `Gradient`). |
+| `node_size` | `float` | `24.0f` | Diameter in points of each step indicator circle/icon. |
+| `line_thickness` | `float` | `2.0f` | Stroke width of connecting track lines. |
+| `item_spacing` | `float` | `20.0f` | Distance in points between successive event items. |
+| `card_width` | `float` | `380.0f` | Width in points of content cards. |
+| `card_border_radius` | `float` | `8.0f` | Corner rounding radius of event cards. |
 | `is_stepper` | `bool` | `false` | Enables interactive step-by-step wizard mode. |
-| `item_spacing` | `float` | `24.0f` | Vertical/horizontal distance between successive event cards. |
+| `completed_color` | `Color` | `0xFF10B981` | Accent color for completed steps. |
+| `active_color` | `Color` | `0xFF38BDF8` | Accent color for the currently active step. |
+| `pending_color` | `Color` | `0xFF475569` | Color for unreached/pending steps. |
+| `warning_color` | `Color` | `0xFFF59E0B` | Color for warning state items. |
+| `failed_color` | `Color` | `0xFFEF4444` | Color for failed state items. |
+| `line_color` | `Color` | `0xFF334155` | Default connecting line stroke color. |
+| `card_bg_color` | `Color` | `0xFF1E293B` | Event card background fill color. |
+| `card_border_color` | `Color` | `0xFF334155` | Event card border stroke color. |
+| `title_color` | `Color` | `0xFFF8FAFC` | Item title font color. |
+| `timestamp_color` | `Color` | `0xFF94A3B8` | Timestamp label font color. |
+| `desc_color` | `Color` | `0xFFCBD5E1` | Description body text color. |
+| `details_bg_color` | `Color` | `0xFF0F172A` | Background fill for expanded details section. |
+| `on_item_tap` | `std::function<void(const TimelineItem&)>` | `nullptr` | Callback fired when an item card is clicked. |
+| `on_step_changed` | `std::function<void(int)>` | `nullptr` | Callback fired when active step index advances or recedes. |
+| `on_item_expanded` | `std::function<void(const std::string&, bool)>` | `nullptr` | Callback fired when item details section is expanded or collapsed. |
 
 ---
 

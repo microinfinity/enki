@@ -9,7 +9,7 @@ A complete walkthrough for building your first desktop application with Enki Web
 The repository ships with a ready-to-run template application:
 
 ```bash
-cp -r web_technology/template/ my_first_app/
+cp -r modules/web_technology/template/ my_first_app/
 cd my_first_app/
 ```
 
@@ -129,12 +129,13 @@ document.getElementById('btn-notify').addEventListener('click', () => {
 });
 
 // ── System Information ───────────────────────────────────────────
-document.getElementById('btn-info').addEventListener('click', () => {
+document.getElementById('btn-info').addEventListener('click', async () => {
+    const mem = await enki.system.memory();
     const info = {
         platform:  enki.system.platform(),
         arch:      enki.system.arch(),
         hostname:  enki.system.hostname(),
-        memory_gb: (enki.system.memory() / 1024 / 1024 / 1024).toFixed(1),
+        memory_gb: (mem.total / 1024 / 1024 / 1024).toFixed(1),
         cpus:      enki.system.cpuCount()
     };
 

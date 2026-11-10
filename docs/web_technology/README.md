@@ -32,7 +32,7 @@ Think of it as Electron, but:
 
 ```bash
 # Copy the starter template
-cp -r web_technology/template/ my_app/
+cp -r modules/web_technology/template/ my_app/
 
 # Edit the manifest
 nano my_app/enki.json
@@ -50,7 +50,7 @@ nano my_app/enki.json
 | OS | Linux (X11) |
 | Compiler | GCC 13+ or Clang 16+ with C++20 |
 | Build System | Meson ≥ 1.0 + Ninja |
-| CEF | Included in `web_technology/cef_binary/` |
+| CEF | Included in `modules/web_technology/cef_binary/` |
 | Display | X11 (Wayland via XWayland also supported) |
 
 ---

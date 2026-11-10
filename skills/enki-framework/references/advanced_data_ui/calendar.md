@@ -86,7 +86,14 @@ struct Calendar {
     Color                               background_color   = 0xFF1E293B; // Slate 800
     Color                               border_color       = 0xFF334155; // Slate 700
     Color                               header_bg_color    = 0xFF0F172A; // Slate 900
+    Color                               title_color        = 0xFFFFFFFF; // White
+    Color                               weekday_color      = 0xFF94A3B8; // Slate 400
+    Color                               day_color          = 0xFFF1F5F9; // Slate 100
+    Color                               adjacent_day_color = 0xFF475569; // Slate 600
+    Color                               today_ring_color   = 0xFF38BDF8; // Sky 400
     Color                               selected_bg_color  = 0xFF0284C7; // Blue 600
+    Color                               in_range_bg_color  = 0x330284C7; // Blue 20%
+    Color                               hover_bg_color     = 0x33334155; // Slate 700 opacity
 
     // Callbacks
     std::function<void(CalendarDate)>                         on_date_selected  = nullptr;
@@ -106,12 +113,32 @@ struct Calendar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `events` | `vector<CalendarEvent>` | `{}` | Scheduled items rendered as colored indicator dots on days. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `events` | `std::vector<CalendarEvent>` | `{}` | Scheduled items rendered as colored indicator dots on days. |
+| `controller` | `std::shared_ptr<CalendarController>` | `nullptr` | Programmatic controller for date selection and month switching. |
 | `selection_mode` | `CalendarSelectionMode` | `Single` | Mode for picking dates (`Single`, `Range`, `None`). |
-| `first_day_of_week`| `int` | `1` | Starting day column (0 = Sunday, 1 = Monday). |
 | `initial_date` | `CalendarDate` | `{2026, 8, 19}` | The initially viewed/selected calendar date. |
+| `first_day_of_week`| `int` | `1` | Starting day column (0 = Sunday, 1 = Monday). |
 | `show_today_btn` | `bool` | `true` | Renders quick-jump "Today" button in header. |
 | `show_adjacent_days`| `bool` | `true` | Displays dimmed days belonging to adjacent months. |
+| `highlight_today` | `bool` | `true` | Highlights current system date with a distinctive ring. |
+| `width` | `float` | `360.0f` | Total width constraint of calendar container. |
+| `border_radius` | `float` | `12.0f` | Corner rounding radius. |
+| `background_color` | `Color` | `0xFF1E293B` | Base background fill color. |
+| `border_color` | `Color` | `0xFF334155` | Outer container border color. |
+| `header_bg_color` | `Color` | `0xFF0F172A` | Background color of month/year navigation header bar. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Month and year title font color. |
+| `weekday_color` | `Color` | `0xFF94A3B8` | Column day names font color (Mon, Tue, etc.). |
+| `day_color` | `Color` | `0xFFF1F5F9` | Standard day number text color. |
+| `adjacent_day_color`| `Color` | `0xFF475569` | Dimmed day number text color for adjacent months. |
+| `today_ring_color` | `Color` | `0xFF38BDF8` | Accent ring color outlining today's date. |
+| `selected_bg_color`| `Color` | `0xFF0284C7` | Background highlight fill for selected day cell. |
+| `in_range_bg_color`| `Color` | `0x330284C7` | Semi-transparent highlight fill for dates within a selected range. |
+| `hover_bg_color` | `Color` | `0x33334155` | Cell background tint on cursor hover. |
+| `on_date_selected` | `std::function<void(CalendarDate)>` | `nullptr` | Callback fired when a date is clicked in `Single` mode. |
+| `on_range_selected`| `std::function<void(CalendarDate, CalendarDate)>` | `nullptr` | Callback fired when start and end range dates are established. |
+| `on_month_changed` | `std::function<void(int, int)>` | `nullptr` | Callback fired when navigating to another month/year. |
+| `on_event_clicked` | `std::function<void(const CalendarEvent&)>` | `nullptr` | Callback fired when clicking a date containing an event. |
 
 ---
 

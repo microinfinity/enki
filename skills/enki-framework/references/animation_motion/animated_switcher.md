@@ -49,12 +49,14 @@ inline std::shared_ptr<AnimatedSwitcherWidget> animatedSwitcher(AnimatedSwitcher
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `child` | `WidgetPtr` | `nullptr` | Active child widget (must use a distinct `Key` to trigger transitions). |
-| `duration` | `milliseconds` | `300ms` | Transition time for incoming and outgoing children. |
-| `reverse_duration` | `optional<milliseconds>`| `nullopt` | Optional custom duration for outgoing children. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Transition time for incoming and outgoing children. |
+| `reverse_duration` | `std::optional<std::chrono::milliseconds>`| `std::nullopt` | Optional custom duration for outgoing children. |
 | `switch_in_curve` | `const Curve*` | `&Curves::linear` | Easing curve applied to incoming child. |
 | `switch_out_curve`| `const Curve*` | `&Curves::linear` | Easing curve applied to outgoing child. |
 | `transition_builder`| `TransitionBuilder` | `nullptr` | Custom transition function (defaults to cross-fade opacity). |
+| `layout_builder`| `LayoutBuilder` | `nullptr` | Custom container layout for combining previous and current children. |
 
 ---
 

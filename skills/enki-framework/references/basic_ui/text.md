@@ -63,6 +63,7 @@ inline std::shared_ptr<Text> text(TextProps props);
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `text` | `std::string` | `""` | The plain text string to display. |
+| `style` | `std::optional<TextStyle>` | `std::nullopt` | Complete `TextStyle` configuration (overrides individual style fields). |
 | `color` | `std::optional<Color>` | `0xFFFFFFFF` (White) | Text glyph color (32-bit ARGB). |
 | `font_size` | `std::optional<float>` | `14.0f` | Font size in logical pixels. |
 | `font_weight` | `std::optional<FontWeight>` | `FontWeight::Normal` | Weight of font glyphs (`Thin`, `Medium`, `Bold`, etc.). |
@@ -79,6 +80,7 @@ inline std::shared_ptr<Text> text(TextProps props);
 | `soft_wrap` | `std::optional<bool>` | `true` | Whether text wraps onto new lines when hitting boundary. |
 | `selectable` | `std::optional<bool>` | `false` | Enables mouse click-and-drag text selection and copy. |
 | `selection_color` | `std::optional<Color>` | `0x6038BDF8` | Highlight color behind selected text. |
+| `on_selection_changed` | `std::function<void(TextSelection)>` | `nullptr` | Callback fired when the active text selection range changes. |
 | `key` | `Key` | `Key::none()` | Identifier used during tree reconciliation. |
 
 ---

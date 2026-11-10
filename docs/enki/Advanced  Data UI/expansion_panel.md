@@ -89,6 +89,12 @@ struct ExpansionPanelList {
     Color                                     background_color       = 0xFF1E293B; // Slate 800
     Color                                     border_color           = 0xFF334155; // Slate 700
     Color                                     expanded_border_col    = 0xFF0284C7; // Blue 600
+    Color                                     title_color            = 0xFFFFFFFF; // White
+    Color                                     subtitle_color         = 0xFF94A3B8; // Slate 400
+    Color                                     chevron_color          = 0xFF94A3B8; // Slate 400
+    Color                                     divider_color          = 0xFF334155; // Slate 700
+    Color                                     step_pill_bg           = 0xFF0F172A; // Slate 900
+    Color                                     step_pill_fg           = 0xFF38BDF8; // Sky 400
 
     // Callbacks
     std::function<void(int index, bool is_expanded)>   on_panel_toggled   = nullptr;
@@ -106,12 +112,25 @@ struct ExpansionPanelList {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `panels` | `vector<ExpansionPanelItem>`| `{}` | Step panel descriptors and bodies. |
-| `controller` | `shared_ptr<ExpansionPanelController>`| `nullptr`| Controller to expand/collapse panels by index. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `panels` | `std::vector<ExpansionPanelItem>`| `{}` | Step panel descriptors and bodies. |
+| `controller` | `std::shared_ptr<ExpansionPanelController>`| `nullptr`| Controller to expand/collapse panels by index. |
 | `is_radio_mode`| `bool` | `false` | When true, expanding one panel collapses all others automatically. |
 | `gap` | `float` | `12.0f` | Vertical gap between adjacent panels in their resting state. |
 | `expanded_elevation_gap`| `float` | `16.0f` | Added vertical breathing room isolating the active expanded panel. |
+| `border_radius` | `float` | `10.0f` | Corner rounding radius of panel cards. |
 | `show_chevron` | `bool` | `true` | Renders animated expanding chevron icon in header. |
+| `background_color` | `Color` | `0xFF1E293B` | Base background fill color for panel cards. |
+| `border_color` | `Color` | `0xFF334155` | Outer card border stroke color in collapsed state. |
+| `expanded_border_col` | `Color` | `0xFF0284C7` | Accent border stroke color when panel is expanded. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Header title font color. |
+| `subtitle_color` | `Color` | `0xFF94A3B8` | Header subtitle font color. |
+| `chevron_color` | `Color` | `0xFF94A3B8` | Expand/collapse chevron icon color. |
+| `divider_color` | `Color` | `0xFF334155` | Line divider between body content and footer bar. |
+| `step_pill_bg` | `Color` | `0xFF0F172A` | Background fill of the leading step number badge. |
+| `step_pill_fg` | `Color` | `0xFF38BDF8` | Text/icon color of the leading step number badge. |
+| `on_panel_toggled` | `std::function<void(int, bool)>` | `nullptr` | Callback fired when a panel is expanded or collapsed. |
+| `on_expansion_changed` | `std::function<void(const std::set<int>&)>` | `nullptr` | Callback returning set of all currently expanded indices. |
 
 ---
 

@@ -49,10 +49,11 @@ inline std::shared_ptr<AnimatedSlideWidget> animatedSlide(AnimatedSlide props = 
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `offset` | `Point` | `{0.0f, 0.0f}` | Fractional shift vector (`{1.0, 0}` is 100% right, `{0, -1.0}` is 100% up). |
-| `duration` | `milliseconds` | `300ms` | Animation duration. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Animation duration. |
 | `curve` | `const Curve*` | `&Curves::linear` | Easing curve (e.g. `&Curves::easeInOut`). |
-| `on_end` | `function<void()>` | `nullptr` | Completion callback. |
+| `on_end` | `std::function<void()>` | `nullptr` | Completion callback. |
 | `child` | `WidgetPtr` | `nullptr` | Content to slide. |
 
 ---

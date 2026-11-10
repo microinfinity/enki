@@ -61,7 +61,25 @@ inline std::shared_ptr<TextSpan> span(std::string text,
 
 ---
 
-## `TextSpanProps` Reference
+## Properties Reference
+
+### `RichTextProps`
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `text_span` | `std::shared_ptr<InlineSpan>` | `nullptr` | Root of the inline span tree to render. |
+| `default_style` | `std::optional<TextStyle>` | `std::nullopt` | Fallback styling inherited by child spans. |
+| `text_align` | `std::optional<TextAlign>` | `std::nullopt` | Horizontal text alignment (`Start`, `Center`, `End`, `Justify`). |
+| `text_direction` | `std::optional<TextDirection>` | `std::nullopt` | Reading direction (`LTR` or `RTL`). |
+| `overflow` | `std::optional<TextOverflow>` | `std::nullopt` | Visual overflow behavior (`Clip`, `Ellipsis`, `Fade`). |
+| `max_lines` | `std::optional<size_t>` | `std::nullopt` | Maximum lines rendered before truncation. |
+| `soft_wrap` | `std::optional<bool>` | `std::nullopt` | Whether text automatically wraps at boundaries. |
+| `selectable` | `std::optional<bool>` | `std::nullopt` | Enables mouse click-and-drag text selection and copy. |
+| `selection_color` | `std::optional<Color>` | `std::nullopt` | Highlight color for text selection. |
+| `on_selection_changed` | `std::function<void(TextSelection)>` | `nullptr` | Callback fired when the active text selection range changes. |
+
+### `TextSpanProps`
 
 | Property | Type | Default | Description |
 |---|---|---|---|

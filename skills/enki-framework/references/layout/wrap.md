@@ -85,14 +85,14 @@ WidgetPtr buildFilterChips() {
         .column_gap = 8_px,
         .row_gap = 10_px,
         .children = {
-            chip("C++20"),
-            chip("Anu Engine"),
-            chip("Skia 2D"),
-            chip("Wayland"),
-            chip("X11"),
-            chip("Linux Desktop"),
-            chip("GUI Framework"),
-            chip("High Performance"),
+            Chip { .label = "C++20" },
+            Chip { .label = "Anu Engine" },
+            Chip { .label = "Skia 2D" },
+            Chip { .label = "Wayland" },
+            Chip { .label = "X11" },
+            Chip { .label = "Linux Desktop" },
+            Chip { .label = "GUI Framework" },
+            Chip { .label = "High Performance" },
         }
     });
 }

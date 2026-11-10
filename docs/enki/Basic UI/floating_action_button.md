@@ -60,14 +60,22 @@ struct FloatingActionButton {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `child` | `WidgetPtr` | `nullptr` | Content placed at the center of the FAB (usually an `Icon` or an icon + text `Row`). |
 | `on_pressed` | `ButtonCallback` | `nullptr` | Click handler function. Disables the button if null. |
-| `size` | `float` | `56.0f` | Diameter of the circular button in logical pixels. |
 | `normal_color` | `Color` | `0xFF2563EB` | Base background color (primary blue). |
 | `hover_color` | `Color` | `0xFF3B82F6` | Color when pointer hovers over the FAB. |
 | `pressed_color` | `Color` | `0xFF1D4ED8` | Color while holding down mouse button. |
+| `disabled_color` | `Color` | `0xFF475569` | Color when button is disabled. |
+| `size` | `float` | `56.0f` | Diameter / base dimension of the button in logical pixels. |
+| `border_radius` | `float` | `28.0f` | Corner radius (defaults to `size / 2` for fully circular shape). |
+| `padding` | `EdgeInsets` | `EdgeInsets::all(16.0f)` | Internal padding around the child widget. |
+| `shadow_color` | `Color` | `0x60000000` | Color of the prominent drop shadow. |
 | `shadow_blur` | `float` | `12.0f` | Radius of the soft drop shadow. |
 | `shadow_offset_dy` | `float` | `6.0f` | Vertical offset of the shadow giving high elevation. |
+| `enable_ripple` | `bool` | `true` | Enables circular expansion ripple animation on click. |
+| `ripple_color` | `Color` | `0x40FFFFFF` | Tint color of the animated ripple wave. |
+| `disabled` | `bool` | `false` | Explicitly disables interaction. |
 
 ---
 

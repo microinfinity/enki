@@ -1,6 +1,6 @@
 # ReorderableList
 
-> An interactive list widget delivering  direct Skia floating drag-and-drop capabilities, real-time target slot displacement previews, glowing drop line indicators, and custom drag handles.
+> An interactive list widget delivering 60+ to 240+ FPS direct Skia floating drag-and-drop capabilities, real-time target slot displacement previews, glowing drop line indicators, and custom drag handles.
 
 - **Header File**: `#include "enki/widgets/reorderable_list.hpp"`
 - **C++ Class**: `enki::ReorderableListWidget` (inherits from `enki::MultiChildRenderObjectWidget`)
@@ -53,15 +53,25 @@ struct ReorderableDragHandle {
 
 ## Properties Reference
 
+### ReorderableList Properties
+
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `children` | `std::vector<WidgetPtr>` | `{}` | The list of draggable child widgets to display. |
 | `item_height` | `float` | `56.0f` | Uniform pixel height of each item in the list. |
 | `gap` | `float` | `10.0f` | Vertical gap between adjacent items. |
 | `width` | `float` | `480.0f` | Total width of the list bounds. |
 | `show_drop_indicator`| `bool` | `true` | Renders a glowing horizontal accent bar at the proposed drop index. |
 | `drop_indicator_color`| `Color` | `0xFF38BDF8` | Color of the glowing drop insertion bar. |
-| `on_reorder` | `Function(old_idx, new_idx)` | `nullptr` | Callback invoked upon item release with former and new indices. |
+| `on_reorder` | `std::function<void(int old_idx, int new_idx)>` | `nullptr` | Callback invoked upon item release with former and new indices. |
+
+### ReorderableDragHandle Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `child` | `WidgetPtr` | `nullptr` | Child widget serving as the drag handle (e.g. grip icon). |
 
 ---
 

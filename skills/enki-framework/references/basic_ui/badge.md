@@ -47,14 +47,15 @@ struct Badge {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `child` | `WidgetPtr` | `nullptr` | The target widget over which the badge floats (e.g. an icon or avatar). |
 | `label` | `WidgetPtr` | `nullptr` | Optional label widget (e.g. `text("5")`). If null, renders as a solid status dot. |
 | `bg_color` | `Color` | `0xFFEF4444` (Red) | Background fill color of the badge. |
 | `alignment` | `Alignment` | `Alignment::TopRight` | Corner anchor relative to child (`TopRight`, `TopLeft`, `BottomRight`, etc.). |
 | `offset` | `Point` | `{0.0f, 0.0f}` | Fine-tuning positional translation vector `{dx, dy}` in pixels. |
 | `size` | `float` | `12.0f` | Diameter in pixels when used as an unlabelled status dot. |
-| `padding` | `StyleInsets` | `2px vert, 6px horiz` | Internal padding around the `label` text. |
-| `border_radius` | `BorderRadius` | `circular(10.0f)` | Corner radius of the badge container. |
+| `padding` | `StyleInsets` | `StyleInsets::symmetric(2.0f, 6.0f)` | Internal padding around the `label` text. |
+| `border_radius` | `BorderRadius` | `BorderRadius::circular(10.0f)` | Corner radius of the badge container. |
 
 ---
 

@@ -93,6 +93,7 @@ The following table documents every available property in `AppConfig` (`include/
 | `window_mode` | `WindowMode` | `WindowMode::Normal` | Window role and display mode (`WindowMode::Normal`, `WindowMode::LayerShell`, `WindowMode::Popup`). |
 | `show_performance_overlay` | `bool` | `false` | Renders a real-time HUD showing instantaneous FPS, CPU build/layout/paint times, Skia GPU submission, EGL swap latency, dirty element counts, and active tickers. |
 | `enable_csd` | `bool` | `false` | Enables Client-Side Decorations. Instructs the window manager/compositor that the application will render its own custom frame, titlebar, and resize handles. |
+| `enable_blur` | `bool` | `true` | Enables compositor background blur for transparent windows (e.g., Wayland blur protocols). |
 | `app_id` | `std::string` | `"enki.app"` | Desktop environment identifier (Wayland `xdg_toplevel.set_app_id` / X11 `WM_CLASS`) used for window grouping, dock icons, and desktop rules. |
 
 ---
@@ -161,6 +162,8 @@ To create modern, frameless applications with custom titlebars, floating rounded
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget reconciliation key. |
+| `window` | `Window*` | `nullptr` | Target native window instance pointer. |
 | `content` | `WidgetPtr` | `nullptr` | Root content widget of your application. |
 | `title` | `std::string` | `"ENKI Application"` | Title text displayed in the header. |
 | `titlebar` | `WidgetPtr` | `nullptr` | Optional custom titlebar widget (automatically created if `nullptr`). |
@@ -169,8 +172,10 @@ To create modern, frameless applications with custom titlebars, floating rounded
 | `border_color` | `Color` | `0x26FFFFFF` | Subtle outer border outline color. |
 | `border_width` | `float` | `1.0f` | Border stroke thickness in logical pixels. |
 | `background_color` | `Color` | `0xFF0F1117` | Window content background color. |
-| `border_shader` | `std::string` | `""` | SkSL fragment shader code injected into the outer window border (for glowing or animated edges). |
 | `background_shader` | `std::string` | `""` | SkSL fragment shader code evaluated across the entire window frame background. |
+| `border_shader` | `std::string` | `""` | SkSL fragment shader code injected into the outer window border (for glowing or animated edges). |
+| `inactive_border_shader` | `std::string` | `""` | Optional SkSL border shader when window is inactive. |
+| `background_svg` | `std::string` | `""` | Custom SVG background markup for window body. |
 | `border_svg` | `std::string` | `""` | Vector SVG border outline for stylized or fantasy game frames. |
 | `border_svg_slice` | `std::optional<SvgSlice>` | `std::nullopt` | 9-slice insets for scaling the SVG border without corner distortion. |
 | `titlebar_background_color` | `std::optional<Color>` | `std::nullopt` | Active titlebar background color override. |

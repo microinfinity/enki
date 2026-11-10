@@ -64,10 +64,14 @@ struct ContextMenuOptions {
     float      border_radius    = 8.0f;
     EdgeInsets padding          = EdgeInsets::all(6.0f);
     float      elevation        = 10.0f;
+    Color      shadow_color     = 0x60000000;
+
     float      min_width        = 180.0f;
     float      max_width        = 280.0f;
     float      item_height      = 32.0f;
     float      font_size        = 13.0f;
+
+    std::string custom_shader   = ""; ///< Optional SkSL shader code
 };
 
 } // namespace enki
@@ -95,9 +99,32 @@ struct ContextMenu {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | The target widget receiving right-click / long-press events. |
-| `items` | `std::vector<ContextMenuItemPtr>`| `{}` | Sequence of items, dividers, and submenus. |
+| `items` | `std::vector<ContextMenuItemPtr>` | `{}` | Sequence of items, dividers, and submenus. |
 | `options` | `ContextMenuOptions` | `{}` | Sizing, color palette, and drop shadow configuration. |
+
+### `ContextMenuOptions` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `background_color` | `Color` | `0xFA1F242C` | Menu background fill color. |
+| `text_color` | `Color` | `0xFFF0F6FC` | Primary text label color. |
+| `shortcut_color` | `Color` | `0xFF8B949E` | Trailing shortcut text color. |
+| `hover_color` | `Color` | `0xFF30363D` | Background highlight on item hover. |
+| `disabled_color` | `Color` | `0xFF484F58` | Disabled item text color. |
+| `danger_color` | `Color` | `0xFFF85149` | Destructive danger item font color. |
+| `border_color` | `Color` | `0xFF363B42` | Menu outline border color. |
+| `border_width` | `float` | `1.0f` | Border outline stroke thickness. |
+| `border_radius` | `float` | `8.0f` | Menu container corner rounding radius. |
+| `padding` | `EdgeInsets` | `EdgeInsets::all(6.0f)` | Inner menu content padding. |
+| `elevation` | `float` | `10.0f` | Drop shadow elevation depth. |
+| `shadow_color` | `Color` | `0x60000000` | Shadow tint color. |
+| `min_width` | `float` | `180.0f` | Minimum menu width. |
+| `max_width` | `float` | `280.0f` | Maximum menu width before clipping. |
+| `item_height` | `float` | `32.0f` | Height of individual menu item rows. |
+| `font_size` | `float` | `13.0f` | Font size for menu item labels. |
+| `custom_shader` | `std::string` | `""` | Optional SkSL shader code applied to menu surface. |
 
 ---
 

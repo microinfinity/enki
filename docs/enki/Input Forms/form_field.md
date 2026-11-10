@@ -85,6 +85,41 @@ struct CheckboxFormField {
 
 ---
 
+## Properties Reference
+
+### `TextFormField` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `label` | `std::string` | `""` | Label text displayed above the input field. |
+| `hint` | `std::string` | `""` | Placeholder text when the field is empty. |
+| `initial_value` | `std::string` | `""` | Initial text value if no controller is provided. |
+| `helper_text` | `std::string` | `""` | Subtitle helper text shown when there are no validation errors. |
+| `required` | `bool` | `false` | Marks the field visually and behaviorally as mandatory. |
+| `obscure_text` | `bool` | `false` | Masks entered characters for passwords or sensitive data. |
+| `width` | `float` | `340.0f` | Total width of the input field. |
+| `form_state` | `std::shared_ptr<FormState>` | `nullptr` | Parent form coordinator to register validation with. |
+| `controller` | `std::shared_ptr<TextFieldController>` | `nullptr` | Controller for programmatic reading/writing of text. |
+| `validator` | `ValidatorFn` | `nullptr` | Validation rule returning error message or `std::nullopt`. |
+| `on_saved` | `std::function<void(const std::string&)>` | `nullptr` | Callback executed when `form_state->save()` is called. |
+| `on_changed` | `std::function<void(const std::string&)>` | `nullptr` | Callback invoked immediately when text changes. |
+
+### `CheckboxFormField` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `label` | `std::string` | `""` | Label text next to the checkbox. |
+| `initial_value` | `bool` | `false` | Initial check state if no external state is bound. |
+| `required` | `bool` | `false` | Marks checkbox as required (e.g. Terms & Conditions). |
+| `form_state` | `std::shared_ptr<FormState>` | `nullptr` | Parent form coordinator to register validation with. |
+| `validator` | `std::function<std::optional<std::string>(bool)>` | `nullptr` | Custom boolean validation callback. |
+| `on_saved` | `std::function<void(bool)>` | `nullptr` | Callback executed when `form_state->save()` is called. |
+| `on_changed` | `std::function<void(bool)>` | `nullptr` | Callback invoked immediately when checkbox is toggled. |
+
+---
+
 ## Code Examples (From `widgets_demo/form_demo/main.cpp`)
 
 ### 1. Email Field with Composed Rules

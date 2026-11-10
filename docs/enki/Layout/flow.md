@@ -20,7 +20,7 @@ Traditional layouts recalculate the entire flexbox tree (triggering reflow in An
 1. **Layout Phase (`syncLayout`)**: Children are measured and sized **once** using constraints supplied by `FlowDelegate::getConstraintsForChild`.
 2. **Paint Phase (`paintChildren`)**: Child positions, rotations, scales, and opacities are applied dynamically during the paint pass via `FlowPaintingContext::paintChild(index, transform, opacity)`.
 
-Because moving or animating children only invalidates the paint phase (`markNeedsPaint`) and never the layout phase (`markNeedsLayout`), `Flow` guarantees rock-solid framerates of **+ FPS**.
+Because moving or animating children only invalidates the paint phase (`markNeedsPaint`) and never the layout phase (`markNeedsLayout`), `Flow` guarantees rock-solid framerates of **60+ to 240+ FPS**.
 
 ### Key Architectural Behaviors:
 - **Zero-Reflow Performance**: Animations (e.g. expanding radial menus) completely bypass the Anu Flexbox layout tree.
@@ -232,4 +232,4 @@ auto waveFlow = flow({
 ## See Also
 - [**CustomMultiChildLayout**](./custom_multi_child_layout.md) — Multi-child layout where children are sized and positioned during layout via ID strings.
 - [**Stack**](./stack.md) — Standard 2.5D multi-layer container.
-- [**SkiaCanvas**](../Paint%20&%20Visual%20Effects/skia_canvas.md) — Custom immediate-mode Skia 2D drawing.
+- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Custom immediate-mode Skia 2D drawing.

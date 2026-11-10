@@ -92,15 +92,19 @@ inline WidgetPtr skiaCanvas(const SkiaCanvasProps& props = {});
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `painter` | `CanvasPainterCallback` | `nullptr` | Background painter using ENKI's `Canvas&` interface (`void(Canvas&, Size)`). |
 | `skia_painter` | `SkiaDirectPainterCallback` | `nullptr` | Direct Skia painter using raw `SkCanvas*` (`void(SkCanvas*, Size)`). |
 | `foreground_painter` | `CanvasPainterCallback` | `nullptr` | Overlay painter rendered on top of child widgets. |
 | `skia_foreground_painter` | `SkiaDirectPainterCallback` | `nullptr` | Direct Skia overlay painter rendered on top of child widgets. |
 | `child` | `WidgetPtr` | `nullptr` | Optional child widget positioned between background and foreground painters. |
-| `repaint` | `shared_ptr<AnimationController>` | `nullptr` | Animation controller that drives repaints without rebuilding the element tree. |
-| `width`, `height` | `optional<StyleValue>` | `nullopt` | Explicit dimension constraints (points, percent, or auto). |
+| `repaint` | `std::shared_ptr<AnimationController>` | `nullptr` | Animation controller that drives repaints without rebuilding the element tree. |
+| `width`, `height` | `std::optional<StyleValue>` | `nullopt` | Explicit dimension constraints (points, percent, or auto). |
+| `min_width`, `min_height` | `std::optional<StyleValue>` | `nullopt` | Minimum dimensional constraints. |
+| `max_width`, `max_height` | `std::optional<StyleValue>` | `nullopt` | Maximum dimensional constraints. |
 | `clip_behavior` | `Clip` | `Clip::None` | Boundary clipping (`Clip::None`, `Clip::HardEdge`, `Clip::AntiAlias`). |
-| `clip_radius` | `BorderRadius` | `zero()` | Corner radius applied when clipping is enabled. |
+| `clip_radius` | `BorderRadius` | `BorderRadius::zero()` | Corner radius applied when clipping is enabled. |
+| `is_complex` | `bool` | `false` | Hint to the compositor that painting is complex and may benefit from caching. |
 | `hit_test` | `CanvasHitTestCallback` | `nullptr` | Custom shape hit testing function `bool(Point localPoint, Size size)`. |
 
 ---
@@ -174,3 +178,10 @@ auto hud_card = skiaCanvas({
     .clip_radius = BorderRadius::circular(12.0f),
 });
 ```
+
+---
+
+## See Also
+- [**AudioWaveform**](./audio_waveform.md) — Real-time audio spectrum analyzer and mic visualizer.
+- [**Lottie**](./lottie.md) — Vector animation player using Skottie runtime.
+- [**ParticleSystem**](../Animation%20&%20Motion/particle_system.md) — 2D GPU particle physics simulation.

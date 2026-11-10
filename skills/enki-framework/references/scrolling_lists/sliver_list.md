@@ -53,10 +53,12 @@ inline std::shared_ptr<SliverListWidget> sliverListSeparated(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `items` | `vector<WidgetPtr>` | `{}` | Explicit static children list. |
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `items` | `std::vector<WidgetPtr>` | `{}` | Explicit static children list. |
+| `children` | `std::vector<WidgetPtr>` | `{}` | Convenience alias for `items`. |
 | `item_count` | `int` | `0` | Total number of items when using `item_builder`. |
-| `item_builder` | `function<WidgetPtr(int)>`| `nullptr`| Factory callback invoked to construct each item lazily by index. |
-| `separator_builder`| `function<WidgetPtr(int)>`| `nullptr`| Optional callback returning divider widgets between items. |
+| `item_builder` | `std::function<WidgetPtr(int)>`| `nullptr`| Factory callback invoked to construct each item lazily by index. |
+| `separator_builder`| `std::function<WidgetPtr(int)>`| `nullptr`| Optional callback returning divider widgets between items. |
 | `padding` | `EdgeInsets` | `EdgeInsets{}`| Outer padding surrounding the sliver list. |
 
 ---

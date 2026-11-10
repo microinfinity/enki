@@ -51,14 +51,19 @@ struct Radio {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `value` | `int` | `0` | The distinct identifier value this radio represents. |
 | `group_value` | `int` | `0` | The currently selected value of the radio group. |
 | `on_changed` | `std::function<void(int)>` | `nullptr` | Callback invoked with `value` when this radio is clicked. |
 | `size` | `float` | `20.0f` | Outer ring diameter in pixels. |
 | `inner_size` | `float` | `10.0f` | Filled inner circle diameter when active. |
+| `border_width` | `float` | `2.0f` | Thickness of the outer circle ring stroke. |
 | `active_color` | `Color` | `0xFF2563EB` | Color of outer ring and inner dot when selected. |
 | `inactive_color`| `Color` | `0xFF64748B` | Border color when unselected. |
+| `hover_color` | `Color` | `0xFF3B82F6` | Ring tint color on mouse hover. |
+| `bg_color` | `Color` | `0x00000000` | Background fill color inside the circle. |
 | `disabled` | `bool` | `false` | Disables interaction and applies `disabled_color`. |
+| `disabled_color`| `Color` | `0xFF94A3B8` | Visual color when disabled or when `on_changed` is null. |
 
 ---
 

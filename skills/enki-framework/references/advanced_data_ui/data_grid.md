@@ -109,29 +109,41 @@ struct DataGrid {
     Key                                     key                 = Key::none();
     std::shared_ptr<DataGridController>     controller          = nullptr;
 
-    DataGridSelectionMode                   selection_mode      = DataGridSelectionMode::RowSingle;
+    DataGridSelectionMode                   selection_mode      = DataGridSelectionMode::RowMultiple;
     bool                                    show_header         = true;
     bool                                    show_row_numbers    = false;
     bool                                    show_pagination     = true;
-    bool                                    show_quick_filter   = false;
+    bool                                    show_quick_filter   = true;
     bool                                    show_summary_footer = false;
+    bool                                    show_borders        = true;
     bool                                    zebra_stripes       = true;
 
-    float                                   header_height       = 40.0f;
+    float                                   header_height       = 38.0f;
     float                                   row_height          = 36.0f;
-    float                                   border_radius       = 8.0f;
+    float                                   footer_height       = 36.0f;
+    float                                   pagination_height   = 42.0f;
 
     Color                                   background_color    = 0xFF0F172A;
     Color                                   header_bg_color     = 0xFF1E293B;
+    Color                                   header_text_color   = 0xFFF1F5F9;
     Color                                   row_bg_color        = 0xFF0F172A;
     Color                                   zebra_row_bg_color  = 0xFF172033;
     Color                                   row_hover_color     = 0xFF1E293B;
     Color                                   row_selected_color  = 0x4038BDF8;
+    Color                                   border_color        = 0xFF334155;
+    Color                                   text_color          = 0xFFE2E8F0;
+    Color                                   sort_icon_color     = 0xFF38BDF8;
+    Color                                   footer_bg_color     = 0xFF1E293B;
+
+    float                                   border_radius       = 8.0f;
 
     // Callbacks
-    std::function<void(const std::set<std::string>&)> on_selection_changed = nullptr;
-    std::function<void(const std::string& row_id)>    on_row_tap            = nullptr;
+    std::function<void(const std::set<std::string>& selected_ids)> on_selection_changed = nullptr;
+    std::function<void(const std::string& row_id)>                 on_row_tap           = nullptr;
+    std::function<void(const std::string& row_id)>                 on_row_double_tap    = nullptr;
     std::function<void(const std::string& col, DataGridSortDirection dir)> on_sort_changed = nullptr;
+    std::function<void(int new_page)>                              on_page_changed      = nullptr;
+    std::function<std::string(const std::string& col_key, const std::vector<DataGridRow>& rows)> summary_calculator = nullptr;
 
     operator WidgetPtr() const;
 };
@@ -145,12 +157,38 @@ struct DataGrid {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `controller` | `shared_ptr<DataGridController>`| `nullptr`| Manages columns, rows, sorting, filtering, and pagination. |
-| `selection_mode` | `DataGridSelectionMode` | `RowSingle` | Row selection behavior (`None`, `RowSingle`, `RowMultiple`). |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `controller` | `std::shared_ptr<DataGridController>`| `nullptr`| Manages columns, rows, sorting, filtering, and pagination. |
+| `selection_mode` | `DataGridSelectionMode` | `RowMultiple` | Row selection behavior (`None`, `RowSingle`, `RowMultiple`, `CellRange`). |
+| `show_header` | `bool` | `true` | Whether to display the top column header bar. |
+| `show_row_numbers` | `bool` | `false` | Shows 1-based sequential row index column. |
+| `show_pagination` | `bool` | `true` | Renders bottom page navigation controls. |
+| `show_quick_filter` | `bool` | `true` | Shows integrated live search bar. |
+| `show_summary_footer` | `bool` | `false` | Renders summary row with calculated aggregates. |
+| `show_borders` | `bool` | `true` | Renders borders around the grid and cells. |
 | `zebra_stripes` | `bool` | `true` | Alternates row background colors for improved legibility. |
-| `show_pagination`| `bool` | `true` | Renders bottom page navigation controls. |
-| `show_quick_filter`| `bool`| `false` | Shows integrated live search bar. |
-| `show_summary_footer`| `bool`| `false` | Renders summary row with calculated aggregates. |
+| `header_height` | `float` | `38.0f` | Height in points of the table header row. |
+| `row_height` | `float` | `36.0f` | Height in points of each data row. |
+| `footer_height` | `float` | `36.0f` | Height in points of the summary footer row. |
+| `pagination_height` | `float` | `42.0f` | Height in points of the pagination navigation bar. |
+| `border_radius` | `float` | `8.0f` | Outer container corner rounding radius. |
+| `background_color` | `Color` | `0xFF0F172A` | Base background fill color for grid container. |
+| `header_bg_color` | `Color` | `0xFF1E293B` | Column header bar background color. |
+| `header_text_color` | `Color` | `0xFFF1F5F9` | Text color of column header labels. |
+| `row_bg_color` | `Color` | `0xFF0F172A` | Background color for odd rows. |
+| `zebra_row_bg_color` | `Color` | `0xFF172033` | Background color for even rows (when zebra_stripes = true). |
+| `row_hover_color` | `Color` | `0xFF1E293B` | Background highlight fill on mouse hover. |
+| `row_selected_color` | `Color` | `0x4038BDF8` | Background highlight fill for selected rows. |
+| `border_color` | `Color` | `0xFF334155` | Border stroke color between cells and headers. |
+| `text_color` | `Color` | `0xFFE2E8F0` | Default text color for cell values. |
+| `sort_icon_color` | `Color` | `0xFF38BDF8` | Color of column sort arrows (▲ / ▼). |
+| `footer_bg_color` | `Color` | `0xFF1E293B` | Background fill color of summary footer row. |
+| `on_selection_changed` | `std::function<void(const std::set<std::string>&)>` | `nullptr` | Callback fired when selected row IDs change. |
+| `on_row_tap` | `std::function<void(const std::string&)>` | `nullptr` | Callback fired on single-clicking a row. |
+| `on_row_double_tap` | `std::function<void(const std::string&)>` | `nullptr` | Callback fired on double-clicking a row. |
+| `on_sort_changed` | `std::function<void(const std::string&, DataGridSortDirection)>` | `nullptr` | Callback fired when sorting column/direction changes. |
+| `on_page_changed` | `std::function<void(int)>` | `nullptr` | Callback fired when navigating pages. |
+| `summary_calculator` | `std::function<std::string(const std::string&, const std::vector<DataGridRow>&)>` | `nullptr` | Custom aggregate calculation function for footer. |
 
 ---
 

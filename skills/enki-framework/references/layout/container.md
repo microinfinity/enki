@@ -130,6 +130,7 @@ inline std::shared_ptr<ContainerWidget> centerBox(WidgetPtr child);
 ### Layout & Sizing
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `align` | `std::optional<Alignment>` | `std::nullopt` | Anchors the child inside the container (`Alignment::Center`, `Alignment::TopLeft`, etc.). |
 | `width` | `std::optional<StyleValue>` | `auto_val` | Explicit width (`200_px`, `50_pct`). |
 | `height` | `std::optional<StyleValue>` | `auto_val` | Explicit height (`100_px`, `100_pct`). |
@@ -138,7 +139,18 @@ inline std::shared_ptr<ContainerWidget> centerBox(WidgetPtr child);
 | `aspect_ratio` | `std::optional<float>` | `std::nullopt` | Enforces width-to-height proportion (e.g. `16.0f / 9.0f`). |
 | `padding` | `std::optional<StyleInsets>` | `0` | Inner padding between container border and child. |
 | `margin` | `std::optional<StyleInsets>` | `0` | Outer margin around the container. |
+| `position` | `std::optional<StyleInsets>` | `std::nullopt` | Absolute edge insets when positioned. |
 | `child` | `WidgetPtr` | `nullptr` | The nested child widget. |
+
+### Flexbox Item Properties (When Hosted in Row / Column)
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `flex` | `std::optional<float>` | `std::nullopt` | Shorthand for flex grow factor. |
+| `flex_grow` | `std::optional<float>` | `std::nullopt` | Factor by which container expands relative to siblings. |
+| `flex_shrink` | `std::optional<float>` | `std::nullopt` | Factor by which container shrinks when space is constrained. |
+| `flex_basis` | `std::optional<StyleValue>` | `std::nullopt` | Default main-axis size before distributing remaining space. |
+| `align_self` | `std::optional<Align>` | `std::nullopt` | Overrides parent's `align_items` rule for this specific container. |
+| `position_type` | `std::optional<PositionType>` | `std::nullopt` | Positioning model (`Relative` or `Absolute`). |
 
 ---
 
@@ -392,7 +404,7 @@ auto hybridCard = container({
 ---
 
 ## See Also
-- [**WindowFrame**](../Desktop/window_frame.md) — Window decorator utilizing Container's SkSL shaders for custom titlebars & glow outlines.
+- [**Start Application & Lifecycle**](../Start%20Application/start_application.md) — Window lifecycle and Client-Side Decorations (CSD).
 - [**SvgMorph**](../Animation%20&%20Motion/svg_morph.md) — Dynamic path morphing animations.
 - [**SizedBox**](./sized_box.md) — Lightweight dimension-only box.
 - [**Padding**](./padding.md) — Dedicated padding box wrapper.

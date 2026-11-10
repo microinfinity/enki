@@ -66,9 +66,12 @@ struct FilePicker {
     Color                                       sidebar_color     = 0xFA161B22;
     Color                                       border_color      = 0xFF363B42;
     Color                                       accent_color      = 0xFF38BDF8;
+    Color                                       text_color        = 0xFFF0F6FC;
+    Color                                       subtext_color     = 0xFF8B949E;
 
     float                                       border_radius     = 12.0f;
     float                                       elevation         = 16.0f;
+    Color                                       shadow_color      = 0x60000000;
 
     static std::shared_ptr<NativePopup> show(BuildContext& context, const FilePicker& fp);
 
@@ -85,12 +88,21 @@ struct FilePicker {
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `child` | `WidgetPtr` | `nullptr` | Trigger button or widget clicked to open the picker. |
-| `on_result` | `Function(FilePickerResult)`| `nullptr` | Callback receiving selected paths or cancel state. |
-| `mode` | `FilePickerMode` | `OpenFile` | Operation mode (`OpenFile`, `OpenMultipleFiles`, `SelectFolder`, `SaveFile`). |
+| `on_result` | `std::function<void(const FilePickerResult&)>` | `nullptr` | Callback receiving selected paths or cancel state. |
+| `mode` | `FilePickerMode` | `FilePickerMode::OpenFile` | Operation mode (`OpenFile`, `OpenMultipleFiles`, `SelectFolder`, `SaveFile`). |
 | `initial_directory` | `std::string` | `""` | Starting filesystem directory (defaults to user's `$HOME`). |
 | `default_filename` | `std::string` | `""` | Pre-populated filename in `SaveFile` mode. |
 | `filters` | `std::vector<FileFilter>` | `{}` | File extension filters displayed in the dropdown. |
-| `window_size` | `Size` | `{740, 520}` | Window size of the native popup dialog. |
+| `window_size` | `Size` | `Size{740.0f, 520.0f}` | Window size of the native popup dialog. |
+| `background_color` | `Color` | `0xFA1F242C` | Dialog surface background color. |
+| `sidebar_color` | `Color` | `0xFA161B22` | Quick access sidebar background color. |
+| `border_color` | `Color` | `0xFF363B42` | Dialog outline border color. |
+| `accent_color` | `Color` | `0xFF38BDF8` | Primary button and selection highlight accent color. |
+| `text_color` | `Color` | `0xFFF0F6FC` | Primary text label color. |
+| `subtext_color` | `Color` | `0xFF8B949E` | Secondary metadata text color. |
+| `border_radius` | `float` | `12.0f` | Dialog window corner rounding radius. |
+| `elevation` | `float` | `16.0f` | Window drop shadow elevation depth. |
+| `shadow_color` | `Color` | `0x60000000` | Window shadow tint color. |
 
 ---
 

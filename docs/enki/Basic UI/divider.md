@@ -74,6 +74,7 @@ inline std::shared_ptr<DividerWidget> divider(DividerProps props = {});
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `height` | `float` | `16.0f` | Total vertical space allocated for the divider widget. |
 | `thickness` | `float` | `1.0f` | Thickness of the drawn line in pixels. |
 | `indent` | `float` | `0.0f` | Empty space to the left of the divider line. |
@@ -82,7 +83,11 @@ inline std::shared_ptr<DividerWidget> divider(DividerProps props = {});
 | `style` | `DividerStyle` | `DividerStyle::Solid` | Line pattern (`Solid`, `Dashed`, `Dotted`, `Gradient`). |
 | `dash_length` | `float` | `6.0f` | Length of each dash segment. |
 | `dash_gap` | `float` | `4.0f` | Space between dash/dot segments. |
+| `gradient_fade` | `bool` | `false` | Gradient fade from transparent at edges to solid color in center. |
 | `label` | `std::string` | `""` | Optional text displayed at the center of the divider. |
+| `label_font_size` | `float` | `11.5f` | Font size of the center label text. |
+| `label_color` | `Color` | `0xFF64748B` | Text color of the center label. |
+| `label_padding` | `float` | `10.0f` | Horizontal padding space flanking the label. |
 | `label_bg_color` | `Color` | `0xFF0F172A` | Background behind label text (should match parent card/window bg). |
 | `round_caps` | `bool` | `false` | When true, renders rounded endpoints on line segments. |
 

@@ -85,6 +85,7 @@ inline std::shared_ptr<TextFieldWidget> textField(TextFieldProps props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `controller` | `std::shared_ptr<TextFieldController>` | `nullptr` | Shared controller holding text buffer and selection indices. |
 | `hint` / `hint_text` | `std::string` | `""` | Placeholder text shown when the input buffer is empty. |
 | `style` | `TextStyle` | `{}` | Typography configuration for entered text. |

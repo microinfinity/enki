@@ -119,13 +119,25 @@ struct Popup {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | The anchor widget whose bounds position the popup. |
-| `builder` | `Function(BuildContext&, NativePopup)`| `nullptr` | Factory constructing the popup's internal widget tree. |
-| `simple_builder`| `Function(BuildContext&)` | `nullptr` | Simplified builder overload when native handle is unneeded. |
-| `controller` | `shared_ptr<PopupController>`| `nullptr` | Controller for programmatic opening and closing. |
-| `options.placement`| `PopupPlacement` | `BottomCenter` | Directional alignment relative to target anchor. |
-| `options.trigger` | `PopupTrigger` | `Click` | User interaction activating the popup. |
-| `options.auto_dismiss`| `bool` | `true` | Automatically closes when clicking outside the surface. |
+| `builder` | `std::function<WidgetPtr(BuildContext&, std::shared_ptr<NativePopup>)>` | `nullptr` | Factory constructing popup widget tree with native handle. |
+| `simple_builder`| `std::function<WidgetPtr(BuildContext&)>` | `nullptr` | Simplified builder overload when native handle is unneeded. |
+| `controller` | `std::shared_ptr<PopupController>` | `nullptr` | Controller for programmatic opening and closing. |
+| `options.placement` | `PopupPlacement` | `PopupPlacement::BottomCenter` | Directional alignment relative to target anchor. |
+| `options.trigger` | `PopupTrigger` | `PopupTrigger::Click` | User interaction activating the popup (`Click`, `Hover`, `LongPress`, `SecondaryClick`, `Manual`). |
+| `options.manual_position` | `Point` | `{0.0f, 0.0f}` | Absolute coordinates when `placement == PopupPlacement::Manual`. |
+| `options.offset` | `Point` | `{0.0f, 0.0f}` | Additional pixel offset `{dx, dy}` from calculated position. |
+| `options.background_color` | `Color` | `0xFA1F242C` | Surface background color. |
+| `options.border_color` | `Color` | `0xFF363B42` | Surface outline border color. |
+| `options.border_width` | `float` | `1.0f` | Border outline stroke width. |
+| `options.border_radius` | `float` | `10.0f` | Surface corner rounding radius. |
+| `options.elevation` | `float` | `12.0f` | Skia drop shadow elevation blur depth. |
+| `options.shadow_color` | `Color` | `0x60000000` | Drop shadow tint color. |
+| `options.padding` | `EdgeInsets` | `EdgeInsets::all(12.0f)` | Content interior padding. |
+| `options.content_size` | `Size` | `Size{240.0f, 160.0f}` | Window dimensions of floating surface. |
+| `options.auto_dismiss` | `bool` | `true` | Automatically closes when clicking outside the surface. |
+| `options.custom_shader` | `std::string` | `""` | Optional SkSL runtime shader code applied to popup surface. |
 
 ---
 

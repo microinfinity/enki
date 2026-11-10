@@ -90,6 +90,11 @@ struct Accordion {
 
     Color                                background_color = 0xFF1E293B; // Slate 800
     Color                                border_color     = 0xFF334155; // Slate 700
+    Color                                header_hover_bg  = 0x33334155; // Slate 700 with opacity
+    Color                                title_color      = 0xFFFFFFFF; // White
+    Color                                subtitle_color   = 0xFF94A3B8; // Slate 400
+    Color                                chevron_color    = 0xFF94A3B8; // Slate 400
+    Color                                divider_color    = 0xFF334155; // Slate 700
 
     // Callbacks
     std::function<void(const std::string& id, bool is_expanded)> on_toggle = nullptr;
@@ -107,12 +112,24 @@ struct Accordion {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `items` | `vector<AccordionItem>`| `{}` | Section descriptors and content widgets. |
-| `controller` | `shared_ptr<AccordionController>`| `nullptr`| Handle for expanding/collapsing sections programmatically. |
-| `mode` | `AccordionMode` | `Single` | Single or multiple active section rule. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `items` | `std::vector<AccordionItem>`| `{}` | Section descriptors and content widgets. |
+| `controller` | `std::shared_ptr<AccordionController>`| `nullptr`| Handle for expanding/collapsing sections programmatically. |
+| `mode` | `AccordionMode` | `Single` | Single or multiple active section rule (`Single`, `Multiple`). |
 | `variant` | `AccordionVariant` | `Bordered` | Visual theme (`Bordered`, `Separated`, `Flush`). |
 | `collapsible` | `bool` | `true` | Allows collapsing the currently open panel in `Single` mode. |
+| `show_chevron` | `bool` | `true` | Whether to display the rotating chevron indicator arrow. |
 | `gap` | `float` | `10.0f` | Spacing between floating cards in `Separated` mode. |
+| `border_radius` | `float` | `10.0f` | Corner rounding radius for sections. |
+| `background_color` | `Color` | `0xFF1E293B` | Base background fill color for sections. |
+| `border_color` | `Color` | `0xFF334155` | Border stroke color. |
+| `header_hover_bg` | `Color` | `0x33334155` | Background tint when hovering over a section header. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Header title typography color. |
+| `subtitle_color` | `Color` | `0xFF94A3B8` | Header subtitle typography color. |
+| `chevron_color` | `Color` | `0xFF94A3B8` | Chevron arrow icon color. |
+| `divider_color` | `Color` | `0xFF334155` | Divider line color between sections. |
+| `on_toggle` | `std::function<void(const std::string&, bool)>` | `nullptr` | Callback fired when a section changes state. |
+| `on_change` | `std::function<void(const std::set<std::string>&)>` | `nullptr` | Callback returning the set of all currently expanded section IDs. |
 
 ---
 

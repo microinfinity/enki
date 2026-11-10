@@ -67,6 +67,7 @@ inline std::shared_ptr<Row> row(Key key, FlexboxProps props);
 | `max_height` | `std::optional<StyleValue>` | `undefined_val` | Maximum height constraint. |
 | `padding` | `std::optional<StyleInsets>` | `0` | Inner padding around the row children. |
 | `margin` | `std::optional<StyleInsets>` | `0` | Outer margin around the row container. |
+| `aspect_ratio` | `std::optional<float>` | `std::nullopt` | Width-to-height proportional aspect ratio. |
 | `direction` | `std::optional<Direction>` | `Direction::Inherit` | Text / Layout flow direction (`LTR` or `RTL`). |
 | `flex_wrap` | `std::optional<FlexWrap>` | `FlexWrap::NoWrap` | Whether items wrap onto multiple lines if exceeding width. |
 | `key` | `Key` | `Key::none()` | Identifier used during element reconciliation. |

@@ -68,14 +68,25 @@ inline std::shared_ptr<AnimatedContainerWidget> animatedContainer(AnimatedContai
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `color` | `optional<Color>` | `nullopt` | Background fill color (interpolated smoothly). |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `color` | `optional<Color>` | `nullopt` | Background fill color (interpolated smoothly via sRGB). |
+| `gradient` | `optional<GradientConfig>` | `nullopt` | Background gradient configuration. |
 | `border_radius` | `optional<BorderRadius>`| `nullopt` | Corner rounding radius. |
 | `border` | `optional<Border>` | `nullopt` | Border stroke color and width. |
+| `box_shadow` | `std::vector<BoxShadow>` | `{}` | Drop shadows rendered behind the container. |
+| `shape` | `optional<BoxShape>` | `nullopt` | Box shape (`BoxShape::Rectangle` or `BoxShape::Circle`). |
+| `clip_content` | `optional<bool>` | `nullopt` | Whether child widgets are clipped to the container's bounds. |
+| `align` | `optional<Alignment>` | `nullopt` | Alignment of the child widget within the container. |
 | `width`, `height`| `optional<StyleValue>` | `nullopt` | Container width/height (`StyleValue::point` or `percent`). |
-| `padding`, `margin`| `optional<StyleInsets>`| `nullopt` | Internal and external spacing insets. |
-| `duration` | `milliseconds` | `300ms` | Total animation time for all changing properties. |
+| `min_width`, `min_height` | `optional<StyleValue>` | `nullopt` | Minimum dimensional constraints. |
+| `max_width`, `max_height` | `optional<StyleValue>` | `nullopt` | Maximum dimensional constraints. |
+| `aspect_ratio` | `optional<float>` | `nullopt` | Fixed aspect ratio (width / height). |
+| `padding` | `optional<StyleInsets>`| `nullopt` | Internal spacing insets. |
+| `margin` | `optional<StyleInsets>`| `nullopt` | External spacing insets around container. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Total animation time for all changing properties. |
 | `curve` | `const Curve*` | `&Curves::linear`| Easing curve (e.g. `&Curves::fastOutSlowIn`). |
-| `on_end` | `function<void()>` | `nullptr` | Callback fired when the container finishes animating. |
+| `on_end` | `std::function<void()>` | `nullptr` | Callback fired when the container finishes animating. |
+| `child` | `WidgetPtr` | `nullptr` | Child widget hosted inside the container. |
 
 ---
 

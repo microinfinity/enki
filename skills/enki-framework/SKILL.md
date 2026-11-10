@@ -63,16 +63,15 @@ class HelloApp : public StatelessWidget {
 public:
     WidgetPtr build(BuildContext&) override {
         return container({
+            .color = 0xFF0F172A,
+            .align = Alignment::Center,
             .width = StyleValue::percent(100.0f),
             .height = StyleValue::percent(100.0f),
-            .color = 0xFF0F172A,
-            .child = center(
-                text("Welcome to ENKI C++20!", {
-                    .color = 0xFF38BDF8,
-                    .font_size = 24.0f,
-                    .font_weight = FontWeight::Bold,
-                })
-            )
+            .child = text("Welcome to ENKI C++20!", {
+                .color = 0xFF38BDF8,
+                .font_size = 24.0f,
+                .font_weight = FontWeight::Bold,
+            })
         });
     }
 
@@ -111,6 +110,7 @@ Applications start via `enki::runApp(WidgetPtr root, AppConfig config = {})`.
 | `clear_color` | `Color` | `0xFF0F172A` | Framebuffer clear color before painting widgets. |
 | `target_fps` | `int` | `60` | Frame rate limit when `vsync = false` (set `0` for uncapped). |
 | `enable_csd` | `bool` | `false` | Enable Client-Side Decorations (custom window frame & titlebar). |
+| `enable_blur` | `bool` | `true` | Enable compositor background blur for transparent windows. |
 | `show_performance_overlay` | `bool` | `false` | In-engine telemetry HUD showing FPS, layout/paint times, and dirty elements. |
 
 👉 For full lifecycle documentation, see [references/lifecycle/start_application.md](references/lifecycle/start_application.md).
@@ -150,23 +150,23 @@ public:
 ```cpp
 WidgetPtr build(BuildContext&) override {
     return bloc_provider<UserCubit>(
-        [](BuildContext&) { return std::make_shared<UserCubit>(); },
+        []() { return std::make_shared<UserCubit>(); },
         std::make_shared<MainDashboard>()
     );
 }
 ```
 
-### Step 4: Consume with `BlocBuilder` & `context.read`
+### Step 4: Consume with `BlocBuilder` & `BlocProvider::tryOf`
 ```cpp
 WidgetPtr build(BuildContext& context) override {
-    auto user_cubit = context.read<UserCubit>();
+    auto* user_cubit = BlocProvider<UserCubit>::tryOf(context);
 
     return bloc_builder<UserCubit>([user_cubit](BuildContext&, const UserState& state) -> WidgetPtr {
         if (!state.is_logged_in) {
-            return button({
-                .label = "Sign In",
-                .on_click = [user_cubit]() { user_cubit->login("Alice"); }
-            });
+            return button(
+                text("Sign In", {.color = 0xFFFFFFFF}),
+                [user_cubit]() { if (user_cubit) user_cubit->login("Alice"); }
+            );
         }
 
         return text("Hello, " + state.username + "!", { .color = 0xFFFFFFFF });
@@ -206,7 +206,7 @@ Every widget has a dedicated documentation file in `references/`:
 | `Container` | `container(ContainerProps)` | Box with background, border, radius, padding | [container.md](references/layout/container.md) |
 | `Stack` | `stack(StackProps)` | Overlapping layered children | [stack.md](references/layout/stack.md) |
 | `Padding` | `padding(PaddingProps)` | Inset wrapper around child | [padding.md](references/layout/padding.md) |
-| `Center` | `center(WidgetPtr child)` | Centers child in available space | [center.md](references/layout/center.md) |
+| `Center` | `centerBox(WidgetPtr child)` | Centers child in available space | [center.md](references/layout/center.md) |
 | `Align` | `align(AlignProps)` | Aligns child within parent bounds | [align.md](references/layout/align.md) |
 | `SizedBox` | `sized_box(SizedBoxProps)` | Explicit fixed width/height container | [sized_box.md](references/layout/sized_box.md) |
 | `Expanded` | `expanded(WidgetPtr, int flex = 1)` | Expands child along flex main-axis | [expanded.md](references/layout/expanded.md) |

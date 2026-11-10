@@ -37,6 +37,7 @@ struct TabView {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `selected_index` | `int` | `0` | The index corresponding to the active view to display. |
 | `children` | `std::vector<WidgetPtr>` | `{}` | The list of view widgets mapped 1-to-1 with the `TabBar` tabs. |
 

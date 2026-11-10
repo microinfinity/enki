@@ -39,11 +39,13 @@ struct GestureDetectorProps {
 namespace enki {
 
 struct PointerEvent {
+    enum Type { Down, Up, Move } type;
     Point       position;       ///< Global window coordinates
-    Point       local_position; ///< Local widget coordinates
-    MouseButton button;
-    int         modifiers;
-    double      timestamp;
+    Point       localPosition;  ///< Local widget coordinates
+    MouseButton button = MouseButton::Left;
+    int         modifiers = 0;
+    double      timestamp = 0;
+    int         click_count = 1;  ///< 1 = single, 2 = double
 };
 
 using GestureHoverCallback = std::function<void(const PointerEvent&)>;

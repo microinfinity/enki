@@ -24,7 +24,7 @@ The **Advanced / Data UI** category brings enterprise-grade presentation, schedu
 ## Architectural Highlights
 
 - **Data Virtualization & High Performance**: `DataGrid` efficiently manages large tabular datasets with zebra striping, custom formatters, badge cells, and progress bars.
-- **Precision Drag Resizing**: `SplitView` and `ResizablePanel` provide sub-pixel mouse dragging, cursor feedback (`SystemCursor::ResizeLeftRight` / `ResizeUpDown`), and boundary collision handling.
+- **Precision Drag Resizing**: `SplitView` and `ResizablePanel` provide sub-pixel mouse dragging, cursor feedback (`SystemCursor::ResizeHorizontal` / `ResizeVertical`), and boundary collision handling.
 - **Workflow State Machines**: `Timeline` and `ExpansionPanel` seamlessly track multi-step asynchronous deployment pipelines, order statuses, and checkout flows.
 
 ---

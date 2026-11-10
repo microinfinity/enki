@@ -1,6 +1,6 @@
 # 05 — Framework Developer Guide: Building the Web Engine
 
-This guide is intended for **Enki framework contributors** who need to build, modify, or extend the Web Host subsystem (`web_technology/`).
+This guide is intended for **Enki framework contributors** who need to build, modify, or extend the Web Host subsystem (`modules/web_technology/`).
 
 ---
 
@@ -8,14 +8,15 @@ This guide is intended for **Enki framework contributors** who need to build, mo
 
 ```
 enki/
-├── web_technology/            ← Isolated Web Host subsystem
-│   ├── cef/                   ← CEF backend (CefBridge, JSBridge, handlers)
-│   ├── host/                  ← Application host (EnkiWebHost, NativeAPIs, AppConfig)
-│   ├── include/web_technology/← Public headers (no CEF leakage)
-│   ├── subprocess/            ← CEF helper subprocess binary
-│   ├── cef_binary/            ← CEF binary distribution (not committed to git)
-│   ├── template/              ← Starter app template
-│   └── meson.build            ← Isolated build definition
+├── modules/
+│   └── web_technology/        ← Isolated Web Host subsystem
+│       ├── cef/               ← CEF backend (CefBridge, JSBridge, handlers)
+│       ├── host/              ← Application host (EnkiWebHost, NativeAPIs, AppConfig)
+│       ├── include/           ← Public headers (no CEF leakage)
+│       ├── subprocess/        ← CEF helper subprocess binary
+│       ├── cef_binary/        ← CEF binary distribution (not committed to git)
+│       ├── template/          ← Starter app template
+│       └── meson.build        ← Isolated build definition
 ├── examples/web_host_demo.cpp ← Standalone Web Host demo
 └── meson.build                ← Root build integrates web_technology
 ```

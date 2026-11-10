@@ -163,25 +163,35 @@ inline std::shared_ptr<FlyoutWidget> flyout(Flyout f);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | Anchor widget on the shell panel that triggers the flyout. |
 | `builder` | `Function(BuildContext&, shared_ptr<FlyoutHandle>)` | `nullptr` | Builder function creating the flyout's internal widget tree. Receives handle for programmatic dismissal. |
 | `simple_builder` | `Function(BuildContext&)` | `nullptr` | Simplified builder overload when `FlyoutHandle` is not required. |
-| `controller` | `shared_ptr<FlyoutController>` | `nullptr` | Programmatic controller for triggering `show()`, `hide()`, and `toggle()`. |
+| `controller` | `std::shared_ptr<FlyoutController>` | `nullptr` | Programmatic controller for triggering `show()`, `hide()`, and `toggle()`. |
 | `options.width` | `int32_t` | `360` | Desired pixel width of the native flyout surface. |
 | `options.height` | `int32_t` | `480` | Desired pixel height of the native flyout surface. |
-| `options.placement` | `FlyoutPlacement` | `Auto` | Positioning strategy (`Auto`, `BelowAnchor`, `AboveAnchor`, `LeftAnchor`, `RightAnchor`, `AtCursor`, `Manual`). |
-| `options.trigger` | `FlyoutTrigger` | `Click` | User interaction activating the flyout (`Click`, `SecondaryClick`, `Manual`). |
+| `options.placement` | `FlyoutPlacement` | `FlyoutPlacement::Auto` | Positioning strategy (`Auto`, `BelowAnchor`, `AboveAnchor`, `LeftAnchor`, `RightAnchor`, `AtCursor`, `Manual`). |
+| `options.trigger` | `FlyoutTrigger` | `FlyoutTrigger::Click` | User interaction activating the flyout (`Click`, `SecondaryClick`, `Manual`). |
 | `options.offset` | `Point` | `{0.0f, 6.0f}` | Extra clearance gap `{dx, dy}` from the anchor widget or mouse cursor. |
-| `options.custom_position` | `optional<Point>` | `nullopt` | Explicit screen coordinates when using `Manual` placement. |
+| `options.custom_position` | `std::optional<Point>` | `std::nullopt` | Explicit screen coordinates when using `Manual` placement. |
 | `options.auto_dismiss` | `bool` | `true` | Automatically closes the surface when clicking outside (includes toggle debounce). |
-| `options.layer` | `ShellLayer` | `Top` | Windowing compositor layer (`Top`, `Overlay`, `Bottom`). |
-| `options.keyboard_mode` | `KeyboardMode` | `OnDemand` | Keyboard focus policy (`OnDemand`, `Exclusive`, `None`). |
-| `options.decoration` | `optional<BoxDecoration>` | `nullopt` | Complete `BoxDecoration` specification replacing default styling. |
+| `options.layer` | `ShellLayer` | `ShellLayer::Top` | Windowing compositor layer (`Top`, `Overlay`, `Bottom`). |
+| `options.keyboard_mode` | `KeyboardMode` | `KeyboardMode::OnDemand` | Keyboard focus policy (`OnDemand`, `Exclusive`, `None`). |
+| `options.decoration` | `std::optional<BoxDecoration>` | `std::nullopt` | Complete `BoxDecoration` specification replacing default styling. |
+| `options.background_color` | `Color` | `0xF5181C24` | Default background fill color. |
+| `options.border_color` | `Color` | `0xFF333A46` | Default border outline color. |
+| `options.border_width` | `float` | `1.0f` | Border outline stroke thickness. |
+| `options.border_radius` | `float` | `16.0f` | Window frame corner rounding radius. |
+| `options.elevation` | `float` | `24.0f` | Drop shadow elevation blur radius. |
+| `options.shadow_color` | `Color` | `0x70000000` | Drop shadow tint color. |
 | `options.border_shader` | `std::string` | `""` | SkSL shader source evaluated live at 60 FPS for procedural animated borders. |
 | `options.background_shader`| `std::string` | `""` | SkSL shader source for procedural backgrounds (e.g. animated plasma, blur). |
 | `options.border_svg` | `std::string` | `""` | Direct SVG vector string injected as a responsive window frame. |
-| `options.box_shadow` | `vector<BoxShadow>` | `{}` | Multi-layered drop shadows or glowing aura effects. |
-| `options.on_close` | `Function()` | `nullptr` | Callback executed when the flyout surface is dismissed or closed. |
+| `options.background_svg` | `std::string` | `""` | Direct SVG vector string for background graphics. |
+| `options.gradient` | `std::optional<GradientConfig>` | `std::nullopt` | Linear, radial, or sweep gradient configuration. |
+| `options.box_shadow` | `std::vector<BoxShadow>` | `{}` | Multi-layered drop shadows or glowing aura effects. |
+| `options.padding` | `EdgeInsets` | `EdgeInsets::all(16.0f)` | Interior content padding. |
+| `options.on_close` | `std::function<void()>` | `nullptr` | Callback executed when the flyout surface is dismissed or closed. |
 
 ---
 
@@ -338,4 +348,4 @@ void openSystemFlyout(BuildContext& ctx) {
 - [**Popup**](./popup.md) — Standard child-grab floating surfaces for transient menus and tooltips.
 - [**Menu**](./menu.md) — Desktop application menu bar and cascading submenus.
 - [**ContextMenu**](./context_menu.md) — Secondary-click popup menus.
-- [**Container**](../Basic%20UI/container.md) — Advanced SkSL decoration and layout container.
+- [**Container**](../Layout/container.md) — Advanced SkSL decoration and layout container.

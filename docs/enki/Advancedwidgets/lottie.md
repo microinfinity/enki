@@ -75,18 +75,28 @@ inline WidgetPtr lottie(const LottieProps& props = {});
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `asset` | `string` | `""` | File path to the Lottie `.json` animation file. |
-| `json_data` | `string` | `""` | Raw JSON string content for embedded or network-fetched animations. |
-| `composition` | `shared_ptr<LottieComposition>` | `nullptr` | Pre-parsed animation composition object. |
-| `controller` | `shared_ptr<LottieController>` | `nullptr` | Custom timeline controller for scrubbing, pausing, and marker jumps. |
-| `width`, `height` | `optional<StyleValue>` | `nullopt` | Fixed or proportional viewport layout dimensions. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `asset` | `std::string` | `""` | File path to the Lottie `.json` animation file. |
+| `json_data` | `std::string` | `""` | Raw JSON string content for embedded or network-fetched animations. |
+| `composition` | `std::shared_ptr<LottieComposition>` | `nullptr` | Pre-parsed animation composition object. |
+| `controller` | `std::shared_ptr<LottieController>` | `nullptr` | Custom timeline controller for scrubbing, pausing, and marker jumps. |
+| `width`, `height` | `std::optional<StyleValue>` | `nullopt` | Fixed or proportional viewport layout dimensions. |
+| `min_width`, `min_height` | `std::optional<StyleValue>` | `nullopt` | Minimum dimensional constraints. |
+| `max_width`, `max_height` | `std::optional<StyleValue>` | `nullopt` | Maximum dimensional constraints. |
 | `fit` | `BoxFit` | `BoxFit::Contain` | Geometry scaling mode (`Contain`, `Cover`, `Fill`, `FitWidth`, `FitHeight`). |
-| `alignment` | `Alignment` | `Center` | Alignment of the vector canvas within the layout bounds. |
+| `alignment` | `Alignment` | `Alignment::Center` | Alignment of the vector canvas within the layout bounds. |
+| `border_radius` | `BorderRadius` | `BorderRadius::zero()` | Corner curvature clipping around animation viewport. |
+| `shape` | `BoxShape` | `BoxShape::Rectangle` | Boundary clipping shape (`Rectangle`, `Circle`). |
+| `opacity` | `float` | `1.0f` | Alpha compositing opacity multiplier. |
+| `clip_content` | `bool` | `true` | Whether animation drawing is clipped to widget bounds. |
+| `auto_play` | `bool` | `true` | Automatically begins playback upon mounting. |
 | `repeat` | `bool` | `true` | When true, loops playback continuously. |
 | `speed` | `float` | `1.0f` | Playback speed scale factor (`2.0f` = double speed, `-1.0f` = reverse). |
+| `marker` | `std::string` | `""` | Plays only the timeline segment defined by this named marker. |
 | `animate_on_hover`| `bool` | `false` | Plays the animation on mouse hover and rewinds on exit. |
 | `animate_on_tap` | `bool` | `false` | Plays the animation forward once when tapped. |
-| `marker` | `string` | `""` | Plays only the timeline segment defined by this named marker. |
+| `on_end` | `std::function<void()>` | `nullptr` | Callback dispatched when animation playback finishes. |
+| `on_loop` | `std::function<void(int)>` | `nullptr` | Callback dispatched on each completed loop cycle with current count. |
 
 ---
 

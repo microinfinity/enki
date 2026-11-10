@@ -126,6 +126,43 @@ struct NotificationBell {
 
 ---
 
+## Properties Reference
+
+### `NotificationOverlay` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `body` | `WidgetPtr` | `nullptr` | Application page content wrapped by the overlay system. |
+| `manager` | `std::shared_ptr<NotificationManager>` | `nullptr` | Central notification state manager. |
+
+### `NotificationBell` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `manager` | `std::shared_ptr<NotificationManager>` | `nullptr` | Shared notification manager instance supplying unread counts. |
+| `bell_icon` | `std::string` | `"🔔"` | Displayed bell emoji or icon string. |
+
+### `NotificationItem` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `id` | `std::string` | `""` | Unique notification identifier. |
+| `title` | `std::string` | `""` | Primary bold alert headline. |
+| `message` | `std::string` | `""` | Detailed description text. |
+| `timestamp_str` | `std::string` | `"Just now"` | Relative time display string. |
+| `icon` | `std::string` | `"ℹ️"` | Icon or emoji displayed in toast/feed. |
+| `sender_name` | `std::string` | `""` | Originating service or user name. |
+| `severity` | `NotificationSeverity` | `Info` | Severity tint preset (`Info`, `Success`, `Warning`, `Error`, `Security`). |
+| `category` | `NotificationCategory` | `System` | Feed filtering channel (`All`, `System`, `Security`, `Mentions`, `Updates`). |
+| `is_read` | `bool` | `false` | Whether notification has been marked read. |
+| `is_pinned` | `bool` | `false` | Whether pinned at top of Notification Center. |
+| `duration_ms` | `int` | `5000` | Auto-dismiss timer for floating push toast in ms (0 = persistent). |
+| `actions` | `std::vector<NotificationAction>` | `{}` | Interactive action buttons attached to notification. |
+
+---
+
 ## Code Examples (From `widgets_demo/notification_demo/main.cpp`)
 
 ### 1. Setting up the Notification Overlay & Bell

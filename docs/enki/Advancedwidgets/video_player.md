@@ -83,6 +83,27 @@ inline WidgetPtr videoPlayer(const VideoPlayerProps& props = {});
 
 ---
 
+## Properties Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `source` | `std::string` | `""` | File path or URL to the video file/stream. |
+| `controller` | `std::shared_ptr<video::VideoController>` | `nullptr` | External video controller for transport control and state tracking. |
+| `auto_play` | `bool` | `true` | Starts video playback automatically when mounted. |
+| `looping` | `bool` | `false` | Loops video back to start upon reaching end of stream. |
+| `show_controls`| `bool` | `true` | Displays floating glassmorphic transport controls overlay. |
+| `fit` | `BoxFit` | `BoxFit::Contain` | Scaling mode (`Contain`, `Cover`, `Fill`, `FitWidth`, `FitHeight`). |
+| `border_radius`| `BorderRadius` | `12.0f` | Corner rounding radius of the video viewport. |
+| `background_color`| `Color` | `0xFF000000` | Background letterbox color. |
+| `volume` | `float` | `1.0f` | Audio playback volume scalar (0.0 to 1.0). |
+| `playback_speed`| `float` | `1.0f` | Playback speed rate multiplier (e.g. `1.25f`, `2.0f`). |
+| `width`, `height` | `std::optional<StyleValue>` | `nullopt` | Explicit dimension constraints. |
+| `min_width`, `min_height` | `std::optional<StyleValue>` | `nullopt` | Minimum dimensional constraints. |
+| `max_width`, `max_height` | `std::optional<StyleValue>` | `nullopt` | Maximum dimensional constraints. |
+
+---
+
 ## Usage Examples
 
 ### 1. Basic Media Player
@@ -127,3 +148,10 @@ auto player = videoPlayer({
 controller->togglePlay();
 controller->seek(45.0); // Jump to 45 seconds
 ```
+
+---
+
+## See Also
+- [**AudioWaveform**](./audio_waveform.md) — Real-time audio spectrum and mic waveform visualizer.
+- [**SkiaCanvas**](./skia_canvas.md) — Custom 2D graphics canvas.
+- [**Image**](../Basic%20UI/image.md) — Static raster and SVG image display.

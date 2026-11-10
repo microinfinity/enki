@@ -84,6 +84,25 @@ struct NumberField {
     std::string                            prefix_text              = ""; // e.g. "$ "
     std::string                            suffix_text              = ""; // e.g. " px"
 
+    // Styling
+    TextStyle                              style;
+    Color                                  background_color         = 0xFF0F172A;
+    Color                                  border_color             = 0xFF334155;
+    Color                                  focus_border_color       = 0xFF38BDF8;
+    Color                                  button_color             = 0xFF1E293B;
+    Color                                  button_hover_color       = 0xFF334155;
+    Color                                  button_icon_color        = 0xFF94A3B8;
+    Color                                  prefix_suffix_color      = 0xFF64748B;
+    Color                                  cursor_color             = 0xFF38BDF8;
+    Color                                  selection_color          = 0x4D38BDF8;
+
+    float                                  border_radius            = 8.0f;
+    EdgeInsets                             padding                  = EdgeInsets::symmetric(8.0f, 10.0f);
+
+    bool                                   read_only                = false;
+    bool                                   disabled                 = false;
+    bool                                   auto_focus               = false;
+
     // Callbacks
     std::function<void(double)>            on_changed               = nullptr;
     std::function<void(double)>            on_submitted             = nullptr;
@@ -101,16 +120,44 @@ struct NumberField {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `controller` | `std::shared_ptr<NumberFieldController>` | `nullptr` | Shared controller managing the double numeric value. |
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `controller` | `std::shared_ptr<NumberFieldController>` | `nullptr` | Shared controller managing the double numeric value and undo/redo history. |
 | `initial_value` | `double` | `0.0` | Initial value if no controller is provided. |
-| `min_value` / `max_value` | `double` | `±inf` | Allowed value range. Values exceeding bounds are clamped. |
-| `step` | `double` | `1.0` | Delta increment when clicking steppers or pressing Arrow keys. |
-| `precision` | `int` | `0` | Number of decimal places displayed (0 enforces integers). |
-| `allow_expressions`| `bool` | `true` | Allows typing math arithmetic (`1920/2` evaluates to `960`). |
+| `min_value` | `double` | `-inf` | Minimum allowable value. |
+| `max_value` | `double` | `+inf` | Maximum allowable value. |
+| `step` | `double` | `1.0` | Normal delta increment on stepper click or Arrow keys. |
+| `large_step` | `double` | `10.0` | Large delta increment used with Shift or PageUp/PageDown. |
+| `fine_step` | `double` | `0.1` | Fine delta increment used with Alt or fine drag. |
+| `precision` | `int` | `0` | Number of decimal places (0 for integers, >0 for fixed decimals, -1 for auto). |
+| `allow_decimals` | `bool` | `true` | Whether floating-point decimal input is allowed. |
+| `allow_negative` | `bool` | `true` | Whether negative numbers are accepted. |
+| `allow_expressions`| `bool` | `true` | Evaluates inline math expressions (e.g. `1920 / 2`). |
 | `enable_scrubbing` | `bool` | `true` | Enables horizontal mouse click-and-drag value adjustment. |
-| `stepper_position` | `NumberFieldStepperPosition` | `RightVertical` | Layout position of `+` / `-` buttons. |
-| `prefix_text` | `std::string` | `""` | Leading label inside the field (e.g. `"$ "`). |
-| `suffix_text` | `std::string` | `""` | Trailing unit label inside the field (e.g. `" px"`). |
+| `enable_auto_repeat` | `bool` | `true` | Continuously steps values when holding down stepper buttons. |
+| `show_thousands_separator` | `bool` | `false` | Formats numbers with thousand comma separators. |
+| `stepper_position` | `NumberFieldStepperPosition` | `RightVertical` | Stepper button placement (`RightVertical`, `Sides`, `RightHorizontal`, `None`). |
+| `size` | `NumberFieldSize` | `Medium` | Predefined visual size preset (`Small`, `Medium`, `Large`). |
+| `wrap_mode` | `NumberFieldWrapMode` | `Clamp` | Behavior when exceeding range (`Clamp` or `Wrap`). |
+| `prefix_text` | `std::string` | `""` | Leading label inside the input field (e.g. `"$ "`). |
+| `suffix_text` | `std::string` | `""` | Trailing unit label inside the input field (e.g. `" px"`, `" %"`). |
+| `style` | `TextStyle` | `{}` | Text typography and styling for numeric value. |
+| `background_color` | `Color` | `0xFF0F172A` | Background fill color of the input box. |
+| `border_color` | `Color` | `0xFF334155` | Default outline border color. |
+| `focus_border_color`| `Color` | `0xFF38BDF8` | Border color when focused. |
+| `button_color` | `Color` | `0xFF1E293B` | Stepper button background color. |
+| `button_hover_color`| `Color` | `0xFF334155` | Stepper button background color on hover. |
+| `button_icon_color` | `Color` | `0xFF94A3B8` | Icon color for stepper buttons. |
+| `prefix_suffix_color`| `Color`| `0xFF64748B` | Text color for prefix and suffix decorations. |
+| `cursor_color` | `Color` | `0xFF38BDF8` | Color of text blinking insertion caret. |
+| `selection_color` | `Color` | `0x4D38BDF8` | Color of highlighted text selection. |
+| `border_radius` | `float` | `8.0f` | Corner rounding radius of the input field. |
+| `padding` | `EdgeInsets` | `symmetric(8, 10)` | Inner padding for text and stepper layout. |
+| `read_only` | `bool` | `false` | Disables keyboard text editing while keeping stepper interaction. |
+| `disabled` | `bool` | `false` | Fully greys out and disables the input field. |
+| `auto_focus` | `bool` | `false` | Automatically focuses the field upon mounting. |
+| `on_changed` | `std::function<void(double)>` | `nullptr` | Triggered every time the numeric value changes. |
+| `on_submitted` | `std::function<void(double)>` | `nullptr` | Triggered when Enter key is pressed. |
+| `custom_formatter`| `std::function<std::string(double)>` | `nullptr` | Custom formatting function to override display string. |
 
 ---
 

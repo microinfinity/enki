@@ -59,14 +59,21 @@ struct Switch {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `value` | `bool` | `false` | The current toggle position (`true` for On, `false` for Off). |
 | `on_changed` | `std::function<void(bool)>` | `nullptr` | Callback invoked when user slides or clicks the switch. |
 | `width` | `float` | `44.0f` | Total capsule width in logical pixels. |
 | `height` | `float` | `24.0f` | Capsule height in logical pixels. |
 | `thumb_padding` | `float` | `2.0f` | Spacing between thumb circle and track boundary. |
 | `active_color` | `Color` | `0xFF34C759` | Background track fill when in the On position. |
+| `active_thumb_color` | `Color` | `0xFFFFFFFF` | Circular thumb color when in the On position. |
 | `inactive_color`| `Color` | `0xFFE5E5EA` | Background track fill when in the Off position. |
-| `disabled` | `bool` | `false` | Prevents user interaction when true. |
+| `inactive_thumb_color` | `Color` | `0xFFFFFFFF` | Circular thumb color when in the Off position. |
+| `hover_color` | `Color` | `0xFF28A745` | Track color on hover when active. |
+| `hover_inactive_color` | `Color` | `0xFFD1D1D6` | Track color on hover when inactive. |
+| `disabled` | `bool` | `false` | Prevents user interaction when true or when `on_changed` is null. |
+| `disabled_color` | `Color` | `0xFFF2F2F7` | Background track color when disabled. |
+| `disabled_thumb_color` | `Color` | `0xFFE5E5EA` | Thumb color when disabled. |
 
 ---
 

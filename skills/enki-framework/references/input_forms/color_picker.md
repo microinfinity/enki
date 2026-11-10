@@ -86,13 +86,24 @@ struct ColorPicker {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `mode` | `ColorPickerMode` | `InputPopup` | Display mode (`InputPopup` color well or `Inline` card). |
+| `controller` | `std::shared_ptr<ColorPickerController>` | `nullptr` | External controller to programmatically read or change color and open/close popups. |
+| `body` | `WidgetPtr` | `nullptr` | Custom child widget for the trigger well in `InputPopup` mode. |
+| `mode` | `ColorPickerMode` | `ColorPickerMode::InputPopup` | Display mode (`InputPopup` color well or `Inline` card). |
+| `default_format` | `ColorFormat` | `ColorFormat::HEX` | Initial color string representation format (`HEX`, `RGBA`, `HSV`). |
 | `initial_color` | `Color` | `0xFF38BDF8` | Default color selection. |
 | `enable_alpha` | `bool` | `true` | Enables the alpha transparency channel slider. |
 | `show_palette` | `bool` | `true` | Renders the swatch row of quick theme colors. |
 | `show_comparison`| `bool` | `true` | Shows side-by-side Old vs New color preview box. |
 | `palette` | `std::vector<Color>` | `10 colors` | List of preset color swatches shown in the picker. |
+| `background_color` | `Color` | `0xFF1E293B` | Surface background color of the picker card. |
+| `border_color` | `Color` | `0xFF334155` | Border outline color. |
+| `active_color` | `Color` | `0xFF0284C7` | Highlight/selection accent color. |
+| `text_color` | `Color` | `0xFFFFFFFF` | Main typography color. |
+| `muted_text_color` | `Color` | `0xFF94A3B8` | Subdued label text color. |
 | `on_color_changed`| `std::function<void(Color)>` | `nullptr` | Live callback as the cursor or sliders move. |
+| `on_color_submitted` | `std::function<void(Color)>` | `nullptr` | Callback fired when user commits the selected color. |
+| `on_popup_opened` | `std::function<void()>` | `nullptr` | Fired when popup opens in `InputPopup` mode. |
+| `on_popup_closed` | `std::function<void()>` | `nullptr` | Fired when popup closes in `InputPopup` mode. |
 
 ---
 

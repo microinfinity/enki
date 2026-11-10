@@ -53,14 +53,20 @@ struct ProgressRing {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `value` | `float` | `0.0f` | Fraction completed from `0.0f` (0°) to `1.0f` (360°). |
 | `child` | `WidgetPtr` | `nullptr` | Content centered inside the ring (e.g. percentage label or checkmark). |
 | `size` | `float` | `48.0f` | Total diameter of the ring bounding box. |
 | `stroke_width` | `float` | `6.0f` | Arc stroke thickness in pixels. |
 | `start_angle` | `float` | `-90.0f` | Starting angle in degrees (`-90.0f` begins at top / 12 o'clock). |
 | `round_cap` | `bool` | `true` | Rounds arc stroke ends (`PaintCap::Round`). |
-| `gradient_colors`| `vector<Color>`| `{}` | Multi-color angular sweep gradient applied along the arc. |
+| `background_color` | `Color` | `0xFF1E293B` | Track background ring color. |
+| `progress_color` | `Color` | `0xFF3B82F6` | Arc stroke fill color. |
+| `gradient_colors`| `std::vector<Color>` | `{}` | Multi-color angular sweep gradient applied along the arc. |
+| `glow_color` | `Color` | `0x00000000` | Outer neon aura tint color. |
+| `glow_blur` | `float` | `0.0f` | Blur radius of the glow effect. |
 | `indeterminate` | `bool` | `false` | When true, animates continuous rotation for busy states. |
+| `custom_shader` | `std::string` | `""` | Optional SkSL runtime shader code applied to ring. |
 
 ---
 

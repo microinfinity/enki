@@ -7,7 +7,7 @@
 - **Declarative Struct**: `enki::PasswordField` (converts implicitly to `WidgetPtr`)
 - **Props Struct**: `enki::PasswordFieldProps`
 - **Controller**: `enki::PasswordFieldController`
-- **Enums**: `enki::PasswordStrengthLevel`, `enki::PasswordValidationRules`
+- **Types**: `enki::PasswordStrengthLevel` (Enum), `enki::PasswordValidationRules` (Struct)
 
 ---
 
@@ -88,7 +88,10 @@ struct PasswordField {
     Color                                    background_color        = 0xFF0F172A;
     Color                                    border_color            = 0xFF334155;
     Color                                    focus_border_color      = 0xFF38BDF8;
+    Color                                    icon_color              = 0xFF94A3B8;
+    Color                                    placeholder_color       = 0xFF64748B;
     Color                                    cursor_color            = 0xFF38BDF8;
+    Color                                    selection_color         = 0x4D38BDF8;
     Color                                    warning_color           = 0xFFF59E0B; // CapsLock
 
     float                                    border_radius           = 8.0f;
@@ -111,14 +114,34 @@ struct PasswordField {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `placeholder` | `std::string` | `"Enter password..."` | Watermark text displayed when empty. |
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `controller` | `std::shared_ptr<PasswordFieldController>` | `nullptr` | Shared controller managing password text, obscured state, entropy, and rules. |
+| `placeholder` | `std::string` | `"Enter password..."` | Watermark text displayed when the field is empty. |
 | `mask_char` | `std::string` | `"•"` | Glyph used to mask characters when obscured. |
+| `show_lock_icon` | `bool` | `true` | Displays leading lock icon inside the field. |
 | `show_visibility_toggle` | `bool` | `true` | Displays trailing eye icon to toggle visibility. |
-| `hold_to_peek` | `bool` | `false` | If true, only reveals password while mouse button is held down. |
+| `show_clear_button` | `bool` | `false` | Displays a clear button when text is present. |
+| `show_generator_button`| `bool` | `false` | Displays a generator button to create a random strong password. |
 | `show_strength_meter` | `bool` | `false` | Renders a 5-stage colored progress bar indicating password strength. |
 | `show_rules_checklist`| `bool` | `false` | Displays real-time criteria checklist (min length, uppercase, numbers). |
-| `show_generator_button`| `bool` | `false` | Displays a dice/key icon button to generate a random strong password. |
-| `show_capslock_warning`| `bool` | `true` | Shows a warning alert if CapsLock is active during typing. |
+| `show_capslock_warning`| `bool` | `true` | Shows an amber warning alert if CapsLock is active during typing. |
+| `hold_to_peek` | `bool` | `false` | If true, only reveals password while mouse button is held down. |
+| `auto_focus` | `bool` | `false` | Automatically focuses the password field upon mounting. |
+| `read_only` | `bool` | `false` | Disables keyboard editing while retaining selection and visibility toggle. |
+| `style` | `TextStyle` | `{}` | Text styling for password text. |
+| `background_color` | `Color` | `0xFF0F172A` | Background fill color of the input box. |
+| `border_color` | `Color` | `0xFF334155` | Default outline border color. |
+| `focus_border_color`| `Color` | `0xFF38BDF8` | Border color when the field is focused. |
+| `icon_color` | `Color` | `0xFF94A3B8` | Tint color for lock, eye, and generator icons. |
+| `placeholder_color`| `Color` | `0xFF64748B` | Text color for placeholder text. |
+| `cursor_color` | `Color` | `0xFF38BDF8` | Blinking caret insertion cursor color. |
+| `selection_color` | `Color` | `0x4D38BDF8` | Color of highlighted text selection. |
+| `warning_color` | `Color` | `0xFFF59E0B` | Warning color used for CapsLock notification. |
+| `border_radius` | `float` | `8.0f` | Corner rounding radius of the field. |
+| `padding` | `EdgeInsets` | `symmetric(8, 12)` | Internal content padding. |
+| `on_changed` | `std::function<void(std::string_view)>` | `nullptr` | Callback invoked whenever password text changes. |
+| `on_submitted` | `std::function<void(std::string_view)>` | `nullptr` | Callback invoked when Enter is pressed. |
+| `on_strength_changed`| `std::function<void(PasswordStrengthLevel)>` | `nullptr` | Callback invoked when password strength rating changes. |
 
 ---
 

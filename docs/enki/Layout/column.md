@@ -66,6 +66,8 @@ inline std::shared_ptr<Column> column(Key key, FlexboxProps props);
 | `max_height` | `std::optional<StyleValue>` | `undefined_val` | Maximum height boundary. |
 | `padding` | `std::optional<StyleInsets>` | `0` | Inner padding around the column content. |
 | `margin` | `std::optional<StyleInsets>` | `0` | Outer margin around the column container. |
+| `aspect_ratio` | `std::optional<float>` | `std::nullopt` | Width-to-height proportional aspect ratio. |
+| `direction` | `std::optional<Direction>` | `Direction::Inherit` | Flow direction (`LTR` or `RTL`). |
 | `key` | `Key` | `Key::none()` | Identifier used during element reconciliation. |
 
 ---

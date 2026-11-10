@@ -55,12 +55,13 @@ inline WidgetPtr ripple(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | The target visual element receiving the ripple effect. |
 | `color` | `Color` | `0x33FFFFFF` | Highlight color and initial opacity of the expanding wave. |
-| `border_radius` | `BorderRadius` | `zero()` | Corner curvature matching child boundaries. |
+| `border_radius` | `BorderRadius` | `BorderRadius::zero()` | Corner curvature matching child boundaries. |
 | `clip_ripple` | `bool` | `true` | When true, restricts ripple expansion within `border_radius`. |
-| `duration` | `milliseconds` | `350ms` | Duration of the expansion and fade-out animation. |
-| `on_tap` | `function<void()>`| `nullptr`| Callback dispatched upon mouse click release or touch. |
+| `duration` | `std::chrono::milliseconds` | `350ms` | Duration of the expansion and fade-out animation. |
+| `on_tap` | `std::function<void()>` | `nullptr` | Callback dispatched upon mouse click release or touch. |
 
 ---
 

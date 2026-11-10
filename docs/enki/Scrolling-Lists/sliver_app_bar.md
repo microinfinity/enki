@@ -53,14 +53,21 @@ inline std::shared_ptr<SliverAppBarWidget> sliverAppBar(SliverAppBarProps props 
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `title` | `WidgetPtr` | `nullptr` | Header title widget (fades into primary position when collapsed). |
 | `leading` | `WidgetPtr` | `nullptr` | Left-side leading icon button (e.g. back navigation chevron). |
-| `actions` | `vector<WidgetPtr>`| `{}` | Right-aligned action buttons or controls. |
+| `actions` | `std::vector<WidgetPtr>`| `{}` | Right-aligned action buttons or controls. |
 | `flexible_space` | `WidgetPtr` | `nullptr` | Background hero banner that stretches and compresses with scroll. |
+| `bottom` | `WidgetPtr` | `nullptr` | Fixed sub-toolbar below app bar (e.g. `TabBar`). |
 | `expanded_height`| `float` | `200.0f` | Height of the app bar when scrolled to the very top. |
 | `collapsed_height`| `float`| `56.0f` | Minimum height when collapsed and pinned to the screen top. |
 | `pinned` | `bool` | `true` | Retains the toolbar visible at `collapsed_height` during scroll. |
 | `floating` | `bool` | `false` | Animates the bar back into view as soon as user scrolls backwards. |
+| `snap` | `bool` | `false` | Snaps fully open when floating is active. |
+| `center_title` | `bool` | `false` | Horizontally centers the header title widget. |
+| `background_color`| `Color` | `0xFF1E293B` | Background fill color of the app bar. |
+| `foreground_color`| `Color` | `0xFFFFFFFF` | Foreground text/icon color. |
+| `elevation` | `float` | `4.0f` | Elevation drop shadow blur under the app bar. |
 
 ---
 

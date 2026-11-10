@@ -46,8 +46,9 @@ inline std::shared_ptr<ClipPathWidget> clipPath(const ClipPath& props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `clipper` | `CustomClipper` | `nullptr` | Lambda returning a Skia `Path` given the widget's render `Size`. |
-| `path` | `shared_ptr<Path>` | `nullptr` | Static path instance used if `clipper` is omitted. |
+| `path` | `std::shared_ptr<Path>` | `nullptr` | Static path instance used if `clipper` is omitted. |
 | `child` | `WidgetPtr` | `nullptr` | Child widget clipped to the path contour. |
 | `clip_behavior` | `Clip` | `Clip::AntiAlias` | Hardware clipping anti-aliasing quality. |
 

@@ -50,6 +50,7 @@ struct TabBarOptions {
     float indicator_radius = 2.0f;
     float label_font_size  = 13.0f;
     float icon_font_size   = 18.0f;
+    float badge_font_size  = 10.0f;
     float item_min_width   = 80.0f;
     float padding_h        = 16.0f;
     float gap              = 6.0f;       ///< Spacing between icon and label
@@ -86,10 +87,22 @@ struct TabBar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `tabs` | `std::vector<TabItem>` | `{}` | The list of tab descriptors (labels, icons, and badges). |
 | `selected_index` | `int` | `0` | 0-indexed currently active tab. |
 | `on_tab_changed` | `std::function<void(int)>` | `nullptr` | Callback invoked when user clicks a new tab. |
-| `options` | `TabBarOptions` | `{}` | Sizing, typography, and color styling configuration. |
+| `options.tab_height` | `float` | `48.0f` | Total vertical height of the tab bar strip. |
+| `options.indicator_height`| `float` | `3.0f` | Thickness of the active indicator underline. |
+| `options.indicator_radius`| `float` | `2.0f` | Corner radius of the underline indicator. |
+| `options.active_color` | `Color` | `0xFF818CF8` | Foreground color of the selected tab icon and label. |
+| `options.inactive_color` | `Color` | `0xFF64748B` | Foreground color of unselected tab items. |
+| `options.indicator_color`| `Color` | `0xFF818CF8` | Fill color of the sliding underline indicator. |
+| `options.hover_color` | `Color` | `0x1A818CF8` | Hover background tint over tabs. |
+| `options.badge_color` | `Color` | `0xFFEF4444` | Background color for notification badge pills. |
+| `options.badge_text_color`| `Color` | `0xFFFFFFFF` | Text color inside notification badge pills. |
+| `options.background_color`| `Color` | `0xFF1E293B` | Background surface color of the tab bar. |
+| `options.show_icons` | `bool` | `true` | Whether icons are rendered in tabs. |
+| `options.show_labels` | `bool` | `true` | Whether text labels are rendered in tabs. |
 
 ---
 

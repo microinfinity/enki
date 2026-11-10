@@ -58,11 +58,21 @@ inline std::shared_ptr<Text> selectableText(TextProps props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `text` | `string` | `""` | The string content to render. |
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `text` | `std::string` | `""` | The string content to render. |
+| `style` | `std::optional<TextStyle>` | `std::nullopt` | Base typography styling. |
+| `color` | `std::optional<Color>` | `std::nullopt` | Quick override for text font color. |
+| `font_size` | `std::optional<float>` | `std::nullopt` | Font size in points. |
+| `font_weight` | `std::optional<FontWeight>` | `std::nullopt` | Font thickness (`Normal`, `Bold`, `SemiBold`). |
+| `font_style` | `std::optional<FontStyle>` | `std::nullopt` | Normal or Italic font style. |
+| `font_family` | `std::optional<std::string>` | `std::nullopt` | Custom font family name. |
 | `selection_color` | `Color` | `0x6038BDF8` | Semi-transparent highlight tint drawn beneath selected glyphs. |
-| `font_size` | `optional<float>` | `nullopt` | Font size in points. |
-| `font_weight` | `optional<FontWeight>`| `nullopt`| Font thickness (`Normal`, `Bold`, `SemiBold`). |
-| `on_selection_changed`| `function<void(TextSelection)>`| `nullptr`| Dispatched whenever the mouse selection range is updated. |
+| `text_align` | `std::optional<TextAlign>` | `std::nullopt` | Text horizontal alignment (`Left`, `Right`, `Center`, `Justify`). |
+| `text_direction` | `std::optional<TextDirection>` | `std::nullopt` | Reading direction (`LTR` or `RTL`). |
+| `overflow` | `std::optional<TextOverflow>` | `std::nullopt` | Text truncation behavior (`Clip`, `Ellipsis`, `Fade`). |
+| `max_lines` | `std::optional<size_t>` | `std::nullopt` | Maximum line clamp limit before clipping or ellipsis. |
+| `soft_wrap` | `std::optional<bool>` | `std::nullopt` | Whether text wraps onto subsequent lines. |
+| `on_selection_changed` | `std::function<void(TextSelection)>` | `nullptr` | Dispatched whenever the mouse selection range is updated. |
 
 ---
 

@@ -71,6 +71,7 @@ inline std::shared_ptr<ScrollViewWidget> scrollView(ScrollProps props, WidgetPtr
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `child` | `WidgetPtr` | `nullptr` | Content widget to be scrolled (typically a `Column` or `Row`). |
 | `direction` | `Axis` | `Axis::Vertical` | Primary scrolling axis (`Axis::Vertical` or `Axis::Horizontal`). |
 | `clamp_overscroll` | `bool` | `true` | When true, prevents scroll offsets from moving beyond `[0, max_scroll]`. |

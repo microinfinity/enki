@@ -113,11 +113,15 @@ struct DataTable {
     std::optional<int>                     sort_column_index = std::nullopt;
     bool                                   sort_ascending    = true;
 
-    std::function<void(bool all_selected)> on_select_all     = nullptr;
-    std::function<void(int row_index)>     on_row_tap        = nullptr;
+    std::function<void(bool all_selected)> on_select_all          = nullptr;
+    std::function<void(int row_index)>     on_row_tap             = nullptr;
+    std::function<void(int row_index)>     on_row_secondary_tap   = nullptr;
 
     DataTableTheme                         theme;
-    bool                                   horizontal_scroll = true;
+
+    ScrollPhysics                          scroll_physics         = ScrollPhysics::Clamped;
+    float                                  scroll_speed           = 50.0f;
+    bool                                   horizontal_scroll      = true;
 
     operator WidgetPtr() const;
 };
@@ -131,12 +135,17 @@ struct DataTable {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `columns` | `std::vector<DataColumn>` | `{}` | Header definitions specifying sortability, numeric alignment, and width. |
 | `rows` | `std::vector<DataRow>` | `{}` | Row records containing individual `DataCell` elements. |
-| `sort_column_index` | `optional<int>` | `nullopt` | Index of the active sorted column. |
+| `sort_column_index` | `std::optional<int>` | `std::nullopt` | Index of the active sorted column. |
 | `sort_ascending` | `bool` | `true` | Sort direction (`true` for ascending, `false` for descending). |
-| `on_select_all` | `Function(bool)` | `nullptr` | Callback when the header master checkbox is clicked. |
+| `on_select_all` | `std::function<void(bool)>` | `nullptr` | Callback when the header master checkbox is clicked. |
+| `on_row_tap` | `std::function<void(int)>` | `nullptr` | Callback fired when a data row is tapped/clicked. |
+| `on_row_secondary_tap`| `std::function<void(int)>` | `nullptr` | Callback fired on right-click/secondary click of a data row. |
 | `theme` | `DataTableTheme` | `{}` | Theme configuration (zebra striping, row heights, checkbox visibility). |
+| `scroll_physics` | `ScrollPhysics` | `Clamped` | Scrolling physics for the horizontal scroll view. |
+| `scroll_speed` | `float` | `50.0f` | Step speed for horizontal mouse-wheel scrolling. |
 | `horizontal_scroll` | `bool` | `true` | Enables horizontal scrolling for tables wider than the window. |
 
 ---

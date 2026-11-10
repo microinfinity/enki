@@ -51,7 +51,9 @@ struct NavigationRailOptions {
     float icon_font_size     = 20.0f;
     float label_font_size    = 13.0f;
     float indicator_radius   = 12.0f;
+    float border_right_width = 1.0f;
     float header_height      = 56.0f;
+    float padding_v          = 8.0f;
 
     bool  initially_expanded = true;
 
@@ -85,11 +87,19 @@ struct NavigationRail {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `items` | `std::vector<NavigationRailItem>`| `{}` | List of navigation items with label, icon, and optional badge. |
 | `selected_index` | `int` | `0` | 0-indexed currently active rail item. |
 | `on_item_selected` | `std::function<void(int)>`| `nullptr` | Callback fired when a rail item is selected. |
 | `header` | `WidgetPtr` | `nullptr` | Optional top slot (e.g. application logo or expand toggle button). |
-| `options` | `NavigationRailOptions` | `{}` | Width thresholds, colors, and initial expansion state. |
+| `options.collapsed_width`| `float` | `72.0f` | Width when collapsed showing icons only. |
+| `options.expanded_width` | `float` | `220.0f`| Width when expanded showing labels and badges. |
+| `options.item_height` | `float` | `52.0f` | Height of each navigation item row. |
+| `options.initially_expanded`| `bool` | `true` | Whether rail starts in expanded or collapsed state. |
+| `options.active_color` | `Color` | `0xFF818CF8` | Tint color of active icon and text. |
+| `options.inactive_color`| `Color` | `0xFF64748B` | Tint color of inactive icons and text. |
+| `options.background_color`| `Color` | `0xFF1E293B` | Background fill color of the rail panel. |
+| `options.border_color` | `Color` | `0xFF334155` | Color of right separator border line. |
 
 ---
 

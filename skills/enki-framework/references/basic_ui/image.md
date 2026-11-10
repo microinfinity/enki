@@ -94,14 +94,21 @@ inline std::shared_ptr<ImageWidget> imageMemory(const std::vector<uint8_t>& data
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `source_path` | `std::string` | `""` | Filepath or asset URI to load through `ImageCache`. |
 | `image` | `std::shared_ptr<Image>` | `nullptr` | Pre-loaded decoded Skia image pointer. |
 | `fit` | `BoxFit` | `BoxFit::Cover` | How the image is scaled within its box (`Cover`, `Contain`, `Fill`, etc.). |
 | `alignment` | `Alignment` | `Alignment::Center` | Alignment of image within destination box if aspect ratios differ. |
-| `width` / `height` | `std::optional<StyleValue>` | `auto_val` | Dimension constraints (`_px`, `_pct`). |
-| `border_radius` | `BorderRadius` | `zero()` | Corner radius for clipping the image. |
-| `shape` | `BoxShape` | `Rectangle` | Shape mask (`Rectangle` or `Circle`). |
+| `width` | `std::optional<StyleValue>` | `std::nullopt` | Explicit width constraint (`_px`, `_pct`). |
+| `height` | `std::optional<StyleValue>` | `std::nullopt` | Explicit height constraint (`_px`, `_pct`). |
+| `min_width` | `std::optional<StyleValue>` | `std::nullopt` | Minimum width constraint. |
+| `min_height` | `std::optional<StyleValue>` | `std::nullopt` | Minimum height constraint. |
+| `max_width` | `std::optional<StyleValue>` | `std::nullopt` | Maximum width constraint. |
+| `max_height` | `std::optional<StyleValue>` | `std::nullopt` | Maximum height constraint. |
+| `border_radius` | `BorderRadius` | `BorderRadius::zero()` | Corner radius for clipping the image. |
+| `shape` | `BoxShape` | `BoxShape::Rectangle` | Shape mask (`BoxShape::Rectangle` or `BoxShape::Circle`). |
 | `tint_color` | `std::optional<Color>` | `std::nullopt` | Optional color tint applied with `blend_mode`. |
+| `blend_mode` | `BlendMode` | `BlendMode::SrcIn` | Blending algorithm for color tinting. |
 | `opacity` | `float` | `1.0f` | Alpha opacity (0.0 to 1.0). |
 | `clip_content` | `bool` | `true` | Clips image content strictly to `border_radius`. |
 
@@ -153,4 +160,4 @@ auto userPhoto = image({
 
 ## See Also
 - [**Avatar**](./avatar.md) — Specialized user profile avatar with fallback initials and status badges.
-- [**Container**](./card.md) — Visual box styling.
+- [**Container**](../Layout/container.md) — Visual box styling.

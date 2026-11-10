@@ -44,14 +44,15 @@ struct Card {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `child` | `WidgetPtr` | `nullptr` | Content widget displayed inside the card. |
 | `color` | `Color` | `0xFF1E293B` | Surface background color (32-bit ARGB). |
 | `elevation` | `float` | `8.0f` | Visual height off the page; dynamically computes shadow blur and Y-offset. |
 | `shadow_color` | `Color` | `0x40000000` | 25% black shadow color. |
-| `border_radius` | `BorderRadius` | `circular(12.0f)` | Curvature radius of all four corners. |
+| `border_radius` | `BorderRadius` | `BorderRadius::circular(12.0f)` | Curvature radius of all four corners. |
 | `border` | `std::optional<Border>` | `std::nullopt` | Optional outline stroke (e.g. `Border(0xFF334155, 1.0f)`). |
-| `padding` | `StyleInsets` | `all(0.0f)` | Padding between the card boundaries and child widget. |
-| `margin` | `StyleInsets` | `all(4.0f)` | Margin spacing outside the card boundary. |
+| `padding` | `StyleInsets` | `StyleInsets::all(0.0f)` | Padding between the card boundaries and child widget. |
+| `margin` | `StyleInsets` | `StyleInsets::all(4.0f)` | Margin spacing outside the card boundary. |
 
 ---
 

@@ -73,6 +73,8 @@ struct Carousel {
     Color                               background_color      = 0xFF1E293B; // Slate 800
     Color                               border_color          = 0xFF334155; // Slate 700
     Color                               arrow_bg_color        = 0xCC0F172A; // Slate 900 translucent
+    Color                               arrow_fg_color        = 0xFFFFFFFF; // White
+    Color                               arrow_hover_bg        = 0xFF0284C7; // Sky blue hover
     Color                               indicator_active      = 0xFF38BDF8; // Sky 400
     Color                               indicator_inactive    = 0xFF475569; // Slate 600
 
@@ -91,15 +93,27 @@ struct Carousel {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `slides` | `vector<WidgetPtr>` | `{}` | List of slide widgets rendered in sequence. |
-| `controller` | `shared_ptr<CarouselController>`| `nullptr`| Handle for programmatic page advancement. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `slides` | `std::vector<WidgetPtr>` | `{}` | List of slide widgets rendered in sequence. |
+| `controller` | `std::shared_ptr<CarouselController>`| `nullptr`| Handle for programmatic page advancement. |
 | `effect` | `CarouselEffect` | `Slide` | Transition style (`Slide` or `Fade`). |
+| `initial_index` | `int` | `0` | Zero-based index of initially active slide. |
 | `auto_play` | `bool` | `true` | Automatically cycles through slides at regular intervals. |
 | `auto_play_interval_ms`| `int` | `3500` | Duration in milliseconds each slide stays visible before advancing. |
 | `pause_on_hover` | `bool` | `true` | Suspends autoplay timer while mouse cursor is over the carousel. |
 | `infinite_loop` | `bool` | `true` | Loops back to first slide after passing the last slide. |
 | `show_arrows` | `bool` | `true` | Displays floating left/right navigation arrow buttons. |
 | `show_indicators` | `bool` | `true` | Displays bottom pagination dot indicators. |
+| `height` | `float` | `320.0f` | Total height of the carousel container. |
+| `border_radius` | `float` | `12.0f` | Corner rounding radius of the container. |
+| `background_color` | `Color` | `0xFF1E293B` | Base background fill color. |
+| `border_color` | `Color` | `0xFF334155` | Outer container border stroke color. |
+| `arrow_bg_color` | `Color` | `0xCC0F172A` | Background fill of floating navigation arrow buttons. |
+| `arrow_fg_color` | `Color` | `0xFFFFFFFF` | Icon color for arrow buttons. |
+| `arrow_hover_bg` | `Color` | `0xFF0284C7` | Hover background fill for navigation arrows. |
+| `indicator_active` | `Color` | `0xFF38BDF8` | Color of active pagination indicator dot. |
+| `indicator_inactive` | `Color` | `0xFF475569` | Color of inactive pagination indicator dots. |
+| `on_page_changed` | `std::function<void(int)>` | `nullptr` | Callback fired when the active slide changes. |
 
 ---
 

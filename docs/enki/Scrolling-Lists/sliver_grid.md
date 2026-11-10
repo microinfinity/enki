@@ -58,11 +58,14 @@ inline std::shared_ptr<SliverGridWidget> sliverGridExtent(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `items` | `vector<WidgetPtr>` | `{}` | Static children list. |
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `items` | `std::vector<WidgetPtr>` | `{}` | Static children list. |
+| `children` | `std::vector<WidgetPtr>` | `{}` | Convenience alias for `items`. |
 | `item_count` | `int` | `0` | Total item count for builder generation. |
-| `item_builder` | `function<WidgetPtr(int)>`| `nullptr`| Factory lambda building items by index. |
+| `item_builder` | `std::function<WidgetPtr(int)>`| `nullptr`| Factory lambda building items by index. |
 | `fixed_delegate` | `SliverGridDelegateFixedCount`| `2 columns` | Fixed column count delegate `(crossAxisCount, mainSpacing, crossSpacing, aspectRatio)`. |
 | `max_delegate` | `SliverGridDelegateMaxExtent`| `{}` | Responsive max item width delegate. |
+| `use_max_extent_delegate`| `bool` | `false` | When true, uses `max_delegate` instead of `fixed_delegate`. |
 | `padding` | `EdgeInsets` | `EdgeInsets{}`| External padding around the grid sliver. |
 
 ---

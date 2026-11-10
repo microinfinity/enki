@@ -73,21 +73,37 @@ struct AvatarGroup {
 
 ---
 
-## Properties Reference (`Avatar`)
+## Properties Reference
+
+### `Avatar`
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `radius` | `float` | `24.0f` | Radius of the avatar circle (diameter is `2 * radius`). |
-| `initials` | `std::string` | `""` | 1 or 2 letter initials to display if no image is available. |
-| `image_path` | `std::string` | `""` | Filepath or asset path to user's photo. |
 | `background_color` | `Color` | `0xFF38BDF8` | Background fill behind initials. |
 | `text_color` | `Color` | `0xFFFFFFFF` | Font color of the initials text. |
+| `initials` | `std::string` | `""` | 1 or 2 letter initials to display if no image is available. |
+| `image_path` | `std::string` | `""` | Filepath or asset path to user's photo. |
+| `image_data` | `std::shared_ptr<Image>` | `nullptr` | Pre-loaded in-memory image pointer (`Image`). |
 | `border_width` | `float` | `0.0f` | Thickness of circular border outline. |
 | `border_color` | `Color` | `0xFFFFFFFF` | Color of circular border outline. |
 | `show_badge` | `bool` | `false` | Displays a live status badge dot at bottom-right. |
 | `badge_color` | `Color` | `0xFF10B981` | Color of status badge (e.g. green for online, amber for away). |
 | `badge_size` | `float` | `12.0f` | Diameter of the status badge dot. |
+| `badge_border_width` | `float` | `2.0f` | Outline border width around the badge dot. |
+| `badge_border_color` | `Color` | `0xFFFFFFFF` | Outline border color around the badge dot (usually matches parent background). |
 | `shadow_blur` | `float` | `0.0f` | Drop shadow blur radius for elevation. |
+| `shadow_color` | `Color` | `0x40000000` | Elevation drop shadow color. |
+
+### `AvatarGroup`
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `avatars` | `std::vector<WidgetPtr>` | `{}` | List of avatar widgets to display in overlapping sequence. |
+| `spacing` | `float` | `-12.0f` | Spacing between avatars (negative value produces overlap). |
+| `max_avatars` | `size_t` | `4` | Maximum number of avatars shown before displaying `+N` overflow counter. |
 
 ---
 

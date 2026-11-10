@@ -51,11 +51,13 @@ inline WidgetPtr visibility(bool visible, WidgetPtr child, WidgetPtr replacement
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `child` | `WidgetPtr` | `nullptr` | Content displayed when `visible == true`. |
 | `visible` | `bool` | `true` | Whether the child widget is visible. |
 | `replacement` | `WidgetPtr` | `nullptr` | Alternate widget displayed when hidden (if `maintain_size` is false). |
 | `maintain_size` | `bool` | `false` | Allocates normal layout width/height even when invisible. |
 | `maintain_state`| `bool` | `false` | Keeps the underlying `StatefulWidget`'s state alive while hidden. |
+| `maintain_animation` | `bool` | `false` | Keeps internal animation tickers active while hidden. |
 | `maintain_interactivity` | `bool` | `false` | When true, the hidden widget continues to receive hit tests. |
 
 ---

@@ -62,11 +62,17 @@ struct Breadcrumb {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `items` | `std::vector<BreadcrumbItem>` | `{}` | Sequence of path items from root ancestor to active leaf. |
 | `separator` | `std::string` | `"/"` | Delimiter string between items (e.g. `"/"`, `">"`, `"›"`). |
 | `active_color` | `Color` | `0xFFF1F5F9` | Color applied to the current (last) item. |
 | `inactive_color` | `Color` | `0xFF64748B` | Color applied to clickable ancestor links. |
 | `hover_color` | `Color` | `0xFF818CF8` | Highlight tint when hovering clickable items. |
+| `separator_color`| `Color` | `0xFF475569` | Color applied to delimiter separators. |
+| `font_size` | `float` | `13.0f` | Font size for text labels. |
+| `separator_font_size` | `float` | `12.0f` | Font size for separator glyphs. |
+| `item_spacing` | `float` | `8.0f` | Spacing between labels and separators. |
+| `separator_spacing` | `float` | `8.0f` | Spacing around separators. |
 | `bold_active` | `bool` | `true` | When true, renders the current page label in bold font weight. |
 
 ---

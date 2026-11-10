@@ -52,15 +52,19 @@ struct Checkbox {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique identifier used during element reconciliation. |
 | `value` | `bool` | `false` | Current checked state. |
 | `on_changed` | `std::function<void(bool)>` | `nullptr` | Callback invoked when user toggles the checkbox. Automatically disables the widget if `nullptr`. |
 | `size` | `float` | `18.0f` | Width and height of the square checkbox box in pixels. |
+| `border_width` | `float` | `2.0f` | Outline stroke thickness around the box. |
 | `border_radius` | `float` | `4.0f` | Curvature radius for box corners. |
 | `active_color` | `Color` | `0xFF2563EB` | Background fill color when checked. |
 | `check_color` | `Color` | `0xFFFFFFFF` | Color of the drawn checkmark tick. |
 | `border_color` | `Color` | `0xFF363B42` | Border color when unchecked. |
 | `hover_border_color`| `Color` | `0xFF58A6FF` | Border outline color when hovered. |
+| `inactive_bg_color` | `Color` | `0x00000000` | Background color when unchecked (transparent by default). |
 | `disabled` | `bool` | `false` | When true, ignores user clicks and renders with `disabled_color`. |
+| `disabled_color` | `Color` | `0xFF475569` | Color tint applied when disabled. |
 
 ---
 

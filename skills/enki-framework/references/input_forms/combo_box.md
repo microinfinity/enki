@@ -95,15 +95,33 @@ struct ComboBox {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique identifier used during element reconciliation. |
 | `items` | `std::vector<ComboBoxItem>` | `{}` | List of selectable choices. |
-| `mode` | `ComboBoxMode` | `Single` | Selection behavior (`Single`, `Multi`, `Custom`). |
-| `placeholder` | `std::string` | `"Search or select..."` | Watermark text when no selection is made. |
+| `body` | `WidgetPtr` | `nullptr` | Background widget over which the dropdown overlay floats. |
+| `controller` | `std::shared_ptr<ComboBoxController>` | `nullptr` | External controller to programmatically open, close, select, or clear items. |
+| `mode` | `ComboBoxMode` | `ComboBoxMode::Single` | Selection behavior (`Single`, `Multi`, `Custom`). |
+| `placeholder` | `std::string` | `"Search or select option..."` | Watermark text when no selection is made. |
 | `width` | `float` | `320.0f` | Total width of the input field and dropdown menu. |
+| `input_height` | `float` | `42.0f` | Height of the main input field trigger bar. |
 | `max_menu_height` | `float` | `260.0f` | Maximum height of the scrollable dropdown list. |
+| `border_radius` | `float` | `8.0f` | Corner radius for the input box and popup menu. |
 | `allow_clear` | `bool` | `true` | Displays a trailing `✕` button to clear the selection. |
+| `allow_custom_value` | `bool` | `false` | Enables users to type arbitrary unlisted custom entries. |
 | `show_search_icon` | `bool` | `true` | Displays a leading `🔍` search icon inside the field. |
+| `background_color` | `Color` | `0xFF0F172A` | Background color of the input trigger box. |
+| `border_color` | `Color` | `0xFF334155` | Unfocused border stroke color. |
+| `border_focus_color` | `Color` | `0xFF0284C7` | Border color when active or focused. |
+| `text_color` | `Color` | `0xFFFFFFFF` | Selected text and query font color. |
+| `placeholder_color` | `Color` | `0xFF64748B` | Placeholder hint font color. |
+| `menu_bg_color` | `Color` | `0xFF1E293B` | Floating dropdown menu background color. |
+| `item_hover_color` | `Color` | `0x3338BDF8` | Background tint on menu item hover. |
+| `item_selected_col` | `Color` | `0x330284C7` | Background tint on currently selected item. |
+| `chip_bg_color` | `Color` | `0xFF1E293B` | Background color for multi-select tag chips. |
+| `chip_border_color` | `Color` | `0xFF38BDF8` | Border outline color for multi-select tag chips. |
+| `anchor_x` / `anchor_y` | `float` | `0.0f` | Optional floating overlay coordinates override. |
 | `on_selected` | `std::function<void(const ComboBoxItem&)>` | `nullptr` | Callback for single selection. |
 | `on_multi_changed` | `std::function<void(const std::vector<ComboBoxItem>&)>` | `nullptr` | Callback when tags change in multi-select mode. |
+| `on_custom_value` | `std::function<void(const std::string&)>` | `nullptr` | Callback fired when a custom typed value is committed. |
 
 ---
 

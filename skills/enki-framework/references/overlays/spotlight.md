@@ -112,6 +112,55 @@ public:
     void setSteps(std::vector<SpotlightStep> steps);
 };
 
+struct Spotlight {
+    Key                                      key            = Key::none();
+    WidgetPtr                                body           = nullptr;
+    WidgetPtr                                child          = nullptr; ///< Alias for body
+    std::vector<SpotlightStep>               steps          = {};
+    SpotlightOptions                         options        = {};
+    std::shared_ptr<SpotlightTourController> controller     = nullptr;
+    bool                                     initial_active = false;
+
+    operator WidgetPtr() const;
+};
+
+} // namespace enki
+```
+
+---
+
+## Properties Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `body` / `child` | `WidgetPtr` | `nullptr` | Application page content wrapped by the spotlight overlay stack. |
+| `steps` | `std::vector<SpotlightStep>` | `{}` | Sequence of spotlight tour walkthrough steps. |
+| `options` | `SpotlightOptions` | `{}` | Colors, card sizing, and global tour callbacks. |
+| `controller` | `std::shared_ptr<SpotlightTourController>` | `nullptr` | Controller to drive step progression and query tour state. |
+| `initial_active` | `bool` | `false` | Whether tour starts active upon widget mounting. |
+
+### `SpotlightOptions` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `overlay_color` | `Color` | `0xCC080C14` | Deep obsidian backdrop scrim color. |
+| `pulse_ring_color` | `Color` | `0xFF38BDF8` | Animated beacon halo ring color. |
+| `card_bg_color` | `Color` | `0xF80F172A` | Popover description card background. |
+| `card_border_color` | `Color` | `0xFF334155` | Popover card border outline color. |
+| `title_color` | `Color` | `0xFFF8FAFC` | Step title text font color. |
+| `description_color` | `Color` | `0xFF94A3B8` | Step description body font color. |
+| `step_badge_color` | `Color` | `0xFF38BDF8` | Step counter badge accent color. |
+| `card_width` | `float` | `340.0f` | Popover card width in pixels. |
+| `card_border_radius` | `float` | `12.0f` | Popover card corner rounding radius. |
+| `popover_distance` | `float` | `14.0f` | Distance between cutout hole and popover card. |
+| `dismiss_on_scrim_tap` | `bool` | `false` | Close or advance tour on background click. |
+| `show_step_indicator` | `bool` | `true` | Show step indicator pills / dots. |
+| `show_skip_button` | `bool` | `true` | Show button to cancel/skip the tour. |
+| `on_step_change` | `std::function<void(size_t, const SpotlightStep&)>` | `nullptr` | Callback when current step advances or steps back. |
+| `on_finish` | `std::function<void()>` | `nullptr` | Callback when user completes all tour steps. |
+| `on_skip` | `std::function<void()>` | `nullptr` | Callback when user dismisses/skips the tour. |
+
 } // namespace enki
 ```
 
@@ -149,7 +198,8 @@ WidgetPtr app_view = Spotlight {
 
 ---
 
-## Updating Roadmaps & Summary Table
-
-In `WIDGETS_ROADMAP_v0.2.0.md`, section 19:
-- [x] **Spotlight** — Full-screen dimmed overlay with a highlighted "spotlight" region around a widget
+## See Also
+- [**CommandPalette**](./command_palette.md) — Keyboard-driven fuzzy-search overlay.
+- [**FloatingPanel**](./floating_panel.md) — Draggable and resizable floating tool window.
+- [**Dialog**](./dialog.md) — Modal prompt dialogs with backdrop scrims.
+- [**Tooltip**](../NativePopups/tooltip.md) — Hover hints for target UI elements.

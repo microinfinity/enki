@@ -70,6 +70,7 @@ struct RouteConfig {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `initial_routes` | `std::vector<RouteConfig>` | `{}` | Initial stack of routes loaded on startup (first element is the root page). |
 | `background_color` | `Color` | `0xFF0F172A` | Background color of the navigator container surface. |
 | `transition_duration_ms` | `int` | `300` | Duration in milliseconds for entrance/exit animations. |

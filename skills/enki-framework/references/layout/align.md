@@ -56,6 +56,9 @@ For individual flex items or container cross-axis rules:
 - `Align::End` — Align to cross-axis end (bottom in Row, right in Column).
 - `Align::Stretch` — Stretch across entire cross axis dimension.
 - `Align::Baseline` — Align along text baseline.
+- `Align::SpaceBetween` — Distribute items evenly; first item at start, last at end.
+- `Align::SpaceAround` — Distribute items evenly with equal space around each item.
+- `Align::SpaceEvenly` — Distribute items so spacing between any two adjacent items is identical.
 
 ---
 

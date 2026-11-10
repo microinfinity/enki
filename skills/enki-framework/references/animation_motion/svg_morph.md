@@ -70,6 +70,20 @@ inline WidgetPtr svgMorph(const SvgMorph& props = {});
 } // namespace enki
 ```
 
+#### Properties Reference (`SvgMorph`)
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `from_path` | `std::string_view` | `SvgMorphPaths::hamburger` | Source SVG path data string. |
+| `to_path` | `std::string_view` | `SvgMorphPaths::close` | Target SVG path data string. |
+| `progress` | `float` | `0.0f` | Interpolation progress between `from_path` and `to_path` (0.0 to 1.0). |
+| `color` | `Color` | `0xFFFFFFFF` | Vector stroke or fill color. |
+| `stroke_width` | `float` | `2.5f` | Thickness of vector path stroke lines. |
+| `is_stroke` | `bool` | `true` | True for outline stroke rendering, false for filled geometry. |
+| `is_closed` | `std::optional<bool>` | `nullopt` | Explicit override for whether the path contour should be closed. |
+| `width`, `height` | `StyleValue` | `24.0f` | Dimensions of the vector icon viewport. |
+
 ### 2. `PathMorph` Core Engine
 ```cpp
 namespace enki {
@@ -220,3 +234,10 @@ WidgetPtr buildCustomMorph(float progress) {
     });
 }
 ```
+
+---
+
+## See Also
+- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Custom 2D GPU drawing surface.
+- [**AnimatedRotation**](./animated_rotation.md) — 2D matrix rotation transforms.
+- [**Icon**](../Basic%20UI/icon.md) — Standard static vector and symbol icons.

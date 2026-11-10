@@ -60,6 +60,10 @@ enum class AudioWaveformType {
 };
 
 enum class WaveformStyle {
+    SegmentedLed,     ///< Studio rack segmented LED ladder with floor reflection
+    RadialArc,        ///< 360-degree circular pulsing reactor with bass beat core
+    LayeredAurora,    ///< Triple-layer translucent neon spline waves with ambient glow
+    SymmetricWings,   ///< Center-outward mirrored cyber wings (butterfly spectrum)
     SpectrumBars,     ///< Vertical frequency equalizer bars with peak caps
     FluidWave,        ///< Smooth cubic bezier wave with glowing gradient fill
     StereoBands,      ///< Split Left & Right stereo spectrum bars
@@ -70,37 +74,78 @@ enum class WaveformStyle {
 
 struct AudioWaveformProps {
     AudioWaveformType                       type            = AudioWaveformType::Music;
-    WaveformStyle                           style           = WaveformStyle::SpectrumBars;
+    WaveformStyle                           style           = WaveformStyle::SegmentedLed;
 
     std::shared_ptr<audio::AudioController> controller      = nullptr;
     std::vector<float>                      amplitudes      = {};
 
     size_t                                  bands           = 32;
-    float                                   bar_width       = 4.0f;
-    float                                   bar_gap         = 2.0f;
-    BorderRadius                            bar_radius      = BorderRadius::circular(2.0f);
-    Color                                   primary_color   = 0xFF38BDF8;
-    std::optional<Color>                    secondary_color = std::nullopt;
+    float                                   bar_width       = 5.0f;
+    float                                   bar_gap         = 3.0f;
+    BorderRadius                            bar_radius      = BorderRadius::circular(2.5f);
+    Color                                   primary_color   = 0xFF00E5FF;
+    std::optional<Color>                    secondary_color = 0xFFA855F7;
+    std::optional<Color>                    accent_color    = 0xFFF43F5E;
     bool                                    show_peaks      = true;
-    float                                   min_bar_height  = 3.0f;
+    bool                                    show_reflection = true;
+    float                                   min_bar_height  = 4.0f;
 
     float                                   sensitivity     = 1.0f;
-    float                                   decay_rate      = 0.06f;
+    float                                   decay_rate      = 0.05f;
     bool                                    auto_start      = true;
 
     std::optional<StyleValue>               width           = std::nullopt;
     std::optional<StyleValue>               height          = std::nullopt;
+    std::optional<StyleValue>               min_width       = std::nullopt;
+    std::optional<StyleValue>               min_height      = std::nullopt;
+    std::optional<StyleValue>               max_width       = std::nullopt;
+    std::optional<StyleValue>               max_height      = std::nullopt;
+
     Clip                                    clip_behavior   = Clip::AntiAlias;
-    BorderRadius                            clip_radius     = BorderRadius::circular(12.0f);
+    BorderRadius                            clip_radius     = BorderRadius::circular(16.0f);
     Key                                     key             = Key::none();
 
     operator WidgetPtr() const;
+};
+
+struct AudioWaveform : public AudioWaveformProps {
+    using AudioWaveformProps::AudioWaveformProps;
 };
 
 inline WidgetPtr audioWaveform(const AudioWaveformProps& props = {});
 
 } // namespace enki
 ```
+
+---
+
+## Properties Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `type` | `AudioWaveformType` | `Music` | Operation mode (`Music` for system audio output, `Mic` for live microphone). |
+| `style` | `WaveformStyle` | `SegmentedLed` | Visual theme (`SegmentedLed`, `RadialArc`, `LayeredAurora`, `SymmetricWings`, `SpectrumBars`, `FluidWave`, `StereoBands`, `VoiceBars`, `ScrollingLive`, `LiveOscilloscope`). |
+| `controller` | `std::shared_ptr<audio::AudioController>` | `nullptr` | Optional audio controller managing stream lifecycle. |
+| `amplitudes` | `std::vector<float>` | `{}` | Static or custom programmatic amplitude samples. |
+| `bands` | `size_t` | `32` | Number of frequency bands / bars across the visualizer width. |
+| `bar_width` | `float` | `5.0f` | Width of each individual spectrum bar in points. |
+| `bar_gap` | `float` | `3.0f` | Spacing between adjacent spectrum bars. |
+| `bar_radius` | `BorderRadius` | `2.5f` | Corner rounding radius of individual bars. |
+| `primary_color` | `Color` | `0xFF00E5FF` | Base color (Cyan). |
+| `secondary_color` | `std::optional<Color>` | `0xFFA855F7` | Mid-frequency / peak gradient accent color. |
+| `accent_color` | `std::optional<Color>` | `0xFFF43F5E` | High-frequency neon accent color. |
+| `show_peaks` | `bool` | `true` | Renders floating peak caps that drop with gravitational decay. |
+| `show_reflection` | `bool` | `true` | Renders mirrored glass floor reflection under visualizer bars. |
+| `min_bar_height` | `float` | `4.0f` | Minimum resting height of bars when silent. |
+| `sensitivity` | `float` | `1.0f` | Gain multiplier amplifying audio input. |
+| `decay_rate` | `float` | `0.05f` | Gravity falloff decay rate per frame. |
+| `auto_start` | `bool` | `true` | Starts audio capture stream automatically when mounted. |
+| `width`, `height` | `std::optional<StyleValue>` | `nullopt` | Explicit dimensional constraints. |
+| `min_width`, `min_height` | `std::optional<StyleValue>` | `nullopt` | Minimum dimensional constraints. |
+| `max_width`, `max_height` | `std::optional<StyleValue>` | `nullopt` | Maximum dimensional constraints. |
+| `clip_behavior` | `Clip` | `Clip::AntiAlias` | Hardware clipping mode. |
+| `clip_radius` | `BorderRadius` | `16.0f` | Outer container corner clip radius. |
 
 ---
 
@@ -162,3 +207,10 @@ WidgetPtr buildFluidRhythm() {
     });
 }
 ```
+
+---
+
+## See Also
+- [**VideoPlayer**](./video_player.md) — Hardware-accelerated media and video playback.
+- [**SkiaCanvas**](./skia_canvas.md) — Direct low-level Skia GPU custom rendering.
+- [**ParticleSystem**](../Animation%20&%20Motion/particle_system.md) — 2D particle simulation.

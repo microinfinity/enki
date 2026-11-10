@@ -15,7 +15,7 @@
 
 `ListView` is the standard widget for presenting linear vertical or horizontal lists. It supports two primary paradigms:
 1. **Static Vector Mode**: Pass a list of pre-constructed `items` or `children`. Ideal for short, static option lists or settings screens.
-2. **Lazy Builder Mode**: Provide an `item_count` and an `item_builder` lambda `(int index) -> WidgetPtr`. Only visible/required items are instantiated, allowing lists with thousands of items to run at  without memory overhead.
+2. **Lazy Builder Mode**: Provide an `item_count` and an `item_builder` lambda `(int index) -> WidgetPtr`. Only visible/required items are instantiated, allowing lists with thousands of items to run at 60+ to 240+ FPS without memory overhead.
 
 It also supports custom dividers via `separator_builder`, row selection tracking with `selected_index`, and embedding inside other flex layouts via `shrink_wrap = true`.
 
@@ -93,15 +93,23 @@ inline std::shared_ptr<ListViewWidget> listViewSeparated(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `items` / `children` | `std::vector<WidgetPtr>` | `{}` | Pre-constructed widgets for static list mode. |
 | `item_count` | `int` | `0` | Total number of items when using `item_builder`. |
-| `item_builder` | `Function(int)` | `nullptr` | Lazy factory lambda producing the widget at `index`. |
-| `separator_builder` | `Function(int)` | `nullptr` | Factory lambda inserting dividers between items. |
+| `item_builder` | `std::function<WidgetPtr(int)>` | `nullptr` | Lazy factory lambda producing the widget at `index`. |
+| `separator_builder` | `std::function<WidgetPtr(int)>` | `nullptr` | Factory lambda inserting dividers between items. |
 | `direction` | `Axis` | `Axis::Vertical` | Scrolling orientation (`Vertical` or `Horizontal`). |
-| `scroll_physics` | `ScrollPhysics` | `Clamped` | Boundary bounce behavior (`Clamped`, `Bouncing`, `Never`). |
+| `scroll_physics` | `ScrollPhysics` | `Clamped` | Boundary bounce behavior (`Clamped`, `Bouncing`, `Never`, `Inherited`). |
+| `scroll_speed` | `float` | `50.0f` | Scroll distance per mouse wheel event. |
+| `list_padding` / `padding`| `EdgeInsets` | `{}` | Inset padding around list items. |
 | `shrink_wrap` | `bool` | `false` | When true, sizes itself to its children's height (essential inside `Column`). |
-| `selected_index` | `optional<int>` | `nullopt` | Currently highlighted item index. |
-| `on_item_selected` | `Function(int)` | `nullptr` | Callback triggered when user clicks an item. |
+| `is_reversed` / `reverse` | `bool` | `false` | Inverts list item rendering order and scroll direction. |
+| `primary` | `bool` | `true` | Associates list with the primary scroll controller. |
+| `selected_index` | `std::optional<int>` | `std::nullopt` | Currently highlighted item index. |
+| `on_item_selected` | `std::function<void(int)>` | `nullptr` | Callback triggered when user clicks an item. |
+| `on_scroll_start` | `std::function<void()>` | `nullptr` | Dispatched when scrolling begins. |
+| `on_scroll` | `std::function<void(float)>` | `nullptr` | Continuous scroll offset stream callback. |
+| `on_scroll_end` | `std::function<void()>` | `nullptr` | Dispatched when scrolling terminates. |
 
 ---
 

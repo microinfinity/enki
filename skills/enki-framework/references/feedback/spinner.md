@@ -77,13 +77,20 @@ struct Spinner {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `style` | `SpinnerStyle` | `Spokes` | Visual animation paradigm (`Spokes`, `OrbitDots`, `DualArc`, `CustomShader`). |
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `style` | `SpinnerStyle` | `SpinnerStyle::Spokes` | Visual animation paradigm (`Spokes`, `OrbitDots`, `DualArc`, `CustomShader`). |
 | `size` | `float` | `36.0f` | Width and height in pixels. |
 | `color` | `Color` | `0xFF3B82F6` | Primary color applied to spokes, dots, or arcs. |
-| `rotation_speed`| `float` | `1.0f` | Cadence multiplier (`1.0` = normal, `2.0` = twice as fast). |
+| `gradient_colors` | `std::vector<Color>` | `{}` | Optional multi-color sequence for animated gradient effects. |
+| `rotation_speed` | `float` | `1.0f` | Cadence multiplier (`1.0` = normal, `2.0` = twice as fast). |
 | `spoke_count` | `int` | `12` | Number of radial ticks in `Spokes` mode. |
+| `spoke_width` | `float` | `3.0f` | Stroke width of radial ticks. |
+| `spoke_length` | `float` | `8.0f` | Length of individual radial ticks. |
 | `dot_count` | `int` | `5` | Number of orbiting balls in `OrbitDots` mode. |
+| `dot_size` | `float` | `6.0f` | Diameter of each orbiting dot in pixels. |
+| `glow_color` | `Color` | `0x00000000` | Outer neon glow tint color. |
 | `glow_blur` | `float` | `0.0f` | Radius of neon bloom blur around the spinner. |
+| `custom_shader` | `std::string` | `""` | Raw SkSL shader program evaluated per-pixel on the spinner. |
 | `child` | `WidgetPtr` | `nullptr` | Stationary center widget surrounded by the spinner. |
 
 ---

@@ -59,12 +59,16 @@ inline WidgetPtr skeletonText(float width = 120.0f, float height = 14.0f,
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `child` | `WidgetPtr` | `nullptr` | Content widget tree to mask with shimmer. |
 | `enabled` | `bool` | `true` | When true, renders the animated shimmer shader sweep. |
 | `base_color` | `Color` | `0xFF1E293B` | Base tone for unhighlighted placeholder regions. |
 | `highlight_color` | `Color` | `0xFF334155` | Luminant tone applied to the sweeping light band. |
-| `duration` | `milliseconds` | `1200ms` | Duration for one full sweep from left to right. |
-| `shape` | `SkeletonShape` | `Rectangle` | Geometry boundary (`Rectangle` or `Circle`). |
-| `border_radius` | `BorderRadius` | `4.0f` | Corner rounding when `shape == Rectangle`. |
+| `duration` | `std::chrono::milliseconds` | `1200ms` | Duration for one full sweep from left to right. |
+| `width` | `std::optional<StyleValue>` | `std::nullopt` | Explicit width for standalone skeleton block. |
+| `height` | `std::optional<StyleValue>` | `std::nullopt` | Explicit height for standalone skeleton block. |
+| `shape` | `SkeletonShape` | `SkeletonShape::Rectangle` | Geometry boundary (`Rectangle` or `Circle`). |
+| `border_radius` | `BorderRadius` | `BorderRadius::circular(4.0f)` | Corner rounding when `shape == SkeletonShape::Rectangle`. |
 
 ---
 

@@ -53,16 +53,20 @@ struct ProgressBar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `value` | `float` | `0.0f` | Current fraction completed (`0.0f` = 0%, `1.0f` = 100%). |
 | `height` | `float` | `8.0f` | Thickness of the linear bar in pixels. |
+| `min_width` | `float` | `100.0f` | Minimum width constraint of progress bar. |
 | `border_radius` | `float` | `4.0f` | Corner rounding of both track and progress pill. |
+| `background_color` | `Color` | `0xFF1E293B` | Empty track background fill color. |
 | `progress_color` | `Color` | `0xFF3B82F6` | Solid fill color for the completed portion. |
-| `gradient_colors` | `vector<Color>` | `{}` | Sequence of colors forming a smooth horizontal linear gradient. |
+| `gradient_colors` | `std::vector<Color>` | `{}` | Sequence of colors forming a smooth horizontal linear gradient. |
 | `glow_color` | `Color` | `0x00000000` | Color of the outer neon aura bloom. |
 | `glow_blur` | `float` | `0.0f` | Blur radius of the glow effect. |
 | `indeterminate` | `bool` | `false` | Enables autonomous sweeping animation for unknown duration tasks. |
 | `show_label` | `bool` | `false` | Renders a right-aligned percentage readout automatically. |
-| `custom_shader` | `string` | `""` | Raw SkSL shader program evaluated per-pixel on the filled area. |
+| `label_format` | `std::string` | `"{percent}%"` | Formatting template string for percentage label. |
+| `custom_shader` | `std::string` | `""` | Raw SkSL shader program evaluated per-pixel on the filled area. |
 
 ---
 

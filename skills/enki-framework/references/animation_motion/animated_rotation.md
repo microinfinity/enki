@@ -44,11 +44,12 @@ inline std::shared_ptr<AnimatedRotationWidget> animatedRotation(AnimatedRotation
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `turns` | `float` | `0.0f` | Rotation count (`0.25f` = 90°, `0.5f` = 180°, `1.0f` = 360°). |
 | `alignment` | `Alignment` | `Alignment::Center`| Point around which rotation occurs. |
-| `duration` | `milliseconds` | `300ms` | Transition duration. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Transition duration. |
 | `curve` | `const Curve*` | `&Curves::linear` | Interpolation curve (e.g. `&Curves::easeInOut`, `&Curves::bounceOut`). |
-| `on_end` | `function<void()>` | `nullptr` | Completion callback. |
+| `on_end` | `std::function<void()>` | `nullptr` | Completion callback. |
 | `child` | `WidgetPtr` | `nullptr` | Content to be rotated. |
 
 ---

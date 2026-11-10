@@ -64,14 +64,16 @@ struct Dismissible {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `id` | `std::string` | `""` | Unique key identifying this dismissible instance in the list. |
 | `child` | `WidgetPtr` | `nullptr` | The front foreground widget that moves with the user's swipe. |
-| `direction` | `DismissDirection` | `Horizontal` | Permitted swipe axes (`Horizontal`, `StartToEnd`, `EndToStart`, `Vertical`). |
+| `direction` | `DismissDirection` | `DismissDirection::Horizontal` | Permitted swipe axes (`Horizontal`, `StartToEnd`, `EndToStart`, `Vertical`). |
 | `dismiss_threshold`| `float` | `0.35f` | Minimum swipe fraction required to commit dismissal rather than snapping back. |
 | `background` | `WidgetPtr` | `nullptr` | Background displayed when swiping in the positive direction (left-to-right). |
 | `secondary_background`| `WidgetPtr` | `nullptr` | Background displayed when swiping in the negative direction (right-to-left). |
-| `confirm_dismiss`| `function<bool(dir)>`| `nullptr` | Optional predicate that can prompt a dialog or veto dismissal. |
-| `on_dismissed` | `function<void(dir)>`| `nullptr` | Callback executed when the item has completed dismissal. |
+| `confirm_dismiss`| `std::function<bool(DismissDirection)>` | `nullptr` | Optional predicate that can prompt a dialog or veto dismissal. |
+| `on_dismissed` | `std::function<void(DismissDirection)>` | `nullptr` | Callback executed when the item has completed dismissal. |
+| `on_resize` | `std::function<void()>` | `nullptr` | Callback fired when the item layout height collapses to 0. |
 
 ---
 

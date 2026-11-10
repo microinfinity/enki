@@ -12,9 +12,9 @@
   - `enki::I18nConfig` — Declarative C++20 configuration struct for application dictionaries and plural catalogs.
   - `enki::PluralForms` — Designated initializer struct supporting all 6 Unicode CLDR plural forms (`zero`, `one`, `two`, `few`, `many`, `other`).
 - **Primary Functions & DSL Helpers**:
-  - `enki::tr(key, params = {})` — Look up translated string with named parameter interpolation.
-  - `enki::trPlural(key, count, params = {})` — Select grammatically correct plural string based on language rules.
-  - `enki::localizedText(key, params = {}, style = {})` — Declarative text widget with automatic translation.
+  - `enki::tr(key, args = {})` — Look up translated string with named parameter interpolation.
+  - `enki::trPlural(key, count, args = {})` — Select grammatically correct plural string based on language rules.
+  - `enki::localizedText(key, style = {}, args = {})` — Declarative text widget with automatic translation.
   - `enki::I18n::setLocale(locale)` — Update active locale and notify all active UI listeners.
   - `enki::I18n::onLocaleChanged()` — Global `Signal<const Locale&>` dispatched on locale changes.
 
@@ -78,13 +78,13 @@ enki::Locale ar_iq("ar", "IQ"); // Arabic (Iraq)
 enki::Locale en_us("en", "US"); // English (United States)
 
 // BCP-47 and POSIX parsing
-auto loc1 = enki::Locale::parse("ar-IQ");      // language="ar", country="IQ"
-auto loc2 = enki::Locale::parse("en_GB.UTF-8"); // language="en", country="GB"
-auto loc3 = enki::Locale::parse("zh-Hant-TW");  // language="zh", script="Hant", country="TW"
+auto loc1 = enki::Locale::fromTag("ar-IQ");       // language="ar", country="IQ"
+auto loc2 = enki::Locale::fromTag("en_GB.UTF-8"); // language="en", country="GB"
+auto loc3 = enki::Locale::fromTag("zh-Hant-TW");  // language="zh", script="Hant", country="TW"
 
 // Stringification
-std::string tag = ar_iq.toLanguageTag(); // "ar-IQ"
-std::string pos = ar_iq.toPosix();       // "ar_IQ"
+std::string tag = ar_iq.tag();        // "ar-IQ"
+std::string pos = ar_iq.to_string();  // "ar_IQ"
 ```
 
 #### Directionality & RTL Detection
@@ -131,9 +131,9 @@ enki::I18n::define(enki::I18nConfig{
 
 #### Resolution Fallback Cascade
 When `tr(key)` is invoked:
-1. Search in `currentLocale.toLanguageTag()` (e.g., `ar-IQ`).
+1. Search in `currentLocale.tag()` (e.g., `ar-IQ`).
 2. Search in `currentLocale.language` (e.g., `ar`).
-3. Search in `fallbackLocale.toLanguageTag()` (e.g., `en-US`).
+3. Search in `fallbackLocale.tag()` (e.g., `en-US`).
 4. Search in `fallbackLocale.language` (e.g., `en`).
 5. If no translation exists, return the raw `key` string as a failsafe.
 
@@ -274,7 +274,7 @@ The `enki_gallery` application showcases complete end-to-end localization coveri
 
 ### Step 1: Centralized Translation Catalog (`gallery_i18n.hpp`)
 
-File: [`real_app/gallery/src/services/gallery_i18n.hpp`](file:///c:/Users/x/Desktop/enki/real_app/gallery/src/services/gallery_i18n.hpp)
+File: [`real_app/gallery/src/services/gallery_i18n.hpp`](file:///home/x/enki/real_app/gallery/src/services/gallery_i18n.hpp)
 
 ```cpp
 #pragma once
@@ -359,7 +359,7 @@ inline std::string localizeFolderName(std::string_view folder) {
 
 ### Step 2: Interactive Language Switcher in App Bar (`app_bar.hpp`)
 
-File: [`real_app/gallery/src/ui/components/app_bar.hpp`](file:///c:/Users/x/Desktop/enki/real_app/gallery/src/ui/components/app_bar.hpp)
+File: [`real_app/gallery/src/ui/components/app_bar.hpp`](file:///home/x/enki/real_app/gallery/src/ui/components/app_bar.hpp)
 
 ```cpp
 // 1. Translated title
@@ -403,7 +403,7 @@ auto lang_btn = makeClickable(
 
 ### Step 3: Decoupled Filter Chips (`filter_chips.hpp`)
 
-File: [`real_app/gallery/src/ui/components/filter_chips.hpp`](file:///c:/Users/x/Desktop/enki/real_app/gallery/src/ui/components/filter_chips.hpp)
+File: [`real_app/gallery/src/ui/components/filter_chips.hpp`](file:///home/x/enki/real_app/gallery/src/ui/components/filter_chips.hpp)
 
 To avoid breaking business logic, folder filters keep their original English/system keys (`"All"`, `"Favorites"`, `"Pictures"`) for filtering, while displaying localized strings to the user:
 
@@ -435,22 +435,26 @@ auto chip = makeClickable(
 
 | Method | Parameters | Return Type | Description |
 |---|---|---|---|
-| `define` | `I18nConfig config` | `void` | Initialize application dictionaries, fallback locale, and plural rules. |
-| `setLocale` | `const Locale& locale` | `void` | Switch active runtime locale and dispatch `onLocaleChanged`. |
+| `define` | `const I18nConfig& config` | `void` | Initialize application dictionaries, fallback locale, and plural rules. |
+| `addTranslations` | `string_view lang, const unordered_map<string, string>& strings` | `void` | Add or update translation strings for a language code. |
+| `addPlural` | `string_view lang, string_view key, const PluralForms& forms` | `void` | Add declarative plural form definition for a specific language and key. |
+| `setLocale` | `const Locale& locale` / `string_view lang` | `void` | Switch active runtime locale and dispatch `onLocaleChanged`. |
 | `currentLocale` | *none* | `const Locale&` | Retrieve active runtime locale. |
 | `fallbackLocale` | *none* | `const Locale&` | Retrieve default fallback locale. |
+| `setFallbackLocale` | `const Locale& locale` | `void` | Set the fallback locale. |
 | `isRTL` | *none* | `bool` | Returns `true` if active locale writes Right-to-Left. |
 | `onLocaleChanged` | *none* | `Signal<const Locale&>&` | Global signal emitted on locale change. |
-| `translate` | `string_view key, StringMap params = {}` | `std::string` | Look up translation and interpolate `{name}` parameters. |
-| `translatePlural` | `string_view key, uint64_t count, StringMap params = {}` | `std::string` | Select grammatical plural category according to CLDR rules and interpolate. |
+| `translate` | `string_view key, const TranslationArgs& args = {}` | `std::string` | Look up translation and interpolate `{name}` parameters. |
+| `translatePlural` | `string_view key, int64_t count, const TranslationArgs& args = {}` | `std::string` | Select grammatical plural category according to CLDR rules and interpolate. |
+| `reset` | *none* | `void` | Clear all loaded translation stores and reset to default. |
 
 ### Global Helper Functions
 
 | Function | Signature | Description |
 |---|---|---|
-| `enki::tr` | `std::string tr(string_view key, StringMap params = {})` | Shorthand for `I18n::translate()`. |
-| `enki::trPlural` | `std::string trPlural(string_view key, uint64_t count, StringMap params = {})` | Shorthand for `I18n::translatePlural()`. |
-| `enki::localizedText`| `WidgetPtr localizedText(string_view key, StringMap params = {}, TextStyle style = {})` | Declarative widget that outputs a `Text` widget with translated content. |
+| `enki::tr` | `std::string tr(string_view key, const TranslationArgs& args = {})` | Shorthand for `I18n::translate()`. |
+| `enki::trPlural` | `std::string trPlural(string_view key, int64_t count, const TranslationArgs& args = {})` | Shorthand for `I18n::translatePlural()`. |
+| `enki::localizedText`| `WidgetPtr localizedText(string_view key, const TextStyle& style = {}, const TranslationArgs& args = {})` | Declarative widget that outputs a `LocalizedTextWidget` self-updating on locale changes. |
 
 ---
 

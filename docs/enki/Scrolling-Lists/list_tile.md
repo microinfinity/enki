@@ -74,8 +74,16 @@ struct ListTile {
     Color                 selected_color      = 0x1A2563EB; // Light primary blue tint
     Color                 focus_color         = 0x1A2563EB;
     Color                 disabled_color      = 0x40808080;
+    Color                 splash_color        = 0x33FFFFFF;
 
     BorderRadius          shape               = BorderRadius::zero();
+
+    float                 min_height          = 56.0f;
+    float                 min_height_two_line = 72.0f;
+    float                 dense_min_height    = 48.0f;
+    float                 leading_width       = 40.0f;
+    float                 trailing_width      = 24.0f;
+    bool                  enable_feedback     = true;
 
     operator WidgetPtr() const;
 };
@@ -89,17 +97,35 @@ struct ListTile {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `leading` | `WidgetPtr` | `nullptr` | Leftmost slot (icon, avatar, or checkbox). |
 | `title` | `WidgetPtr` | `nullptr` | Primary text label. |
 | `subtitle` | `WidgetPtr` | `nullptr` | Secondary description displayed beneath `title`. |
 | `trailing` | `WidgetPtr` | `nullptr` | Rightmost slot (badge, chevron, switch, or button). |
 | `selected` | `bool` | `false` | When true, renders with `selected_color` background. |
 | `enabled` | `bool` | `true` | Controls interactivity and pointer cursor (`SystemCursor::Pointer`). |
-| `on_tap` | `Function()` | `nullptr` | Click/tap handler. |
-| `on_secondary_tap`| `Function()` | `nullptr` | Right-click handler (e.g. for opening context menus). |
+| `autofocus` | `bool` | `false` | Whether the tile should focus on initial render. |
+| `on_tap` | `std::function<void()>` | `nullptr` | Click/tap handler. |
+| `on_long_press` | `std::function<void()>` | `nullptr` | Long press handler. |
+| `on_secondary_tap`| `std::function<void()>` | `nullptr` | Right-click handler (e.g. for opening context menus). |
 | `visual_density` | `VisualDensity` | `Standard` | Sizing preset (`Standard`, `Compact`, `Comfortable`). |
+| `min_height` | `float` | `56.0f` | Minimum vertical height for single-line tiles. |
+| `min_height_two_line`| `float` | `72.0f` | Minimum vertical height when subtitle is present. |
+| `dense_min_height` | `float` | `48.0f` | Height used when density is Compact. |
+| `content_padding` | `EdgeInsets` | `symmetric(0, 16)` | Internal horizontal and vertical padding. |
+| `leading_gap` | `float` | `16.0f` | Gap between leading widget and title. |
+| `trailing_gap` | `float` | `8.0f` | Gap between title/subtitle and trailing widget. |
+| `tile_color` | `Color` | `Colors::Transparent` | Base background fill color of the tile. |
 | `hover_color` | `Color` | `0x0DFFFFFF` | Highlight overlay color when mouse hovers over the tile. |
+| `pressed_color` | `Color` | `0x1AFFFFFF` | Highlight overlay color while pointer is pressed. |
 | `selected_color` | `Color` | `0x1A2563EB` | Active fill color when `selected == true`. |
+| `focus_color` | `Color` | `0x1A2563EB` | Color applied when focused via keyboard navigation. |
+| `disabled_color` | `Color` | `0x40808080` | Tint applied when `enabled == false`. |
+| `splash_color` | `Color` | `0x33FFFFFF` | Ripple click animation color. |
+| `shape` | `BorderRadius` | `zero()` | Corner rounding of the tile background. |
+| `leading_width` | `float` | `40.0f` | Fixed width allocated to the leading widget. |
+| `trailing_width` | `float` | `24.0f` | Fixed width allocated to the trailing widget. |
+| `enable_feedback` | `bool` | `true` | Enables animated ripple feedback on click. |
 
 ---
 

@@ -71,6 +71,8 @@ inline std::shared_ptr<ButtonWidget> button(WidgetPtr child,
 
 inline std::shared_ptr<ButtonWidget> button(ButtonProps props);
 
+inline std::shared_ptr<ButtonWidget> button(ButtonProps props, WidgetPtr child);
+
 } // namespace enki
 ```
 
@@ -80,15 +82,23 @@ inline std::shared_ptr<ButtonWidget> button(ButtonProps props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `child` | `WidgetPtr` | `nullptr` | Content displayed inside the button (e.g. `text("Submit")`). |
 | `on_pressed` | `ButtonCallback` | `nullptr` | Click handler function. If `nullptr`, the button is automatically disabled. |
 | `disabled` | `bool` | `false` | Explicitly disables button interactivity and applies `disabled_color`. |
 | `normal_color` | `Color` | `0xFF2563EB` | Resting background color. |
 | `hover_color` | `Color` | `0xFF3B82F6` | Background color when mouse pointer hovers over the button. |
 | `pressed_color` | `Color` | `0xFF1D4ED8` | Background color while mouse button is held down. |
+| `disabled_color` | `Color` | `0xFF475569` | Background color when button is disabled or has no click handler. |
 | `border_radius` | `float` | `8.0f` | Corner radius of the button box. |
-| `padding` | `EdgeInsets` | `symmetric(10, 20)` | Padding around the child content. |
+| `padding` | `EdgeInsets` | `EdgeInsets::symmetric(10.0f, 20.0f)` | Padding around the child content. |
+| `min_width` | `float` | `64.0f` | Minimum constrained width of the button. |
+| `min_height` | `float` | `36.0f` | Minimum constrained height of the button. |
+| `shadow_color` | `Color` | `0x40000000` | Drop shadow color under the button. |
+| `shadow_blur` | `float` | `4.0f` | Blur radius of the elevation drop shadow. |
+| `shadow_offset_dy` | `float` | `2.0f` | Vertical offset distance of the drop shadow. |
 | `enable_ripple` | `bool` | `true` | Enables circular ripple expansion animation upon clicking. |
+| `ripple_color` | `Color` | `0x40FFFFFF` | Color tint of the animated click ripple wave. |
 | `custom_shader` | `std::string` | `""` | Optional raw SkSL shader source code for custom GPU effects. |
 
 ---

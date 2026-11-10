@@ -73,6 +73,7 @@ struct GridTile {
 ### GridTile
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `child` | `WidgetPtr` | `nullptr` | Main background content (e.g. an `ImageWidget` or thumbnail). |
 | `header` | `WidgetPtr` | `nullptr` | Top banner overlay (pinned to top of tile). |
 | `footer` | `WidgetPtr` | `nullptr` | Bottom banner overlay (pinned to bottom of tile). |
@@ -80,11 +81,16 @@ struct GridTile {
 ### GridTileBar
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `title` | `WidgetPtr` | `nullptr` | Primary heading text. |
 | `subtitle` | `WidgetPtr` | `nullptr` | Secondary caption text beneath `title`. |
 | `leading` | `WidgetPtr` | `nullptr` | Leading icon or avatar slot on the left. |
 | `trailing` | `WidgetPtr` | `nullptr` | Trailing action or icon button on the right. |
 | `background_color` | `Color` | `0xCC000000` | Scrim background color ensuring text readability. |
+| `padding_vertical` | `float` | `8.0f` | Top and bottom inner padding. |
+| `padding_horizontal`| `float` | `8.0f` | Left and right inner padding. |
+| `leading_gap` | `float` | `8.0f` | Spacing between leading widget and title. |
+| `trailing_gap` | `float` | `8.0f` | Spacing between title and trailing widget. |
 
 ---
 

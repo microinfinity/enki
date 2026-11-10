@@ -412,7 +412,7 @@ auto even_only_counter = bloc_builder<CounterCubit>(
 3. In `BlocBuilderState<B>::dispose()`, it cancels the subscription:
    ```cpp
    if (bloc_ && subscription_id_ != InvalidSubscriptionId) {
-       bloc_->cancel(subscription_id_);
+       bloc_->cancelSubscription(subscription_id_);
        subscription_id_ = InvalidSubscriptionId;
    }
    ```
@@ -429,14 +429,16 @@ public:
         std::cout << "[OBSERVER] Created: " << name << "\n";
     }
 
-    void onChange(std::string_view name,
-                  const std::string& current,
-                  const std::string& next) override {
-        std::cout << "[OBSERVER] " << name << " transition: " << current << " -> " << next << "\n";
+    void onChangeAny(std::string_view name, std::string_view description) override {
+        std::cout << "[OBSERVER] " << name << ": " << description << "\n";
     }
 
-    void onError(std::string_view name, const std::string& error) override {
+    void onErrorAny(std::string_view name, std::string_view error) override {
         std::cerr << "[OBSERVER ERROR] " << name << ": " << error << "\n";
+    }
+
+    void onClose(std::string_view name) override {
+        std::cout << "[OBSERVER] Closed: " << name << "\n";
     }
 };
 

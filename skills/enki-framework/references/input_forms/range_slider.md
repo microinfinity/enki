@@ -55,6 +55,7 @@ struct RangeSlider {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `start_value` | `float` | `0.0f` | Current lower bound value of the selected interval. |
 | `end_value` | `float` | `1.0f` | Current upper bound value of the selected interval. |
 | `on_change` | `RangeSliderCallback` | `nullptr` | Callback receiving `(start, end)` when either thumb is dragged. |
@@ -62,7 +63,12 @@ struct RangeSlider {
 | `max_value` | `float` | `1.0f` | Maximum scale boundary. |
 | `active_color` | `Color` | `0xFF3B82F6` | Color of the highlighted track segment between the two thumbs. |
 | `inactive_color`| `Color` | `0xFFCBD5E1` | Color of the track outside the selected interval. |
-| `thumb_radius` | `float` | `10.0f` | Size of both circular thumb handles. |
+| `thumb_color` | `Color` | `0xFFFFFFFF` | Fill color of both draggable thumb handles. |
+| `track_height` | `float` | `4.0f` | Thickness of the slider track line in pixels. |
+| `thumb_radius` | `float` | `10.0f` | Radius of both circular thumb handles. |
+| `shadow_color` | `Color` | `0x40000000` | Drop shadow color under the thumb handles. |
+| `shadow_blur` | `float` | `4.0f` | Blur radius of the thumb drop shadow. |
+| `shadow_offset_dy`| `float`| `2.0f` | Vertical offset of the thumb drop shadow. |
 
 ---
 

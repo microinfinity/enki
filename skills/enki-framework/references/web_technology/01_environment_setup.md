@@ -65,7 +65,7 @@ The Enki Web Host is powered by **CEF (Chromium Embedded Framework)**. The binar
 ### Download
 
 ```bash
-cd /path/to/enki/web_technology
+cd /path/to/enki/modules/web_technology
 
 # Download the minimal distribution
 wget "https://cef-builds.spotifycdn.com/cef_binary_144.0.34+g8fc21c8+chromium-144.0.7559.261_linux64_minimal.tar.bz2"
@@ -77,7 +77,7 @@ tar -xjf cef_binary_*.tar.bz2 -C cef_binary/
 
 The resulting layout should be:
 ```
-web_technology/
+modules/web_technology/
 └── cef_binary/
     └── cef_binary_144.0.34+g8fc21c8+chromium-144.0.7559.261_linux64_minimal/
         ├── include/
@@ -99,7 +99,7 @@ web_technology/
 The `libcef_dll_wrapper` static library must be compiled from source:
 
 ```bash
-cd web_technology/cef_binary/cef_binary_144.0.34+g8fc21c8+chromium-144.0.7559.261_linux64_minimal
+cd modules/web_technology/cef_binary/cef_binary_144.0.34+g8fc21c8+chromium-144.0.7559.261_linux64_minimal
 
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -115,8 +115,8 @@ This produces `build/libcef_dll_wrapper/libcef_dll_wrapper.a` which Meson picks 
 From the root of the Enki repository:
 
 ```bash
-# Configure the build (web_technology is included by default)
-meson setup build_dir
+# Configure the build (enable webview module)
+meson setup build_dir -Denable_webview=true
 
 # Build everything
 ninja -C build_dir
@@ -129,8 +129,8 @@ ninja -C build_dir examples/web_host_demo
 
 ```bash
 ls -lh build_dir/examples/web_host_demo
-ls -lh build_dir/web_technology/subprocess/enki_cef_subprocess
-ls -lh build_dir/web_technology/libenki_web.a
+ls -lh build_dir/modules/web_technology/subprocess/enki_cef_subprocess
+ls -lh build_dir/modules/web_technology/libenki_web.a
 ```
 
 All three artifacts must exist for the runtime to work correctly.
@@ -157,13 +157,13 @@ A native X11 window should appear displaying the Enki Web starter template.
 The CEF runtime cannot locate `icudtl.dat`. Make sure the `Resources/` directory is accessible. The runtime searches the following paths automatically:
 
 1. Next to the executable
-2. `web_technology/cef_binary/.../Resources/`
+2. `modules/web_technology/cef_binary/.../Resources/`
 3. Absolute path (fallback)
 
 If the issue persists, copy the Resources manually:
 
 ```bash
-cp -r web_technology/cef_binary/.../Resources/* build_dir/examples/
+cp -r modules/web_technology/cef_binary/.../Resources/* build_dir/examples/
 ```
 
 ### `Opening in existing browser session`

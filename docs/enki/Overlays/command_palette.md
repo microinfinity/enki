@@ -96,7 +96,7 @@ struct CommandPaletteOptions {
     bool auto_close_on_select   = true;      ///< Auto-dismiss overlay after executing command
     bool barrier_dismissible    = true;      ///< Close when clicking outside on backdrop scrim
     bool show_recent            = true;      ///< Show recent commands when query is empty
-    size_t max_results          = 40;        ///< Max items to display in list
+    size_t max_results          = 20;        ///< Max items to display in list
 
     // Callbacks
     std::function<void()> on_open;
@@ -121,6 +121,68 @@ public:
     void executeActive();
     void clearRecent();
 };
+
+struct CommandPalette {
+    Key                                       key          = Key::none();
+    WidgetPtr                                 body         = nullptr;
+    WidgetPtr                                 child        = nullptr; ///< Alias for body
+    std::vector<CommandItem>                  items        = {};
+    CommandPaletteOptions                     options      = {};
+    std::shared_ptr<CommandPaletteController> controller   = nullptr;
+    bool                                      initial_open = false;
+
+    operator WidgetPtr() const;
+};
+
+} // namespace enki
+```
+
+---
+
+## Properties Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `body` / `child` | `WidgetPtr` | `nullptr` | Application page content wrapped by the overlay. |
+| `items` | `std::vector<CommandItem>` | `{}` | Initial collection of searchable command items. |
+| `options` | `CommandPaletteOptions` | `{}` | Visual customization, keyboard shortcuts, and dimensions. |
+| `controller` | `std::shared_ptr<CommandPaletteController>` | `nullptr` | Controller to open, close, query, or execute commands. |
+| `initial_open` | `bool` | `false` | Whether palette is open initially upon creation. |
+
+### `CommandPaletteOptions` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `overlay_color` | `Color` | `0xCC080C14` | Deep dark backdrop scrim color. |
+| `card_bg_color` | `Color` | `0xF80F172A` | Floating search card background color. |
+| `border_color` | `Color` | `0xFF334155` | Search card border outline color. |
+| `input_bg_color` | `Color` | `0xFF0B0F19` | Search input field background. |
+| `input_text_color` | `Color` | `0xFFF8FAFC` | Search input query text color. |
+| `placeholder_color` | `Color` | `0xFF64748B` | Search input placeholder text color. |
+| `item_hover_bg` | `Color` | `0x3338BDF8` | Item background highlight on mouse hover. |
+| `item_selected_bg` | `Color` | `0xFF0284C7` | Active selected item background highlight. |
+| `item_title_color` | `Color` | `0xFFF8FAFC` | Primary title font color. |
+| `item_subtitle_color` | `Color` | `0xFF94A3B8` | Subtitle description font color. |
+| `highlight_match_color`| `Color` | `0xFF38BDF8` | Highlight color for matched character substrings. |
+| `shortcut_badge_bg` | `Color` | `0xFF1E293B` | Shortcut pill background badge color. |
+| `shortcut_text_color` | `Color` | `0xFF94A3B8` | Shortcut pill font color. |
+| `section_header_color` | `Color` | `0xFF64748B` | Category section header font color. |
+| `card_width` | `float` | `620.0f` | Palette card width in pixels. |
+| `max_list_height` | `float` | `400.0f` | Maximum results list viewport height. |
+| `card_border_radius` | `float` | `14.0f` | Card corner rounding radius. |
+| `top_margin` | `float` | `90.0f` | Distance from window top edge. |
+| `placeholder` | `std::string` | `"Type a command or search..."` | Search box placeholder text. |
+| `empty_text` | `std::string` | `"No matching commands found"` | Message when no commands match query. |
+| `enable_global_shortcut`| `bool` | `true` | Listen for `Ctrl+K` / `Cmd+K` global keyboard shortcut. |
+| `auto_close_on_select` | `bool` | `true` | Close palette automatically when an action executes. |
+| `barrier_dismissible` | `bool` | `true` | Dismiss palette when clicking outside on backdrop scrim. |
+| `show_recent` | `bool` | `true` | Display recently executed items when query is empty. |
+| `max_results` | `size_t` | `20` | Maximum results displayed simultaneously. |
+| `on_open` | `std::function<void()>` | `nullptr` | Callback when palette opens. |
+| `on_close` | `std::function<void()>` | `nullptr` | Callback when palette closes. |
+| `on_query_change` | `std::function<void(const std::string&)>` | `nullptr` | Callback when search input text changes. |
+| `on_item_selected` | `std::function<void(const CommandItem&)>` | `nullptr` | Callback when an item is selected/executed. |
 
 } // namespace enki
 ```
@@ -167,8 +229,8 @@ WidgetPtr app_view = CommandPalette {
 
 ---
 
-## Roadmap v0.2.0 Verification
-
-- [x] **CommandPalette** — Keyboard-driven fuzzy-search command launcher overlay (Ctrl+K style)
-- [x] **Spotlight** — Full-screen dimmed overlay with a highlighted "spotlight" region around a widget
-- [x] **FloatingPanel** — Draggable, resizable floating window rendered above the main widget tree
+## See Also
+- [**Spotlight**](./spotlight.md) — Full-screen dimmed overlay with highlighted region.
+- [**FloatingPanel**](./floating_panel.md) — Draggable and resizable floating window overlay.
+- [**Dialog**](./dialog.md) — Centered modal prompt dialogs.
+- [**BottomSheet**](./bottom_sheet.md) — Slide-up sheet with detent snapping.

@@ -13,7 +13,7 @@
 
 ## Overview
 
-`SplitView` partitions a layout into two resizable panes (left/right or top/bottom) separated by an interactive divider bar. Users can drag the divider with real-time cursor feedback (`SystemCursor::ResizeLeftRight` or `SystemCursor::ResizeUpDown`). It enforces minimum pane dimensions and can snap-collapse panes when dragged past the threshold boundary.
+`SplitView` partitions a layout into two resizable panes (left/right or top/bottom) separated by an interactive divider bar. Users can drag the divider with real-time cursor feedback (`SystemCursor::ResizeHorizontal` or `SystemCursor::ResizeVertical`). It enforces minimum pane dimensions and can snap-collapse panes when dragged past the threshold boundary.
 
 ---
 
@@ -65,6 +65,7 @@ struct SplitViewOptions {
     Color                 handle_color       = 0xFF334155;    ///< Slate 700
     Color                 handle_hover_color = 0xFF38BDF8;    ///< Sky 400
     Color                 handle_active_color= 0xFF0284C7;    ///< Dragging blue
+    Color                 background_color   = 0xFF0F172A;    ///< Slate 900
     bool                  show_handle_grip   = true;          ///< Grip dots (⋮⋮) on divider
 
     // Callbacks
@@ -76,6 +77,8 @@ struct SplitView {
     Key                                  key          = Key::none();
     WidgetPtr                            leading      = nullptr; ///< First pane (left/top)
     WidgetPtr                            trailing     = nullptr; ///< Second pane (right/bottom)
+    WidgetPtr                            first_child  = nullptr; ///< Alias for leading
+    WidgetPtr                            second_child = nullptr; ///< Alias for trailing
     SplitViewOptions                     options      = {};
     std::shared_ptr<SplitViewController> controller   = nullptr;
 
@@ -91,14 +94,26 @@ struct SplitView {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `leading` | `WidgetPtr` | `nullptr` | First pane content (left or top). |
 | `trailing` | `WidgetPtr` | `nullptr` | Second pane content (right or bottom). |
+| `first_child` | `WidgetPtr` | `nullptr` | Convenience alias for `leading`. |
+| `second_child` | `WidgetPtr` | `nullptr` | Convenience alias for `trailing`. |
+| `controller` | `std::shared_ptr<SplitViewController>` | `nullptr` | Programmatic handle for reading/setting split ratio and collapsing panes. |
 | `options.orientation`| `SplitOrientation` | `Horizontal` | Split axis (`Horizontal` or `Vertical`). |
-| `options.initial_ratio`| `float` | `0.50f` | Proportion of space allocated to leading pane. |
+| `options.initial_ratio`| `float` | `0.50f` | Proportion of space allocated to leading pane (0.0 to 1.0). |
 | `options.min_leading_size`| `float` | `100.0f` | Minimum pixel constraint for leading pane. |
 | `options.min_trailing_size`| `float` | `100.0f` | Minimum pixel constraint for trailing pane. |
 | `options.allow_collapse`| `bool` | `true` | Allows collapsing a pane when dragged beyond `snap_threshold`. |
+| `options.snap_threshold`| `float` | `40.0f` | Drag threshold in pixels below which a pane snaps closed. |
 | `options.handle_thickness`| `float`| `6.0f` | Thickness of the draggable divider handle. |
+| `options.handle_color` | `Color` | `0xFF334155` | Default color of the divider handle bar. |
+| `options.handle_hover_color`| `Color` | `0xFF38BDF8` | Accent highlight color of divider on mouse hover. |
+| `options.handle_active_color`| `Color` | `0xFF0284C7` | Active dragging color of divider handle. |
+| `options.background_color` | `Color` | `0xFF0F172A` | Background fill color of the SplitView container. |
+| `options.show_handle_grip`| `bool` | `true` | Renders grip dots pattern on the divider handle. |
+| `options.on_split_changed`| `std::function<void(float)>` | `nullptr` | Callback fired when the split ratio changes. |
+| `options.on_pane_collapsed`| `std::function<void(bool)>` | `nullptr` | Callback fired when a pane is collapsed. |
 
 ---
 

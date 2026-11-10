@@ -51,8 +51,9 @@ struct OverflowBox {
     operator WidgetPtr() const;
 };
 
-// Declarative factory helper:
+// Declarative factory helpers:
 std::shared_ptr<OverflowBoxWidget> overflowBox(const OverflowBoxProps& props = {});
+std::shared_ptr<OverflowBoxWidget> overflowBox(WidgetPtr child);
 
 } // namespace enki
 ```

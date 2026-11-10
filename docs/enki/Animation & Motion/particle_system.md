@@ -106,6 +106,16 @@ inline WidgetPtr particleEmitter(const ParticleEmitterProps& props = {});
 } // namespace enki
 ```
 
+#### Properties Reference (`ParticleEmitterProps`)
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `preset` | `ParticlePreset` | `ConfettiBurst` | Preset configuration (`ConfettiBurst`, `NeonSparks`, `AmbientDust`, `SnowFall`). |
+| `custom_config` | `std::optional<ParticleConfig>` | `nullopt` | Detailed override of particle physics, counts, and colors. |
+| `active` | `bool` | `true` | When true, emits continuous particles or fires a burst. |
+| `child` | `WidgetPtr` | `nullptr` | Background widget rendered behind the particle canvas. |
+
 ### 2. `ParticleSystem` Standalone Engine
 ```cpp
 namespace enki {
@@ -261,3 +271,10 @@ public:
     }
 };
 ```
+
+---
+
+## See Also
+- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Direct low-level Skia GPU 2D drawing.
+- [**SpringPhysics**](./spring_physics.md) — Analytical spring-damper dynamics engine.
+- [**AnimatedContainer**](./animated_container.md) — Implicit multi-property tweening.

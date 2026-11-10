@@ -88,12 +88,22 @@ struct Drawer {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `child` | `WidgetPtr` | `nullptr` | Content placed inside the sliding drawer panel. |
 | `body` | `WidgetPtr` | `nullptr` | Background application content overlaid by the drawer. |
+| `initial_open` | `bool` | `false` | Whether drawer panel is initially opened on mount. |
 | `controller` | `std::shared_ptr<DrawerController>`| `nullptr` | Programmatic handle for `open()`, `close()`, and `isOpen()`. |
 | `options.side` | `DrawerSide` | `DrawerSide::Left`| Screen edge to slide in from (`Left` or `Right`). |
 | `options.width` | `float` | `280.0f` | Width of the drawer panel in pixels. |
+| `options.background_color` | `Color` | `0xFF1E293B` | Background color of drawer panel. |
+| `options.overlay_color` | `Color` | `0x80000000` | Backdrop scrim shadow color covering the body. |
+| `options.border_color` | `Color` | `0xFF334155` | Border stroke color on drawer edge. |
+| `options.border_radius` | `float` | `0.0f` | Corner rounding radius of outer drawer edges. |
+| `options.shadow_blur` | `float` | `24.0f` | Blur radius of drawer elevation drop shadow. |
+| `options.shadow_color` | `Color` | `0x80000000` | Color of drawer elevation drop shadow. |
 | `options.close_on_overlay`| `bool` | `true` | Closes drawer when user taps the dim backdrop overlay. |
+| `on_open` | `std::function<void()>` | `nullptr` | Callback fired when drawer finishes slide-in entrance. |
+| `on_close` | `std::function<void()>` | `nullptr` | Callback fired when drawer finishes slide-out exit. |
 
 ---
 

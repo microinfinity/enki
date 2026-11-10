@@ -270,3 +270,10 @@ WidgetPtr buildSpringyCard(bool is_expanded) {
     });
 }
 ```
+
+---
+
+## See Also
+- [**Timeline & Stagger**](./timeline_and_stagger.md) — Multi-track orchestrated keyframe timelines.
+- [**AnimatedContainer**](./animated_container.md) — Implicit multi-property tweening widgets.
+- [**ParticleSystem**](./particle_system.md) — 2D particle simulation engine.

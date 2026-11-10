@@ -48,6 +48,7 @@ inline std::shared_ptr<DecoratedBoxWidget> decoratedBox(const DecoratedBox& prop
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `decoration` | `BoxDecoration` | `{}` | Visual style descriptor (color, border, radius, shadow, gradient). |
 | `position` | `DecorationPosition` | `Background` | Paint order relative to child (`Background` or `Foreground`). |
 | `child` | `WidgetPtr` | `nullptr` | Content to be wrapped by the decoration. |

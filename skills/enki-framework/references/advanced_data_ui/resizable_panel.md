@@ -82,7 +82,11 @@ struct ResizablePanelOptions {
 
     Color              background_color  = 0xFF1E293B; // Slate 800
     Color              border_color      = 0xFF334155; // Slate 700
+    Color              active_border_col = 0xFF0284C7; // Blue 600
     Color              header_bg_color   = 0xFF0F172A; // Slate 900
+    Color              title_color       = 0xFFFFFFFF; // White
+    Color              grip_color        = 0xFF64748B; // Slate 500
+    Color              grip_hover_color  = 0xFF38BDF8; // Sky 400
 
     // Callbacks
     std::function<void(float w, float h)> on_resized         = nullptr;
@@ -111,14 +115,37 @@ struct ResizablePanel {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `child` | `WidgetPtr` | `nullptr` | Content rendered inside the floating tool window. |
 | `body` | `WidgetPtr` | `nullptr` | Main workspace background wrapped by the window overlay. |
-| `controller` | `shared_ptr<ResizablePanelController>`| `nullptr`| Handle for positioning, sizing, and minimizing programmatically. |
+| `controller` | `std::shared_ptr<ResizablePanelController>`| `nullptr`| Handle for positioning, sizing, and minimizing programmatically. |
 | `options.mode` | `ResizablePanelMode` | `Floating` | Floating window or docked boundary panel. |
-| `options.allow_drag_move`| `bool`| `true` | Allows dragging by the title bar across the screen. |
-| `options.show_corner_grip`| `bool`| `true` | Renders diagonal resize handle at bottom-right corner. |
-| `options.min_width` | `float` | `240.0f` | Minimum allowed width constraint during dragging. |
-| `options.min_height` | `float` | `160.0f` | Minimum allowed height constraint during dragging. |
+| `options.title` | `std::string` | `"Tool Window"` | Title bar text label. |
+| `options.icon` | `std::string` | `"🛠️"` | Leading emoji/icon in title bar. |
+| `options.initial_x`, `initial_y` | `float` | `240.0f`, `120.0f` | Initial floating window position coordinates. |
+| `options.initial_width`, `initial_height` | `float` | `460.0f`, `320.0f` | Initial window dimensions. |
+| `options.min_width`, `min_height` | `float` | `240.0f`, `160.0f` | Minimum allowed dimensions during drag resize. |
+| `options.max_width`, `max_height` | `float` | `1000.0f`, `800.0f` | Maximum allowed dimensions during drag resize. |
+| `options.show_header` | `bool` | `true` | Shows top window title bar. |
+| `options.show_corner_grip`| `bool` | `true` | Renders diagonal resize handle at bottom-right corner. |
+| `options.allow_drag_move` | `bool` | `true` | Allows dragging by the title bar across the screen. |
+| `options.allow_minimize` | `bool` | `true` | Enables window minimize control button. |
+| `options.allow_maximize` | `bool` | `true` | Enables window maximize control button. |
+| `options.allow_close` | `bool` | `true` | Enables window close control button. |
+| `options.border_radius` | `float` | `10.0f` | Window container corner rounding radius. |
+| `options.handle_thickness`| `float` | `6.0f` | Interactive drag hit-test thickness on edges. |
+| `options.background_color`| `Color` | `0xFF1E293B` | Window content background fill color. |
+| `options.border_color` | `Color` | `0xFF334155` | Inactive window border stroke color. |
+| `options.active_border_col`| `Color` | `0xFF0284C7` | Active/focused window border stroke color. |
+| `options.header_bg_color` | `Color` | `0xFF0F172A` | Title bar header background color. |
+| `options.title_color` | `Color` | `0xFFFFFFFF` | Title bar text color. |
+| `options.grip_color` | `Color` | `0xFF64748B` | Corner grip icon color. |
+| `options.grip_hover_color`| `Color` | `0xFF38BDF8` | Corner grip color on mouse hover. |
+| `options.on_resized` | `std::function<void(float, float)>` | `nullptr` | Callback fired on resize updates. |
+| `options.on_moved` | `std::function<void(float, float)>` | `nullptr` | Callback fired when window is moved. |
+| `options.on_minimize_toggled` | `std::function<void(bool)>` | `nullptr` | Callback fired when minimize button is clicked. |
+| `options.on_maximize_toggled` | `std::function<void(bool)>` | `nullptr` | Callback fired when maximize button is clicked. |
+| `options.on_closed` | `std::function<void()>` | `nullptr` | Callback fired when window close button is clicked. |
 
 ---
 

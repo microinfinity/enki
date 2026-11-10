@@ -1,6 +1,6 @@
 # NavigationBar
 
-> A multi-style navigation bar widget supporting Material 3 bottom bars, macOS floating glassmorphism capsule docks, desktop top header bars, and segmented tabs with  FPS sliding indicator physics.
+> A multi-style navigation bar widget supporting Material 3 bottom bars, macOS floating glassmorphism capsule docks, desktop top header bars, and segmented tabs with 60+ to 240+ FPS sliding indicator physics.
 
 - **Header File**: `#include "enki/widgets/navigation_bar.hpp"`
 - **C++ Class**: `enki::NavigationBarWidget` (inherits from `enki::StatefulWidget`)
@@ -100,14 +100,31 @@ struct NavigationBar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `items` | `std::vector<NavigationBarItem>` | `{}` | Selectable navigation items. |
 | `selected_index` | `int` | `0` | 0-indexed active item. |
-| `on_item_selected` | `Function(int)` | `nullptr` | Callback fired when selecting an item. |
-| `on_item_reselect` | `Function(int)` | `nullptr` | Callback fired when re-clicking the already-active item (e.g. scroll to top). |
-| `on_action_clicked`| `Function(string_view)` | `nullptr` | Callback fired when desktop top header trailing actions are clicked. |
-| `options.style` | `NavigationBarStyle` | `BottomStandard` | Overall navigation bar layout paradigm. |
-| `options.indicator_style`| `NavIndicatorStyle` | `Pill` | Shape of the hardware-accelerated animated sliding indicator. |
-| `options.item_layout`| `NavItemLayout` | `Vertical` | Internal arrangement of icon and text label. |
+| `on_item_selected` | `std::function<void(int)>` | `nullptr` | Callback fired when selecting an item. |
+| `on_item_reselect` | `std::function<void(int)>` | `nullptr` | Callback fired when re-clicking the already-active item (e.g. scroll to top). |
+| `on_action_clicked`| `std::function<void(std::string_view)>` | `nullptr` | Callback fired when desktop top header trailing actions are clicked. |
+| `options.style` | `NavigationBarStyle` | `BottomStandard` | Overall navigation bar layout paradigm (`BottomStandard`, `FloatingPill`, `TopHeader`, `SegmentedCapsule`). |
+| `options.indicator_style`| `NavIndicatorStyle` | `Pill` | Shape of the sliding indicator (`Pill`, `Underline`, `Dot`, `Glow`, `None`). |
+| `options.item_layout`| `NavItemLayout` | `Vertical` | Internal arrangement of icon and text (`Vertical`, `Horizontal`, `IconOnly`, `LabelOnly`). |
+| `options.background_color` | `Color` | `0xFF1E293B` | Primary surface background color. |
+| `options.border_color` | `Color` | `0xFF334155` | Border or separator line color. |
+| `options.active_color` | `Color` | `0xFF38BDF8` | Active icon & label tint. |
+| `options.inactive_color` | `Color` | `0xFF94A3B8` | Inactive icon & label tint. |
+| `options.indicator_color` | `Color` | `0x2638BDF8` | Active indicator fill/highlight color. |
+| `options.indicator_border` | `Color` | `0x4D38BDF8` | Active indicator outline border color. |
+| `options.badge_color` | `Color` | `0xFFEF4444` | Notification badge background color. |
+| `options.badge_text_color` | `Color` | `0xFFFFFFFF` | Notification badge text color. |
+| `options.height` | `float` | `68.0f` | Total bar height in pixels. |
+| `options.width` | `float` | `0.0f` | Bar width (0.0 for 100% full width, >0 for fixed width). |
+| `options.corner_radius` | `float` | `0.0f` | Outer bar corner radius (e.g. 24px for floating pill). |
+| `options.enable_glassmorphism` | `bool` | `false` | Enables multi-layer glass backdrop effect. |
+| `options.leading_title` | `std::string` | `""` | Brand or application title for top header mode. |
+| `options.show_search_placeholder` | `bool` | `false` | Displays inline search box mock for top header mode. |
+| `options.trailing_actions` | `std::vector<std::string>` | `{}` | Action button labels in top header mode. |
+| `options.enable_animations` | `bool` | `true` | Enables animated indicator sliding transitions. |
 
 ---
 

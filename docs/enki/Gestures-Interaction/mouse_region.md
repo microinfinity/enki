@@ -24,22 +24,20 @@ In desktop and workstation environments, mouse cursor visual states inform users
 namespace enki {
 
 enum class SystemCursor {
-    Default,                    ///< Standard arrow pointer (default)
-    None,                       ///< Hidden cursor
-    Pointer,                    ///< Pointing hand (used for links and clickable buttons)
-    Text,                       ///< I-beam text selection beam
-    Crosshair,                  ///< Precision crosshair (used for canvas editors)
-    Wait,                       ///< Busy hourglass / spinning wheel
-    Progress,                   ///< Arrow with small hourglass
-    NotAllowed,                 ///< Prohibited circle with slash (disabled state)
-    Help,                       ///< Arrow with question mark
-
-    // Resize Handles
-    ResizeUpDown,               ///< Vertical bidirectional resize arrow (↕)
-    ResizeLeftRight,            ///< Horizontal bidirectional resize arrow (↔)
-    ResizeTopLeftBottomRight,   ///< Diagonal top-left to bottom-right (↖↘)
-    ResizeTopRightBottomLeft,   ///< Diagonal top-right to bottom-left (↗↙)
-    Move                        ///< 4-way move cross (used for draggable panels)
+    Default,
+    Arrow,
+    Pointer,          // Link / Hand
+    Text,             // I-Beam
+    Crosshair,
+    Move,
+    NotAllowed,
+    ResizeHorizontal,
+    ResizeVertical,
+    ResizeTopLeft,     // NW-SE / Top-Left corner
+    ResizeTopRight,    // NE-SW / Top-Right corner
+    ResizeBottomLeft,  // SW-NE / Bottom-Left corner
+    ResizeBottomRight, // SE-NW / Bottom-Right corner
+    Wait
 };
 
 } // namespace enki
@@ -73,7 +71,7 @@ using namespace enki;
 WidgetPtr buildSplitterHandle(std::function<void(float dy)> onResizeDrag) {
     return gestureDetector({
         // Switch hardware cursor to vertical resize arrows
-        .cursor_type = SystemCursor::ResizeUpDown,
+        .cursor_type = SystemCursor::ResizeVertical,
         .hit_test_behavior = HitTestBehavior::Opaque,
         .on_pan_update = [onResizeDrag](const DragUpdateDetails& d) {
             onResizeDrag(d.delta.y);

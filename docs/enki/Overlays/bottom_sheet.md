@@ -78,14 +78,25 @@ struct BottomSheet {
     float                                  full_fraction     = 0.88f;
     float                                  border_radius     = 16.0f;
 
+    // Styling Colors
+    Color                                  background_color  = 0xFF1E293B;
+    Color                                  border_color      = 0xFF334155;
+    Color                                  handle_color      = 0xFF64748B;
+    Color                                  handle_hover_col  = 0xFF94A3B8;
+    Color                                  overlay_color     = 0x99000000;
+    Color                                  title_color       = 0xFFFFFFFF;
+    Color                                  subtitle_color    = 0xFF94A3B8;
+
     std::string                            title             = "";
     std::string                            subtitle          = "";
 
-    std::shared_ptr<BottomSheetController> controller        = nullptr;
-
     // Callbacks
+    std::function<void()>                  on_opened         = nullptr;
+    std::function<void()>                  on_closed         = nullptr;
     std::function<void(BottomSheetDetent)> on_detent_changed = nullptr;
     std::function<void(float fraction)>    on_drag_progress  = nullptr;
+
+    std::shared_ptr<BottomSheetController> controller        = nullptr;
 
     operator WidgetPtr() const;
 };
@@ -99,13 +110,34 @@ struct BottomSheet {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `body` | `WidgetPtr` | `nullptr` | Application page content wrapped by the overlay. |
 | `sheet_content` | `WidgetPtr` | `nullptr` | Widgets displayed inside the sliding sheet panel. |
-| `controller` | `shared_ptr<BottomSheetController>`| `nullptr`| Controller to open, hide, and snap detents programmatically. |
-| `initial_detent`| `BottomSheetDetent` | `Half` | Starting height stage when opened (`Peek`, `Half`, `Full`). |
-| `show_drag_handle`| `bool` | `true` | Renders a pill grab bar centered along the top edge. |
+| `initial_open` | `bool` | `false` | Whether the sheet is presented initially upon creation. |
+| `controller` | `std::shared_ptr<BottomSheetController>` | `nullptr` | Controller to open, hide, and snap detents programmatically. |
+| `type` | `BottomSheetType` | `BottomSheetType::Modal` | Modal (over darkened scrim) or Persistent (embedded tool tray). |
+| `initial_detent` | `BottomSheetDetent` | `BottomSheetDetent::Half` | Starting height stage when opened (`Hidden`, `Peek`, `Half`, `Full`). |
+| `show_drag_handle` | `bool` | `true` | Renders a pill grab handle centered along the top edge. |
+| `show_close_button` | `bool` | `true` | Shows standard close button in header. |
 | `enable_drag` | `bool` | `true` | Allows dragging the sheet with cursor or touch gestures. |
-| `close_on_overlay`| `bool`| `true` | Dismisses the sheet when tapping the dimmed scrim backdrop. |
+| `close_on_overlay` | `bool` | `true` | Dismisses the sheet when clicking the dimmed scrim backdrop. |
+| `peek_height` | `float` | `90.0f` | Height in pixels for the `Peek` detent. |
+| `half_fraction` | `float` | `0.50f` | Height viewport fraction for the `Half` detent. |
+| `full_fraction` | `float` | `0.88f` | Height viewport fraction for the `Full` detent. |
+| `border_radius` | `float` | `16.0f` | Top corner rounding radius. |
+| `background_color` | `Color` | `0xFF1E293B` | Sheet container background fill color. |
+| `border_color` | `Color` | `0xFF334155` | Sheet outline border color. |
+| `handle_color` | `Color` | `0xFF64748B` | Drag handle bar idle color. |
+| `handle_hover_col` | `Color` | `0xFF94A3B8` | Drag handle bar hovered color. |
+| `overlay_color` | `Color` | `0x99000000` | Dimmed scrim backdrop color. |
+| `title` | `std::string` | `""` | Optional header title text. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Header title font color. |
+| `subtitle` | `std::string` | `""` | Optional header subtitle text. |
+| `subtitle_color` | `Color` | `0xFF94A3B8` | Header subtitle font color. |
+| `on_opened` | `std::function<void()>` | `nullptr` | Callback fired when sheet becomes fully visible. |
+| `on_closed` | `std::function<void()>` | `nullptr` | Callback fired when sheet completes dismissal. |
+| `on_detent_changed` | `std::function<void(BottomSheetDetent)>` | `nullptr` | Callback fired when the active detent stage changes. |
+| `on_drag_progress` | `std::function<void(float)>` | `nullptr` | Callback fired during dragging with normalized height fraction. |
 
 ---
 

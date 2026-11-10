@@ -281,3 +281,10 @@ AnimationTimeline createComplexIntroTimeline(
     return tl;
 }
 ```
+
+---
+
+## See Also
+- [**SpringPhysics**](./spring_physics.md) — Exact analytical spring simulation and controllers.
+- [**SlideTransition**](./slide_transition.md) — Explicit controller-driven slide transitions.
+- [**AnimatedContainer**](./animated_container.md) — Implicit multi-property tweening widgets.

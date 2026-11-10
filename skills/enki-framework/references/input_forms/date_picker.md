@@ -114,14 +114,29 @@ struct DateRangePicker : public DatePicker {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `mode` | `DatePickerMode` | `InputPopup` | Display style (`InputPopup` or `Inline`). |
-| `selection_mode` | `DatePickerSelectionMode`| `Single` | Single date or date range selection. |
+| `body` | `WidgetPtr` | `nullptr` | Background widget over which dropdown overlay floats. |
+| `controller` | `std::shared_ptr<DatePickerController>` | `nullptr` | Programmatic controller for setting dates, ranges, and opening/closing. |
+| `mode` | `DatePickerMode` | `DatePickerMode::InputPopup` | Display style (`InputPopup` or `Inline`). |
+| `selection_mode` | `DatePickerSelectionMode`| `DatePickerSelectionMode::Single` | Single date or date range selection. |
 | `initial_date` | `DateVal` | `{2026, 8, 19}` | Default focused date. |
-| `min_date` / `max_date` | `std::optional<DateVal>` | `nullopt` | Selectable calendar constraints. |
+| `initial_range` | `DateRangeVal` | `{}` | Initial date range selection. |
+| `min_date` / `max_date` | `std::optional<DateVal>` | `std::nullopt` | Selectable calendar constraints. |
 | `disable_weekends` | `bool` | `false` | Disables Saturday/Sunday selection when true. |
-| `show_quick_presets`| `bool` | `true` | Shows quick jump chips at top ("Today", "Tomorrow"). |
+| `placeholder` | `std::string` | `"Select a date..."` | Watermark text displayed in input box. |
+| `show_quick_presets`| `bool` | `true` | Shows quick jump chips at top ("Today", "This Weekend", "Next Week"). |
+| `show_action_buttons` | `bool` | `true` | Displays bottom Apply/Cancel action buttons. |
+| `background_color` | `Color` | `0xFF1E293B` | Calendar panel background fill. |
+| `border_color` | `Color` | `0xFF334155` | Border outline color. |
+| `active_color` | `Color` | `0xFF0284C7` | Highlight color for selected days. |
+| `highlight_color` | `Color` | `0xFF38BDF8` | Hover outline color for day cells. |
+| `range_fill_color` | `Color` | `0x440284C7` | Background tint filling the days between range start and end. |
+| `text_color` | `Color` | `0xFFFFFFFF` | Date typography font color. |
+| `muted_text_color` | `Color` | `0xFF94A3B8` | Subdued day and header text color. |
 | `on_date_selected` | `std::function<void(const DateVal&)>` | `nullptr` | Callback when a single date is chosen. |
 | `on_range_selected`| `std::function<void(const DateRangeVal&)>` | `nullptr` | Callback when a date range is chosen. |
+| `on_popup_opened` | `std::function<void()>` | `nullptr` | Triggered when popup calendar opens. |
+| `on_popup_closed` | `std::function<void()>` | `nullptr` | Triggered when popup calendar closes. |
+| `is_date_disabled` | `std::function<bool(const DateVal&)>` | `nullptr` | Custom filter predicate to disable specific arbitrary calendar days. |
 
 ---
 

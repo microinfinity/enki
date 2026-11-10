@@ -31,6 +31,35 @@ enum class LoadingIndicatorStyle {
     Custom          ///< Custom developer-provided child widget
 };
 
+struct LoadingOverlayProps {
+    Key                   key             = Key::none();
+    LoadingIndicatorStyle indicator_style = LoadingIndicatorStyle::Spinner;
+
+    std::string           title           = "Processing...";
+    std::string           message         = "Please wait while operation completes.";
+    float                 progress        = 0.0f;
+    bool                  is_determinate  = false;
+
+    bool                  allow_cancel    = false;
+    std::string           cancel_label    = "Cancel Operation";
+
+    float                 width           = 360.0f;
+    float                 border_radius   = 12.0f;
+
+    Color                 background_color= 0xFF1E293B;
+    Color                 border_color    = 0xFF334155;
+    Color                 overlay_color   = 0xB30B1120;
+    Color                 title_color     = 0xFFFFFFFF;
+    Color                 message_color   = 0xFF94A3B8;
+    Color                 accent_color    = 0xFF38BDF8;
+
+    WidgetPtr             custom_indicator= nullptr;
+
+    std::function<void()> on_cancel       = nullptr;
+    std::function<void()> on_shown        = nullptr;
+    std::function<void()> on_hidden       = nullptr;
+};
+
 } // namespace enki
 ```
 
@@ -85,14 +114,35 @@ struct LoadingOverlay {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `body` | `WidgetPtr` | `nullptr` | Application page content wrapped by the overlay. |
-| `controller` | `shared_ptr<LoadingOverlayController>`| `nullptr`| Controller to show/hide the busy overlay. |
-| `options.indicator_style`| `LoadingIndicatorStyle` | `Spinner` | Visual loader variant (`Spinner`, `ProgressRing`, `ProgressBar`, `DotsPulse`). |
-| `options.title` | `std::string` | `"Processing..."` | Main bold header label. |
-| `options.message` | `std::string` | `"Please wait..."`| Descriptive subtitle or current filename. |
-| `options.progress` | `float` | `0.0f` | Current fraction completed (`0.0f` to `1.0f`). |
-| `options.allow_cancel`| `bool` | `false` | Displays an interactive cancel button when true. |
-| `options.on_cancel` | `std::function<void()>` | `nullptr` | Callback executed when user cancels the operation. |
+| `controller` | `std::shared_ptr<LoadingOverlayController>` | `nullptr` | Controller to show/hide the busy overlay. |
+| `initial_loading` | `bool` | `false` | Whether overlay is visible initially upon mount. |
+| `initial_options` | `LoadingOverlayProps` | `{}` | Initial loader options when mounted. |
+
+### `LoadingOverlayProps` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `indicator_style` | `LoadingIndicatorStyle` | `Spinner` | Visual loader variant (`Spinner`, `ProgressRing`, `ProgressBar`, `DotsPulse`, `Custom`). |
+| `title` | `std::string` | `"Processing..."` | Main bold header label. |
+| `message` | `std::string` | `"Please wait..."` | Descriptive subtitle or current status message. |
+| `progress` | `float` | `0.0f` | Current fraction completed (`0.0f` to `1.0f`). |
+| `is_determinate` | `bool` | `false` | If true, renders progress rings or bars according to `progress`. |
+| `allow_cancel` | `bool` | `false` | Displays an interactive cancel button when true. |
+| `cancel_label` | `std::string` | `"Cancel Operation"` | Text shown on the cancel button. |
+| `width` | `float` | `360.0f` | Modal card width in pixels. |
+| `border_radius` | `float` | `12.0f` | Modal card corner rounding radius. |
+| `background_color` | `Color` | `0xFF1E293B` | Modal card surface background color. |
+| `border_color` | `Color` | `0xFF334155` | Modal card outline border color. |
+| `overlay_color` | `Color` | `0xB30B1120` | Dimmed backdrop scrim color. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Title text font color. |
+| `message_color` | `Color` | `0xFF94A3B8` | Subtitle text font color. |
+| `accent_color` | `Color` | `0xFF38BDF8` | Progress bar and spinner accent color. |
+| `custom_indicator` | `WidgetPtr` | `nullptr` | Custom loader widget when `indicator_style == Custom`. |
+| `on_cancel` | `std::function<void()>` | `nullptr` | Callback executed when user cancels the operation. |
+| `on_shown` | `std::function<void()>` | `nullptr` | Callback executed when loading overlay becomes visible. |
+| `on_hidden` | `std::function<void()>` | `nullptr` | Callback executed when loading overlay is dismissed. |
 
 ---
 

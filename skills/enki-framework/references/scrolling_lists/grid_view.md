@@ -76,6 +76,8 @@ struct GridView {
     float                                scroll_speed            = 50.0f;
     EdgeInsets                           list_padding            = EdgeInsets{};
     bool                                 shrink_wrap             = false;
+    bool                                 reverse                 = false;
+    bool                                 primary                 = true;
 
     operator WidgetPtr() const;
 };
@@ -89,13 +91,20 @@ struct GridView {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `items` | `std::vector<WidgetPtr>` | `{}` | Static children list for small fixed grids. |
+| `item_count` | `int` | `0` | Total cell count when using `item_builder`. |
+| `item_builder` | `std::function<WidgetPtr(int)>` | `nullptr` | Lazy factory lambda invoked for each visible cell. |
 | `fixed_delegate` | `SliverGridDelegateFixedCount` | `2 cols, 0 gap` | Fixed column count delegate configuration. |
 | `max_delegate` | `SliverGridDelegateMaxExtent` | `200px max` | Responsive width delegate configuration. |
 | `use_max_extent_delegate` | `bool` | `false` | When true, activates `max_delegate` instead of `fixed_delegate`. |
-| `item_count` | `int` | `0` | Total cell count when using `item_builder`. |
-| `item_builder` | `Function(int)` | `nullptr` | Lazy factory lambda invoked for each visible cell. |
+| `direction` | `Axis` | `Axis::Vertical` | Scroll direction (`Vertical` or `Horizontal`). |
+| `scroll_physics` | `ScrollPhysics` | `Clamped` | Edge bounce behavior (`Clamped`, `Bouncing`, `NeverScrollable`). |
+| `scroll_speed` | `float` | `50.0f` | Scroll offset per wheel tick. |
 | `list_padding` | `EdgeInsets` | `{}` | Inset padding around the entire grid. |
 | `shrink_wrap` | `bool` | `false` | Sizes grid height to its children when nested inside flex containers. |
+| `reverse` | `bool` | `false` | Inverts scroll direction (scrolls bottom-to-top or right-to-left). |
+| `primary` | `bool` | `true` | Associates grid with the primary scroll controller. |
 
 ---
 

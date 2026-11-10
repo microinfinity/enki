@@ -48,6 +48,14 @@ inline WidgetPtr hero(const HeroProps& props);
 } // namespace enki
 ```
 
+#### Properties Reference (`HeroProps` / `Hero`)
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `tag` | `std::string` | `""` | Unique string identifier linking shared elements across screens. |
+| `child` | `WidgetPtr` | `nullptr` | Content widget to morph and fly during transition. |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+
 ### 2. `HeroRegistry` Global Tracking Singleton
 ```cpp
 namespace enki {
@@ -160,3 +168,10 @@ void testHeroLifecycle() {
     assert(h != nullptr);
 }
 ```
+
+---
+
+## See Also
+- [**AnimatedSwitcher**](./animated_switcher.md) — Cross-fades and transitions between changing child widgets.
+- [**SlideTransition**](./slide_transition.md) — Explicit controller-driven slide transitions.
+- [**Navigator**](../Navigation/navigator.md) — Route and screen stack management.

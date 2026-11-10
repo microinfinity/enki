@@ -59,7 +59,9 @@ inline std::shared_ptr<VerticalDividerWidget> verticalDivider(DividerProps props
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `width` | `float` | `16.0f` | Total horizontal bounding box allocated for the vertical divider. |
+| `height` | `float` | `16.0f` | Height allocation (overridden if flex stretching is active). |
 | `thickness` | `float` | `1.0f` | Thickness of the drawn vertical line in pixels. |
 | `indent` | `float` | `0.0f` | Empty spacing from the top edge. |
 | `end_indent` | `float` | `0.0f` | Empty spacing from the bottom edge. |
@@ -67,6 +69,7 @@ inline std::shared_ptr<VerticalDividerWidget> verticalDivider(DividerProps props
 | `style` | `DividerStyle` | `DividerStyle::Solid` | Stroke style (`Solid`, `Dashed`, `Dotted`, `Gradient`). |
 | `dash_length` | `float` | `6.0f` | Length of each vertical dash. |
 | `dash_gap` | `float` | `4.0f` | Space between dash/dot segments. |
+| `gradient_fade` | `bool` | `false` | Gradient fade from transparent at edges to solid color in center. |
 | `round_caps` | `bool` | `false` | Rounds the top and bottom endpoints. |
 
 ---

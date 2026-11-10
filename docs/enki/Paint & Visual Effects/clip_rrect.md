@@ -42,6 +42,7 @@ inline std::shared_ptr<ClipRRectWidget> clipRRect(const ClipRRect& props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `border_radius` | `BorderRadius` | `BorderRadius::zero()` | Corner curvature (e.g. `BorderRadius::circular(16.0f)`). |
 | `child` | `WidgetPtr` | `nullptr` | Child widget clipped to the rounded boundary. |
 | `clip_behavior` | `Clip` | `Clip::AntiAlias` | Edge rendering mode (`AntiAlias`, `HardEdge`, `AntiAliasWithSaveLayer`). |

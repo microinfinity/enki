@@ -112,15 +112,29 @@ struct TextArea {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `controller` | `std::shared_ptr<TextAreaController>` | `nullptr` | Manages text data, selection, and undo/redo stacks. |
-| `min_lines` | `size_t` | `4` | Minimum displayed line height. |
+| `style` | `TextStyle` | `{}` | Typography style for multi-line text. |
+| `hint_text` | `std::string` | `""` | Placeholder text shown when editor is empty. |
+| `read_only` | `bool` | `false` | Disables keyboard text editing while retaining selection and copy. |
+| `auto_focus` | `bool` | `false` | Automatically focuses editor upon mounting. |
+| `min_lines` | `size_t` | `4` | Minimum displayed line height in rows. |
 | `max_lines` | `size_t` | `12` | Maximum line height before scrolling activates. |
 | `auto_grow` | `bool` | `false` | Automatically grows vertically with new lines up to `max_lines`. |
 | `show_line_numbers`| `bool` | `false` | Displays a line number gutter on the left side. |
-| `show_counter` | `bool` | `false` | Shows a live character/word count tag at bottom-right. |
+| `show_counter` | `bool` | `false` | Shows a live character count tag at bottom-right. |
 | `max_characters` | `size_t` | `0` | Hard character limit (0 disables the limit). |
+| `cursor_color` | `Color` | `0xFF38BDF8` | Blinking caret insertion cursor color. |
+| `selection_color` | `Color` | `0x6438BDF8` | Highlight color for text selection. |
+| `background_color` | `Color` | `0xFF1E293B` | Background fill color of the editor surface. |
+| `border_color` | `Color` | `0xFF334155` | Default outline border color. |
+| `focus_border_color`| `Color` | `0xFF38BDF8` | Border color when editor has focus. |
 | `line_number_color`| `Color` | `0xFF64748B` | Text color for numbers in the gutter. |
 | `line_number_bg` | `Color` | `0xFF0F172A` | Background strip behind the line number gutter. |
+| `border_radius` | `float` | `8.0f` | Corner rounding radius of the text area. |
+| `padding` | `EdgeInsets` | `all(10)` | Content padding inside the text editor. |
+| `on_changed` | `std::function<void(std::string)>` | `nullptr` | Fired when text content is modified. |
+| `on_submitted` | `std::function<void(std::string)>` | `nullptr` | Fired when text is submitted. |
 | `on_cursor_moved` | `std::function<void(size_t, size_t)>` | `nullptr` | Callback receiving `(row, col)` on cursor repositioning. |
 
 ---

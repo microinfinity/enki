@@ -51,7 +51,7 @@ Dispatch Semantic Callbacks (`on_tap`, `on_long_press`, `on_pan_update`)
 
 Enki includes an optimized global drag system managed by `DragManager` and `DragOverlay`:
 - **Zero Tree Rebuild**: Dragging does not trigger expensive layout passes or reconciliations on the main widget tree.
-- **Direct Skia Canvas Render**: The dragging `feedback` preview widget is painted directly at the cursor position on the root overlay pass at .
+- **Direct Skia Canvas Render**: The dragging `feedback` preview widget is painted directly at the cursor position on the root overlay pass.
 - **Type-Safe Payloads**: Arbitrary C++ objects can be passed safely via `std::any` and validated through `tag` matching.
 
 ---
@@ -78,7 +78,7 @@ WidgetPtr makeInteractiveCard(const std::string& label) {
         .on_long_press = [label] {
             std::cout << "Long pressed: " << label << "\n";
         },
-        .on_hover_enter = [](const HoverEvent&) {
+        .on_hover_enter = [](const PointerEvent&) {
             std::cout << "Mouse entered card bounds.\n";
         },
         .child = container({

@@ -59,13 +59,17 @@ inline WidgetPtr countBadge(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | The base widget (icon, avatar, button) that the badge attaches to. |
 | `count` | `int` | `0` | The integer count to display. |
-| `max_count` | `optional<int>` | `99` | Displays `"{max}+"` when `count > max_count`. |
+| `max_count` | `std::optional<int>` | `99` | Displays `"{max}+"` when `count > max_count`. |
 | `show_zero` | `bool` | `false` | If false, hides the badge completely when `count <= 0`. |
 | `bg_color` | `Color` | `0xFFEF4444` | Background pill color (e.g. Danger Red). |
-| `alignment` | `Alignment` | `TopRight` | Corner attachment position on the child bounding box. |
-| `animation_duration`| `milliseconds` | `300ms` | Duration of the spring scale bounce animation. |
+| `text_color` | `Color` | `0xFFFFFFFF` | Numeral font color. |
+| `font_size` | `float` | `11.0f` | Numeral text size. |
+| `alignment` | `Alignment` | `Alignment::TopRight` | Corner attachment position on the child bounding box. |
+| `offset` | `Point` | `{0.0f, 0.0f}` | Subpixel position offset adjustment. |
+| `animation_duration` | `std::chrono::milliseconds` | `300ms` | Duration of the spring scale bounce animation. |
 
 ---
 

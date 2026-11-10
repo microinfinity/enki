@@ -45,6 +45,7 @@ inline std::shared_ptr<ShaderMaskWidget> shaderMask(const ShaderMask& props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `shader_callback` | `ShaderCallback` | `nullptr` | Lambda taking `Rect bounds` and returning a compiled `Shader` (e.g. `Gradient::linear`). |
 | `blend_mode` | `BlendMode` | `BlendMode::Modulate` | Compositing formula applied between shader and child (`SrcIn`, `Modulate`, etc.). |
 | `child` | `WidgetPtr` | `nullptr` | Content to be masked (e.g. a `Text` or `Icon` widget). |

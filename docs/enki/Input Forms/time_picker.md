@@ -75,8 +75,13 @@ struct TimePicker {
     Color                                 background_color   = 0xFF1E293B;
     Color                                 border_color       = 0xFF334155;
     Color                                 active_color       = 0xFF0284C7;
+    Color                                 highlight_color    = 0xFF38BDF8;
+    Color                                 text_color         = 0xFFFFFFFF;
+    Color                                 muted_text_color   = 0xFF94A3B8;
 
     std::function<void(const TimeVal&)>   on_time_selected   = nullptr;
+    std::function<void()>                 on_popup_opened    = nullptr;
+    std::function<void()>                 on_popup_closed    = nullptr;
 
     operator WidgetPtr() const;
 };
@@ -90,13 +95,24 @@ struct TimePicker {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `format` | `TimeFormat` | `TwelveHour` | Time display mode (`TwelveHour` or `TwentyFourHour`). |
+| `controller` | `std::shared_ptr<TimePickerController>` | `nullptr` | Controller to open/close popup and set/get time programmatically. |
+| `body` | `WidgetPtr` | `nullptr` | Custom trigger widget replacing the default time input box. |
 | `mode` | `TimePickerMode` | `InputPopup` | Display mode (`InputPopup` or `Inline`). |
+| `format` | `TimeFormat` | `TwelveHour` | Time display mode (`TwelveHour` or `TwentyFourHour`). |
 | `initial_time` | `TimeVal` | `{8, 30, 0, true}` | Starting time displayed on the clock. |
 | `show_seconds` | `bool` | `false` | Enables a third numeric column for seconds. |
 | `minute_step` | `int` | `1` | Increment step between selectable minutes (e.g. `5` or `15`). |
 | `show_quick_presets`| `bool` | `true` | Displays quick chips ("Morning 09:00", "Noon 12:00", "Now"). |
-| `on_time_selected` | `std::function<void(const TimeVal&)>` | `nullptr` | Callback triggered when the user picks a time. |
+| `placeholder` | `std::string` | `"Select time..."` | Watermark text displayed when no time is selected. |
+| `background_color` | `Color` | `0xFF1E293B` | Background fill color of the picker surface. |
+| `border_color` | `Color` | `0xFF334155` | Outline border color. |
+| `active_color` | `Color` | `0xFF0284C7` | Highlight color for selected time components and active buttons. |
+| `highlight_color` | `Color` | `0xFF38BDF8` | Accent highlight color for focused elements. |
+| `text_color` | `Color` | `0xFFFFFFFF` | Main typography text color. |
+| `muted_text_color` | `Color` | `0xFF94A3B8` | Secondary/label text color. |
+| `on_time_selected` | `std::function<void(const TimeVal&)>` | `nullptr` | Callback triggered when user picks or changes a time value. |
+| `on_popup_opened` | `std::function<void()>` | `nullptr` | Callback triggered when the time picker dropdown opens. |
+| `on_popup_closed` | `std::function<void()>` | `nullptr` | Callback triggered when the time picker dropdown closes. |
 
 ---
 

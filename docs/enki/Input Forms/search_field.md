@@ -100,11 +100,30 @@ struct SearchField {
     bool                                   show_shortcut_badge     = true;
     std::string                            shortcut_hint           = "Ctrl+K";
     bool                                   auto_focus              = false;
+    bool                                   read_only               = false;
 
     // Suggestions & Debounce
     bool                                   show_suggestions        = true;
     int                                    max_visible_suggestions = 6;
     double                                 debounce_ms             = 250.0;
+
+    // Styling
+    TextStyle                              style;
+    Color                                  background_color        = 0xFF0F172A;
+    Color                                  border_color            = 0xFF334155;
+    Color                                  focus_border_color      = 0xFF38BDF8;
+    Color                                  icon_color              = 0xFF94A3B8;
+    Color                                  placeholder_color       = 0xFF64748B;
+    Color                                  cursor_color            = 0xFF38BDF8;
+    Color                                  selection_color         = 0x4D38BDF8;
+    Color                                  badge_bg_color          = 0xFF1E293B;
+    Color                                  badge_text_color        = 0xFF94A3B8;
+    Color                                  popup_bg_color          = 0xFF0F172A;
+    Color                                  item_hover_color        = 0xFF1E293B;
+    Color                                  match_highlight_col     = 0xFF38BDF8;
+
+    float                                  border_radius           = 10.0f;
+    EdgeInsets                             padding                 = EdgeInsets::symmetric(8.0f, 12.0f);
 
     // Callbacks
     std::function<std::vector<SearchSuggestion>(std::string_view)> suggestions_provider = nullptr;
@@ -125,13 +144,40 @@ struct SearchField {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `controller` | `std::shared_ptr<SearchFieldController>` | `nullptr` | Shared controller managing search query, history, loading state, and active item. |
+| `placeholder` | `std::string` | `"Search or type..."` | Watermark text displayed inside the field. |
 | `variant` | `SearchFieldVariant` | `Filled` | Visual design (`Filled`, `Outlined`, `Pill`, `CommandBar`). |
 | `size` | `SearchFieldSize` | `Medium` | Vertical size preset (`Small`, `Medium`, `Large`). |
-| `placeholder` | `std::string` | `"Search or type..."` | Watermark text displayed inside the field. |
-| `shortcut_hint` | `std::string` | `"Ctrl+K"` | Text shown in the trailing shortcut badge. |
+| `show_search_icon` | `bool` | `true` | Displays leading magnifying glass search icon. |
+| `show_clear_button`| `bool` | `true` | Displays trailing clear button when text is entered. |
+| `show_shortcut_badge`| `bool` | `true` | Displays trailing hotkey shortcut badge. |
+| `shortcut_hint` | `std::string` | `"Ctrl+K"` | Text shown inside the shortcut badge. |
+| `auto_focus` | `bool` | `false` | Focuses the search field immediately on render. |
+| `read_only` | `bool` | `false` | Prevents text input while preserving interactions. |
+| `show_suggestions` | `bool` | `true` | Displays dropdown suggestions popup below search bar. |
+| `max_visible_suggestions`| `int` | `6` | Maximum number of visible items in suggestions popup before scrolling. |
 | `debounce_ms` | `double` | `250.0` | Debounce delay in milliseconds before invoking `on_search`. |
-| `suggestions_provider`| `Function` | `nullptr` | Returns suggestions dynamically based on query string. |
-| `on_suggestion_selected`| `Function` | `nullptr` | Callback triggered when user clicks or presses Enter on an item. |
+| `style` | `TextStyle` | `{}` | Text typography and styling for search query. |
+| `background_color` | `Color` | `0xFF0F172A` | Background fill color of the input box. |
+| `border_color` | `Color` | `0xFF334155` | Default outline border color. |
+| `focus_border_color`| `Color` | `0xFF38BDF8` | Border color when search field has focus. |
+| `icon_color` | `Color` | `0xFF94A3B8` | Tint color of search and clear icons. |
+| `placeholder_color`| `Color` | `0xFF64748B` | Text color for watermark placeholder. |
+| `cursor_color` | `Color` | `0xFF38BDF8` | Blinking caret insertion cursor color. |
+| `selection_color` | `Color` | `0x4D38BDF8` | Color of highlighted text selection. |
+| `badge_bg_color` | `Color` | `0xFF1E293B` | Background color for shortcut pill badge. |
+| `badge_text_color` | `Color` | `0xFF94A3B8` | Text color for shortcut pill badge. |
+| `popup_bg_color` | `Color` | `0xFF0F172A` | Background surface color of suggestions dropdown. |
+| `item_hover_color` | `Color` | `0xFF1E293B` | Background color on hovering suggestion item. |
+| `match_highlight_col`| `Color`| `0xFF38BDF8` | Color highlighting query substrings inside suggestion results. |
+| `border_radius` | `float` | `10.0f` | Corner rounding radius of the search bar. |
+| `padding` | `EdgeInsets` | `symmetric(8, 12)` | Internal padding around search text and icons. |
+| `suggestions_provider`| `std::function<std::vector<SearchSuggestion>(std::string_view)>` | `nullptr` | Returns suggestions dynamically based on query string. |
+| `on_changed` | `std::function<void(std::string_view)>` | `nullptr` | Fired synchronously on every keystroke. |
+| `on_search` | `std::function<void(std::string_view)>` | `nullptr` | Fired after `debounce_ms` delay for query execution. |
+| `on_submitted` | `std::function<void(std::string_view)>` | `nullptr` | Fired when Enter is pressed inside the search field. |
+| `on_suggestion_selected`| `std::function<void(const SearchSuggestion&)>` | `nullptr` | Triggered when user selects an item from suggestions. |
 
 ---
 

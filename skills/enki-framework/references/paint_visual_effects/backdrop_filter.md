@@ -42,7 +42,8 @@ inline std::shared_ptr<BackdropFilterWidget> backdropFilter(const BackdropFilter
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `filter` | `shared_ptr<ImageFilter>` | `nullptr` | Skia convolution filter (e.g. `ImageFilter::blur(sigmaX, sigmaY)`). |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `filter` | `std::shared_ptr<ImageFilter>` | `nullptr` | Skia convolution filter (e.g. `ImageFilter::blur(sigmaX, sigmaY)`). |
 | `blend_mode` | `BlendMode` | `BlendMode::SrcOver`| Blending mode applied when combining filtered backdrop with child. |
 | `child` | `WidgetPtr` | `nullptr` | Foreground widget rendered directly above the filtered backdrop. |
 

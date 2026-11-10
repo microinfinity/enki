@@ -102,10 +102,11 @@ struct Table {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `rows` | `std::vector<TableRow>` | `{}` | The sequence of table rows from top to bottom. |
-| `column_widths` | `vector<pair<int, TableColumnWidth>>`| `{}` | Explicit column width strategy overrides by 0-indexed column index. |
+| `column_widths` | `std::vector<std::pair<int, TableColumnWidth>>`| `{}` | Explicit column width strategy overrides by 0-indexed column index. |
 | `default_column_width`| `TableColumnWidth` | `FlexColumnWidth(1.0f)`| Default width strategy for columns without an explicit override. |
-| `border` | `TableBorder` | `{}` | Inner divider lines and outer border configuration. |
+| `border` / `table_border` | `TableBorder` | `{}` | Inner divider lines and outer border configuration. |
 | `default_vertical_alignment`| `TableCellVerticalAlignment` | `Middle` | Default vertical positioning of content inside rows. |
 
 ---

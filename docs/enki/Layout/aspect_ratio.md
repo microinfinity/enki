@@ -1,16 +1,23 @@
 # AspectRatio
 
-> A layout constraint that attempts to size a widget to a specific aspect ratio (width / height).
+> A layout widget and styling constraint that sizes a child to a specific width-to-height ratio.
 
-- **Header Files**: `#include "enki/widgets/container.hpp"` and `#include "enki/widgets/flexbox.hpp"`
-- **Property**: `.aspect_ratio = <float>` on `Container`, `FlexItem`, and `Flexbox`
+- **Header Files**: `#include "enki/widgets/aspect_ratio.hpp"`, `#include "enki/widgets/container.hpp"`, and `#include "enki/widgets/flexbox.hpp"`
+- **C++ Class**: `enki::AspectRatioWidget` (inherits from `enki::StatelessWidget`)
+- **Props Struct**: `enki::AspectRatioProps`
+- **Factory Helpers**: `enki::aspectRatio(float ratio, WidgetPtr child, Key key = Key::none())`, `enki::aspectRatio(const AspectRatioProps& props)`
+- **Declarative Property**: `.aspect_ratio = <float>` on `Container`, `FlexItem`, and `Flexbox`
 - **Underlying Engine**: Direct Anu Layout Engine integration (`ANUNodeStyleSetAspectRatio`)
 
 ---
 
 ## Overview
 
-In Enki, aspect ratio constraints are built directly into `Container`, `FlexItem`, and `Flexbox` through the `aspect_ratio` property. It enforces a strict mathematical proportion between the width and height of the box:
+In Enki, aspect ratio constraints can be applied in two ways:
+1. **Dedicated Widget (`aspectRatio`)**: A lightweight `StatelessWidget` wrapper that forwards to `container()` with `aspect_ratio` configured.
+2. **Direct Property**: Applied directly via `.aspect_ratio` on any `Container`, `FlexItem`, or `Flexbox`.
+
+It enforces a strict mathematical proportion between the width and height of the box:
 
 $$\text{aspect\_ratio} = \frac{\text{width}}{\text{height}}$$
 
@@ -20,16 +27,47 @@ When either dimension is constrained (e.g., width is set to `320_px` or `100_pct
 
 ## C++ API Definition
 
-### Property Definition
+### Dedicated Widget & Props (`aspect_ratio.hpp`)
+```cpp
+namespace enki {
+
+struct AspectRatioProps {
+    Key       key   = Key::none();
+    float     ratio = 1.0f;
+    WidgetPtr child = nullptr;
+};
+
+class AspectRatioWidget : public StatelessWidget {
+public:
+    float     ratio = 1.0f;   ///< Width / Height ratio (e.g. 1.77 for 16:9).
+    WidgetPtr child = nullptr;
+
+    explicit AspectRatioWidget(Key key = Key::none());
+    [[nodiscard]] WidgetPtr build(BuildContext& ctx) override;
+    [[nodiscard]] std::string_view typeName() const override { return "AspectRatio"; }
+};
+
+inline WidgetPtr aspectRatio(float ratio, WidgetPtr child, Key key = Key::none());
+inline WidgetPtr aspectRatio(const AspectRatioProps& props);
+
+} // namespace enki
+```
+
+### Property Definition on Container / Flexbox
 ```cpp
 // Within ContainerProps, FlexboxProps, and FlexItemProps:
 std::optional<float> aspect_ratio;
 ```
 
-### Underlying Engine Mapping
-```cpp
-ANUNodeStyleSetAspectRatio(node, style.aspect_ratio ? *style.aspect_ratio : ANUUndefined);
-```
+---
+
+## Properties Reference (`AspectRatioProps`)
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `ratio` | `float` | `1.0f` | Aspect ratio expressed as width / height (e.g. `16.0f / 9.0f`). |
+| `child` | `WidgetPtr` | `nullptr` | Child widget constrained by this aspect ratio. |
 
 ---
 
@@ -46,7 +84,20 @@ ANUNodeStyleSetAspectRatio(node, style.aspect_ratio ? *style.aspect_ratio : ANUU
 
 ## Code Examples
 
-### 1. Video Player Container (16:9 Widescreen)
+### 1. Using the Dedicated `aspectRatio` Helper
+```cpp
+#include "enki/widgets/aspect_ratio.hpp"
+#include "enki/widgets/image.hpp"
+
+using namespace enki;
+
+// Constrains a video or banner image to standard 16:9 widescreen
+WidgetPtr buildBanner() {
+    return aspectRatio(16.0f / 9.0f, image("assets/hero.png"));
+}
+```
+
+### 2. Video Player Container via Direct Property (16:9 Widescreen)
 ```cpp
 #include "enki/widgets/container.hpp"
 #include "enki/widgets/text.hpp"

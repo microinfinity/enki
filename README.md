@@ -146,7 +146,7 @@ Real screenshots captured from the framework's own demos and applications (see [
 |---|---|---|---|
 | **Linux — X11** | Native Xlib (+ XRandR) | EGL / OpenGL + Skia | ✅ Supported |
 | **Linux — Wayland** | `xdg-shell`, `xdg-decoration`, `xdg-output`, `wlr-layer-shell`, `wlr-foreign-toplevel-management` | wayland-egl + Skia | ✅ Supported |
-| **Linux — Embedded (DRM/KMS)** | DRM + GBM + libinput + libudev, direct scanout | EGL / GLES | ✅ Optional (`-Denable_drm=true`) |
+| **Linux — Embedded (DRM/KMS)** | DRM + GBM + libinput + libudev, direct scanout | EGL / GLES | ✅ Supported (`-Denable_drm=true`, default) |
 | **Windows** | Win32 + DWM + UxTheme | OpenGL + Skia | ✅ Supported (MSVC / MSYS2) |
 | **Android** | NDK native activity, app glue | EGL + GLESv3 | ✅ arm64, APK packaging scripts included |
 | **WebAssembly** | Emscripten | WebGL | 🧪 Cross-file provided (`cross/wasm.ini`) |
@@ -405,7 +405,7 @@ With the WebView subsystem:
 meson setup build --prefix=/usr --buildtype=release -Denable_webview=true
 ```
 
-With the embedded DRM/KMS backend:
+With the embedded DRM/KMS backend (enabled by default on Linux, or pass `-Denable_drm=false` to disable):
 
 ```sh
 meson setup build --buildtype=release -Denable_drm=true
@@ -441,12 +441,13 @@ Defined in [`meson_options.txt`](meson_options.txt):
 
 | Option | Default | Description |
 |---|---|---|
-| `build_tests` | `true` | Build unit tests |
+| `build_tests` | `false` | Build unit tests |
 | `build_examples` | `false` | Build example applications (desktop shell, dock, CSD, clipboard/DnD, web host…) |
-| `build_widgets_demo` | `true` | Build the per-widget demo applications |
+| `build_widgets_demo` | `false` | Build the per-widget demo applications |
+| `build_real_apps` | `false` | Build real production-style applications (counter, calculator, gallery) |
 | `enable_webview` | `false` | Enable the CEF-based WebView widget / Web Host |
 | `cef_root` | `""` | Absolute path to the CEF prebuilt distribution |
-| `enable_drm` | `false` | Enable Linux DRM/KMS + GBM embedded backend |
+| `enable_drm` | `true` | Enable Linux DRM/KMS + GBM embedded backend |
 
 Optional subsystems (**audio**, **video**) are auto-enabled when their dependencies are detected.
 
@@ -502,7 +503,6 @@ enki/
 | **Internationalization** | [docs/i18n/localization.md](docs/i18n/localization.md) |
 | **Web Technology Host** | [docs/web_technology](docs/web_technology/README.md) |
 | **Android** | [docs/android.md](docs/android.md) |
-| **Browser architecture comparison** | [BROWSER_ARCHITECTURE_COMPARISON.md](BROWSER_ARCHITECTURE_COMPARISON.md) |
 
 ---
 

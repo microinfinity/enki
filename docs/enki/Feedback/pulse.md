@@ -48,13 +48,15 @@ inline WidgetPtr pulse(const PulseProps& props = {});
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `child` | `WidgetPtr` | `nullptr` | Optional content centered over the pulse beacon. |
 | `color` | `Color` | `0xFF10B981` | Tone applied to center dot and expanding rings. |
 | `ring_count` | `size_t` | `2` | Number of phased concentric rings animating outward. |
 | `max_radius` | `float` | `24.0f` | Maximum pixel radius before a ring fades out completely. |
 | `dot_radius` | `float` | `6.0f` | Radius of the stationary center dot. |
 | `center_dot` | `bool` | `true` | When true, paints the anchored central beacon circle. |
-| `duration` | `milliseconds` | `1500ms`| Time taken for a single wave to travel from center to `max_radius`. |
-| `curve` | `const Curve*`| `&Curves::easeOut` | Easing formula governing expansion speed. |
+| `duration` | `std::chrono::milliseconds` | `1500ms` | Time taken for a single wave to travel from center to `max_radius`. |
+| `curve` | `const Curve*` | `&Curves::easeOut` | Easing formula governing expansion speed. |
 
 ---
 

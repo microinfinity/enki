@@ -75,7 +75,8 @@ WidgetPtr placeholderListSkeleton(int rows = 3, float w = 320.0f);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `style` | `PlaceholderStyle` | `Blueprint` | Visual mode (`Blueprint`, `Skeleton`, `MediaSlot`, `Solid`). |
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `style` | `PlaceholderStyle` | `PlaceholderStyle::Blueprint` | Visual mode (`Blueprint`, `Skeleton`, `MediaSlot`, `Solid`). |
 | `width` | `float` | `200.0f` | Width of the placeholder box in pixels. |
 | `height` | `float` | `120.0f` | Height of the placeholder box in pixels. |
 | `corner_radius` | `float` | `8.0f` | Curvature radius of corners. |
@@ -85,6 +86,12 @@ WidgetPtr placeholderListSkeleton(int rows = 3, float w = 320.0f);
 | `icon` | `std::string` | `"📷"` | Glyph or emoji rendered in `MediaSlot` style. |
 | `show_dimensions` | `bool` | `true` | Renders a small badge showing exact pixel dimensions. |
 | `animated_shimmer` | `bool` | `true` | Enables continuous gradient shimmer wave animation. |
+| `background_color` | `Color` | `0x22334155` | Translucent background fill color. |
+| `stroke_color` | `Color` | `0xFF475569` | Perimeter and border line color. |
+| `crosshair_color` | `Color` | `0x4464748B` | Diagonal and cross lines color for blueprint mode. |
+| `shimmer_color` | `Color` | `0x4438BDF8` | Highlight shimmer reflection color in skeleton mode. |
+| `text_color` | `Color` | `0xFFCBD5E1` | Label and dimension text color. |
+| `badge_bg_color` | `Color` | `0xCC0F172A` | Background color for dimension badges. |
 | `on_tap` | `std::function<void()>` | `nullptr` | Tap callback for interactive drop slots. |
 
 ---

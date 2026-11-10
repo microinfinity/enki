@@ -66,6 +66,7 @@ struct Form {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget key for identity and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | Layout widget (such as a `Column`) containing form fields and submit buttons. |
 | `controller` | `std::shared_ptr<FormState>` | `nullptr` | Coordinator handling unified validation, saving, and reset actions. |
 | `autovalidate_mode`| `AutoValidateMode` | `Disabled` | Determines when fields validate (`Disabled`, `Always`, or `OnUserInteraction`). |

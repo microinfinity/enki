@@ -47,11 +47,12 @@ struct DragTarget {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `accepted_tag` | `std::string` | `""` | Tag filter string. If specified, only `Draggable` widgets with this tag trigger hover states. |
 | `builder` | `TargetBuilder` | `nullptr` | Renders the target UI dynamically based on `is_hovered` and `candidate_data`. |
-| `on_will_accept`| `function<bool(const any&)>`| `nullptr`| Optional predicate returning `true` if the item can be dropped here. |
-| `on_accept` | `function<void(const any&)>`| `nullptr`| Callback executed when a valid payload is dropped onto the target. |
-| `on_leave` | `function<void()>` | `nullptr` | Callback executed when a dragged item leaves the target without dropping. |
+| `on_will_accept`| `std::function<bool(const std::any&)>` | `nullptr` | Optional predicate returning `true` if the item can be dropped here. |
+| `on_accept` | `std::function<void(const std::any&)>` | `nullptr` | Callback executed when a valid payload is dropped onto the target. |
+| `on_leave` | `std::function<void()>` | `nullptr` | Callback executed when a dragged item leaves the target without dropping. |
 
 ---
 

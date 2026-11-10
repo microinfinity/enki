@@ -44,10 +44,11 @@ inline std::shared_ptr<AnimatedOpacityWidget> animatedOpacity(AnimatedOpacity pr
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `opacity` | `float` | `1.0f` | Target opacity (from 0.0 invisible to 1.0 fully opaque). |
-| `duration` | `milliseconds` | `300ms` | Time span over which the opacity transition takes place. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Time span over which the opacity transition takes place. |
 | `curve` | `const Curve*` | `&Curves::linear` | Animation easing curve (e.g. `&Curves::easeInOut`). |
-| `on_end` | `function<void()>` | `nullptr` | Optional callback invoked when the opacity reaches its target. |
+| `on_end` | `std::function<void()>` | `nullptr` | Optional callback invoked when the opacity reaches its target. |
 | `child` | `WidgetPtr` | `nullptr` | Content subtree to be faded. |
 
 ---

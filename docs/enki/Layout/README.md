@@ -25,7 +25,7 @@ The Layout category comprises 16 foundational widgets:
 | 11 | [**Positioned**](./positioned.md) | `struct Positioned`, `positioned(...)` | `<enki/widgets/stack.hpp>` | Absolutely positions a child within a `Stack` via `top`, `right`, `bottom`, `left`, `width`, and `height`. |
 | 12 | [**Wrap**](./wrap.md) | `class Wrap`, `wrap(...)` | `<enki/widgets/flexbox.hpp>` | Multi-line flex container that wraps overflowing children onto adjacent lines. |
 | 13 | [**Spacer**](./spacer.md) | `spacer(flex = 1.0f)` | `<enki/widgets/flexbox.hpp>` | Empty, lightweight flex item that absorbs leftover space in a `Row` or `Column`. |
-| 14 | [**AspectRatio**](./aspect_ratio.md) | `.aspect_ratio` on `FlexItem` & `Container` | `<enki/widgets/flexbox.hpp>` | Constrains a widget's dimensions to maintain a fixed width-to-height proportion. |
+| 14 | [**AspectRatio**](./aspect_ratio.md) | `aspectRatio(...)`, `class AspectRatioWidget` | `<enki/widgets/aspect_ratio.hpp>` | Constrains child to maintain a fixed width-to-height proportion. |
 | 15 | [**ConstrainedBox**](./constrained_box.md) | `.min_width`, `.max_width`, `.min_height`, `.max_height` | `<enki/widgets/container.hpp>` | Imposes additional minimum and maximum sizing boundaries on child widgets. |
 | 16 | [**FractionallySizedBox**](./fractionally_sized_box.md) | `_pct` literal & `StyleValue::percent(...)` | `<enki/widgets/container.hpp>` | Sizes a child relative to a percentage fraction of the parent container's size. |
 
@@ -42,7 +42,7 @@ Six advanced atomic layout widgets providing fine-grained dimensional control, i
 | 19 | [**OverflowBox**](./overflow_box.md) | `overflowBox(...)`, `struct OverflowBoxProps` | `<enki/widgets/overflow_box.hpp>` | Renders child beyond parent boundaries with 9-anchor alignment and clipping options. |
 | 20 | [**LimitedBox**](./limited_box.md) | `limitedBox(...)`, `struct LimitedBoxProps` | `<enki/widgets/limited_box.hpp>` | Clamps width or height only when incoming parent constraints are unbounded. |
 | 21 | [**CustomMultiChildLayout**](./custom_multi_child_layout.md) | `customMultiChildLayout(...)`, `MultiChildLayoutDelegate` | `<enki/widgets/custom_multi_child_layout.hpp>` | Custom multi-child positioning via layout delegates and string IDs (`layoutId`). |
-| 22 | [**Flow**](./flow.md) | `flow(...)`, `FlowDelegate`, `Matrix4` | `<enki/widgets/flow.hpp>` | Ultra high-performance transform-based layout with zero-reflow paint passes (FPS). |
+| 22 | [**Flow**](./flow.md) | `flow(...)`, `FlowDelegate`, `Matrix4` | `<enki/widgets/flow.hpp>` | Ultra high-performance transform-based layout with zero-reflow paint passes (60+ to 240+ FPS). |
 
 ---
 

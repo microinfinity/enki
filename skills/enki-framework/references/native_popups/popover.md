@@ -85,6 +85,7 @@ struct PopoverProps {
     EdgeInsets       padding          = EdgeInsets::all(12.0f);
     Size             content_size     = Size{260.0f, 180.0f};
     bool             auto_dismiss     = true;      ///< Dismiss on click outside
+    std::string      custom_shader    = "";        ///< Optional SkSL shader code
 };
 
 } // namespace enki
@@ -101,6 +102,16 @@ inline WidgetPtr popover(
     std::shared_ptr<PopoverController>      controller = nullptr
 );
 
+struct PopoverDeclarativeProps {
+    Key                                     key = Key::none();
+    WidgetPtr                               child;
+    std::function<WidgetPtr(BuildContext&)> popover_builder;
+    PopoverProps                            options    = PopoverProps();
+    std::shared_ptr<PopoverController>      controller = nullptr;
+};
+
+inline WidgetPtr popover(PopoverDeclarativeProps props);
+
 } // namespace enki
 ```
 
@@ -110,13 +121,25 @@ inline WidgetPtr popover(
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | Target anchor widget. |
-| `popover_builder` | `Function(BuildContext&)` | `nullptr` | Callback returning interactive card contents. |
-| `direction` | `PopoverDirection` | `Top` | Preferred side to open (`Top`, `Bottom`, `Left`, `Right`, `Auto`). |
-| `alignment` | `PopoverAlignment` | `Center` | Alignment along anchor's edge (`Start`, `Center`, `End`). |
-| `show_arrow` | `bool` | `true` | Draws a triangular indicator arrow pointing to the anchor. |
-| `arrow_size` | `float` | `10.0f` | Dimension of the arrow pointer in pixels. |
-| `content_size` | `Size` | `{260, 180}` | Dimensions of the floating popup surface. |
+| `popover_builder` | `std::function<WidgetPtr(BuildContext&)>` | `nullptr` | Callback returning interactive card contents. |
+| `controller` | `std::shared_ptr<PopoverController>` | `nullptr` | Programmatic handle to show, hide, or toggle popover. |
+| `options.direction` | `PopoverDirection` | `PopoverDirection::Top` | Preferred side to open (`Top`, `Bottom`, `Left`, `Right`, `Auto`). |
+| `options.alignment` | `PopoverAlignment` | `PopoverAlignment::Center` | Alignment along anchor's edge (`Start`, `Center`, `End`). |
+| `options.trigger` | `PopoverTrigger` | `PopoverTrigger::Click` | Interaction triggering popover (`Click`, `Hover`, `Manual`). |
+| `options.show_arrow` | `bool` | `true` | Draws a triangular indicator arrow pointing to the anchor. |
+| `options.arrow_size` | `float` | `10.0f` | Dimension of the arrow pointer in pixels. |
+| `options.content_size` | `Size` | `Size{260.0f, 180.0f}` | Dimensions of the floating popup surface. |
+| `options.background_color` | `Color` | `0xFA1F242C` | Surface background color. |
+| `options.border_color` | `Color` | `0xFF363B42` | Surface outline border color. |
+| `options.border_width` | `float` | `1.0f` | Surface outline border thickness. |
+| `options.border_radius` | `float` | `10.0f` | Corner rounding radius. |
+| `options.elevation` | `float` | `12.0f` | Drop shadow elevation depth. |
+| `options.shadow_color` | `Color` | `0x60000000` | Drop shadow tint color. |
+| `options.padding` | `EdgeInsets` | `EdgeInsets::all(12.0f)` | Interior padding within popover card. |
+| `options.auto_dismiss` | `bool` | `true` | Automatically dismisses when clicking outside surface. |
+| `options.custom_shader` | `std::string` | `""` | Optional SkSL shader code applied to popover surface. |
 
 ---
 

@@ -332,16 +332,53 @@ enki.system.hostname(); // "my-desktop"
 
 ---
 
-### `enki.system.memory()` `[sync]`
+### `enki.system.memory()`
 
-Returns total physical memory in bytes.
+Returns physical memory information in bytes.
 
 ```javascript
-const gb = enki.system.memory() / 1024 / 1024 / 1024;
-console.log(gb.toFixed(1) + ' GB'); // "16.0 GB"
+const mem = await enki.system.memory();
+const gb = mem.total / 1024 / 1024 / 1024;
+console.log(gb.toFixed(1) + ' GB total, ' + (mem.free / 1024 / 1024 / 1024).toFixed(1) + ' GB free');
 ```
 
-**Returns:** `number`
+**Returns:** `Promise<{ total: number, free: number }>`
+
+---
+
+### `enki.system.username()` `[sync]`
+
+Returns current logged-in username.
+
+```javascript
+enki.system.username(); // "user"
+```
+
+**Returns:** `string`
+
+---
+
+### `enki.system.homeDir()` `[sync]`
+
+Returns user's home directory.
+
+```javascript
+enki.system.homeDir(); // "/home/user"
+```
+
+**Returns:** `string`
+
+---
+
+### `enki.system.appDir()` `[sync]`
+
+Returns the path of the running application directory.
+
+```javascript
+enki.system.appDir(); // "/path/to/app"
+```
+
+**Returns:** `string`
 
 ---
 

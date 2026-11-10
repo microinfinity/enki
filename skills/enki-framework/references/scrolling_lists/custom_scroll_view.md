@@ -52,13 +52,17 @@ inline std::shared_ptr<CustomScrollViewWidget> customScrollView(std::initializer
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `slivers` | `vector<WidgetPtr>` | `{}` | List of sliver widgets rendered along the scroll axis. |
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
+| `slivers` | `std::vector<WidgetPtr>` | `{}` | List of sliver widgets rendered along the scroll axis. |
+| `children` | `std::vector<WidgetPtr>` | `{}` | Convenience alias for `slivers`. |
 | `direction` | `Axis` | `Axis::Vertical` | Primary scrolling orientation (`Vertical` or `Horizontal`). |
 | `scroll_physics` | `ScrollPhysics` | `Clamped` | Edge resistance behavior (`Clamped`, `Bouncing`, `NeverScrollable`). |
 | `scroll_speed` | `float` | `50.0f` | Mouse wheel scroll step distance in pixels. |
 | `show_scrollbar`| `bool` | `true` | Renders a responsive interactive scrollbar track. |
 | `shrink_wrap` | `bool` | `false` | Fits the viewport tightly to the total sliver extent. |
-| `on_scroll` | `function<void(float)>`| `nullptr` | Callback dispatched with the current scroll offset. |
+| `reverse` | `bool` | `false` | Inverts scroll direction (scrolls bottom-to-top or right-to-left). |
+| `cache_extent` | `float` | `0.0f` | Pre-rendering cache distance beyond visible viewport. |
+| `on_scroll` | `std::function<void(float)>`| `nullptr` | Callback dispatched with the current scroll offset. |
 
 ---
 

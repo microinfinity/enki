@@ -44,11 +44,12 @@ inline std::shared_ptr<AnimatedScaleWidget> animatedScale(AnimatedScale props = 
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
 | `scale` | `float` | `1.0f` | Target scale multiplier (e.g. `1.2f` for 120% zoom, `0.0f` to shrink away). |
 | `alignment` | `Alignment` | `Alignment::Center`| Transformation origin pivot point. |
-| `duration` | `milliseconds` | `300ms` | Animation duration. |
+| `duration` | `std::chrono::milliseconds` | `300ms` | Animation duration. |
 | `curve` | `const Curve*` | `&Curves::linear` | Easing curve (e.g. `&Curves::elasticOut`). |
-| `on_end` | `function<void()>` | `nullptr` | Completion callback. |
+| `on_end` | `std::function<void()>` | `nullptr` | Completion callback. |
 | `child` | `WidgetPtr` | `nullptr` | Child widget receiving the scale transform. |
 
 ---

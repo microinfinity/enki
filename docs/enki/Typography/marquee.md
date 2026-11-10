@@ -56,12 +56,17 @@ inline std::shared_ptr<MarqueeWidget> marquee(const MarqueeProps& props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `text` | `string` | `""` | The ticker string to animate. |
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `text` | `std::string` | `""` | The ticker string to animate. |
+| `style` | `std::optional<TextStyle>` | `std::nullopt` | Optional base typography text style. |
+| `color` | `std::optional<Color>` | `std::nullopt` | Quick override for ticker font color. |
+| `font_size` | `std::optional<float>` | `std::nullopt` | Quick override for ticker font size in points. |
+| `font_weight` | `std::optional<FontWeight>` | `std::nullopt` | Quick override for ticker font weight. |
 | `velocity` | `float` | `50.0f` | Scroll speed in pixels per second. |
 | `blank_space` | `float` | `60.0f` | Horizontal gap in pixels between the end of the text and its repetition. |
-| `direction` | `MarqueeDirection` | `RightToLeft` | Animation direction (`RightToLeft` or `LeftToRight`). |
+| `direction` | `MarqueeDirection` | `MarqueeDirection::RightToLeft` | Animation direction (`RightToLeft` or `LeftToRight`). |
 | `pause_on_hover` | `bool` | `true` | Temporarily halts scrolling while the mouse cursor rests inside. |
-| `fading_edge_length`| `float`| `24.0f` | Width of the gradient mask fading out edges smoothly. |
+| `fading_edge_length` | `float` | `24.0f` | Width of the gradient mask fading out edges smoothly. |
 
 ---
 

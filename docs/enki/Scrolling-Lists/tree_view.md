@@ -60,21 +60,28 @@ struct TreeNodeData {
 namespace enki {
 
 struct TreeViewTheme {
-    float        indent_width   = 20.0f;     ///< Pixels indented per depth tier
-    float        node_height    = 32.0f;     ///< Row height
+    float        indent_width            = 20.0f;     ///< Pixels indented per depth tier
+    float        node_height             = 32.0f;     ///< Row height
 
-    Color        hover_color    = 0x0DFFFFFF;
-    Color        selected_color = 0x1A2563EB;
-    Color        focused_color  = 0x1A58A6FF;
-    Color        line_color     = 0x33FFFFFF; ///< Hierarchy connector lines
-    Color        arrow_color    = 0xFFAAAAAA;
+    Color        hover_color             = 0x0DFFFFFF;
+    Color        selected_color          = 0x1A2563EB;
+    Color        focused_color           = 0x1A58A6FF;
+    Color        line_color              = 0x33FFFFFF; ///< Hierarchy connector lines
+    Color        arrow_color             = 0xFFAAAAAA;
+    Color        disabled_color          = 0x60808080;
 
-    bool         show_lines     = false;     ///< Draws vertical/horizontal branching lines
-    float        line_width     = 1.0f;
-    float        arrow_size     = 12.0f;
-    bool         animate_arrow  = true;
+    bool         show_lines              = false;     ///< Draws vertical/horizontal branching lines
+    float        line_width              = 1.0f;
+    float        arrow_size              = 12.0f;
+    bool         animate_arrow           = true;
 
-    BorderRadius row_radius     = BorderRadius::circular(4.0f);
+    float        row_padding_horizontal  = 4.0f;
+    float        row_padding_vertical    = 2.0f;
+    float        icon_gap                = 8.0f;      ///< Gap between icon and label
+    float        leading_gap             = 4.0f;      ///< Gap between arrow and leading icon
+    float        trailing_gap            = 8.0f;      ///< Gap before trailing widget
+
+    BorderRadius row_radius              = BorderRadius::circular(4.0f);
 };
 
 } // namespace enki
@@ -97,6 +104,8 @@ struct TreeView {
 
     TreeViewTheme                        tree_theme;
     ScrollPhysics                        scroll_physics        = ScrollPhysics::Clamped;
+    float                                scroll_speed          = 50.0f;
+    EdgeInsets                           list_padding          = EdgeInsets{};
 
     std::function<void(const std::string& id)>                     on_node_expanded    = nullptr;
     std::function<void(const std::string& id)>                     on_node_collapsed   = nullptr;
@@ -106,6 +115,12 @@ struct TreeView {
     std::function<void(const std::string& id,
                        std::function<void(std::vector<TreeNodeData>)> resolve)>
                                                                    on_children_requested = nullptr;
+    std::function<void(const std::string& id, Point global_position)>
+                                                                   on_node_context_menu = nullptr;
+    std::function<void(const std::string& id)>                     on_node_drag_start   = nullptr;
+    std::function<WidgetPtr(const TreeNodeData&, int depth,
+                            bool expanded, bool selected, bool hovered)>
+                                                                   node_builder         = nullptr;
 
     operator WidgetPtr() const;
 };
@@ -119,13 +134,26 @@ struct TreeView {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `nodes` | `std::vector<TreeNodeData>` | `{}` | Root-level tree nodes hierarchy. |
-| `tree_theme` | `TreeViewTheme` | `{}` | Sizing, connector lines, and color styling. |
 | `multi_select` | `bool` | `false` | Enables selecting multiple nodes with Ctrl/Cmd or checkboxes. |
+| `selected_node_id` | `std::optional<std::string>` | `std::nullopt` | Initial selected node ID (single-selection mode). |
+| `selected_node_ids` | `std::set<std::string>` | `{}` | Initial selected node IDs (multi-selection mode). |
 | `toggle_on_arrow` | `bool` | `true` | Expanding triggers when clicking the chevron arrow. |
 | `toggle_on_label` | `bool` | `false` | Expanding triggers when clicking anywhere on the node row. |
-| `on_node_selected`| `Function(string)` | `nullptr` | Callback when user selects a node. |
-| `on_children_requested`| `Function(id, resolve)`| `nullptr` | Async resolver for lazy loading subdirectories on click. |
+| `tree_theme` | `TreeViewTheme` | `{}` | Sizing, connector lines, indentation, and color styling. |
+| `scroll_physics` | `ScrollPhysics` | `ScrollPhysics::Clamped` | Scrolling physics (`Clamped`, `Bouncing`, `NeverScrollable`). |
+| `scroll_speed` | `float` | `50.0f` | Scroll speed multiplier. |
+| `list_padding` | `EdgeInsets` | `EdgeInsets{}` | Padding surrounding the entire tree content. |
+| `on_node_expanded` | `std::function<void(const std::string&)>` | `nullptr` | Callback when a branch node expands. |
+| `on_node_collapsed` | `std::function<void(const std::string&)>` | `nullptr` | Callback when a branch node collapses. |
+| `on_node_selected` | `std::function<void(const std::string&)>` | `nullptr` | Callback when user selects a node. |
+| `on_selection_changed` | `std::function<void(const std::set<std::string>&)>` | `nullptr` | Callback when multi-selection set changes. |
+| `on_node_checked` | `std::function<void(const std::string&, bool)>` | `nullptr` | Callback when a node checkbox state toggles. |
+| `on_children_requested` | `std::function<void(const std::string&, std::function<void(std::vector<TreeNodeData>)>)>` | `nullptr` | Async resolver callback for lazy loading subdirectories on expand. |
+| `on_node_context_menu` | `std::function<void(const std::string&, Point)>` | `nullptr` | Callback when right-clicking a node. |
+| `on_node_drag_start` | `std::function<void(const std::string&)>` | `nullptr` | Callback when beginning drag operation on a node. |
+| `node_builder` | `std::function<WidgetPtr(const TreeNodeData&, int, bool, bool, bool)>` | `nullptr` | Custom widget builder function for completely custom node appearance. |
 
 ---
 

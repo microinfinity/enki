@@ -72,13 +72,22 @@ struct Sidebar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `sidebar_content` | `WidgetPtr` | `nullptr` | Content inside the sidebar (navigation links, logo, user account). |
 | `body` | `WidgetPtr` | `nullptr` | Main application workspace (e.g. document view, editor, dashboard). |
+| `options.side` | `SidebarSide` | `SidebarSide::Left`| Screen edge the sidebar is anchored to (`Left` or `Right`). |
 | `options.expanded_width` | `float` | `240.0f` | Width when expanded. |
 | `options.collapsed_width`| `float` | `64.0f` | Width when collapsed (icon-only mode). |
+| `options.background_color`| `Color` | `0xFF1E293B` | Background fill color of the sidebar. |
+| `options.border_color` | `Color` | `0xFF334155` | Border separator color between sidebar and body. |
+| `options.toggle_color` | `Color` | `0xFF64748B` | Color of the header toggle button. |
+| `options.toggle_hover_color`| `Color`| `0xFF818CF8` | Hover color of the toggle button. |
+| `options.border_width` | `float` | `1.0f` | Width of the separator border stroke. |
+| `options.toggle_size` | `float` | `36.0f` | Size of the toggle button hit area. |
 | `options.collapsible` | `bool` | `true` | Allows user to collapse the sidebar via toggle button. |
+| `options.initially_expanded`| `bool` | `true` | Initial expansion state on load. |
 | `options.show_toggle_button`| `bool` | `true` | Renders a header toggle chevron/hamburger button. |
-| `on_toggle` | `Function(bool)` | `nullptr` | Callback receiving `is_expanded` on transition. |
+| `on_toggle` | `std::function<void(bool)>` | `nullptr` | Callback receiving `is_expanded` on transition. |
 
 ---
 

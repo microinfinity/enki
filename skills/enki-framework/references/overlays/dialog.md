@@ -39,6 +39,13 @@ enum class DialogAnimation {
 };
 
 struct DialogAction {
+    std::string           id         = "";
+    std::string           label      = "";
+    bool                  is_primary = false;
+    bool                  is_danger  = false;
+    bool                  is_cancel  = false;
+    std::function<void()> on_click   = nullptr;
+
     static DialogAction primary(std::string label, std::function<void()> cb = nullptr);
     static DialogAction cancel(std::string label = "Cancel", std::function<void()> cb = nullptr);
     static DialogAction danger(std::string label, std::function<void()> cb = nullptr);
@@ -87,6 +94,13 @@ struct DialogOptions {
     Color                     background_color    = 0xFF1E293B; // Slate 800
     Color                     border_color        = 0xFF334155;
     Color                     overlay_color       = 0x99000000; // Scrim backdrop
+    Color                     title_color         = 0xFFFFFFFF;
+    Color                     subtitle_color      = 0xFF94A3B8;
+    Color                     icon_badge_bg       = 0x2E38BDF8;
+    Color                     icon_badge_fg       = 0xFF38BDF8;
+
+    std::function<void()>     on_opened           = nullptr;
+    std::function<void()>     on_closed           = nullptr;
 };
 
 } // namespace enki
@@ -116,14 +130,32 @@ struct Dialog {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | Application page content wrapped by the modal layer. |
 | `dialog_content` | `WidgetPtr` | `nullptr` | Optional custom widget layout rendered inside the card. |
-| `controller` | `shared_ptr<DialogController>`| `nullptr`| Controller to show or hide the dialog programmatically. |
-| `options.type` | `DialogType` | `Standard` | Semantic preset (tints headers and accents). |
-| `options.animation` | `DialogAnimation` | `ScaleAndFade`| Entrance animation curve. |
-| `options.actions` | `std::vector<DialogAction>`| `{}` | Action buttons displayed along the bottom. |
-| `options.barrier_dismissible`| `bool` | `true` | Allows dismissing when clicking outside the modal. |
-| `options.escape_to_close`| `bool` | `true` | Allows dismissing by pressing the `Escape` key. |
+| `initial_open` | `bool` | `false` | Whether dialog is visible initially upon mount. |
+| `controller` | `std::shared_ptr<DialogController>` | `nullptr` | Controller to show or hide the dialog programmatically. |
+| `options.type` | `DialogType` | `DialogType::Standard` | Semantic preset (`Standard`, `Info`, `Success`, `Warning`, `Danger`). |
+| `options.animation` | `DialogAnimation` | `DialogAnimation::ScaleAndFade` | Entrance animation curve preset. |
+| `options.width` | `float` | `480.0f` | Dialog card width in pixels. |
+| `options.max_height` | `float` | `600.0f` | Maximum dialog card height in pixels. |
+| `options.border_radius` | `float` | `14.0f` | Card border corner rounding radius. |
+| `options.barrier_dismissible` | `bool` | `true` | Allows dismissing when clicking outside on scrim. |
+| `options.escape_to_close` | `bool` | `true` | Allows dismissing by pressing the `Escape` key. |
+| `options.show_close_button` | `bool` | `true` | Renders top-right close button. |
+| `options.icon` | `std::string` | `""` | Leading icon / emoji for modal header. |
+| `options.title` | `std::string` | `""` | Dialog title string. |
+| `options.subtitle` | `std::string` | `""` | Dialog subtitle description string. |
+| `options.actions` | `std::vector<DialogAction>` | `{}` | Action buttons displayed along the bottom. |
+| `options.background_color` | `Color` | `0xFF1E293B` | Dialog surface card background color. |
+| `options.border_color` | `Color` | `0xFF334155` | Dialog card border outline color. |
+| `options.overlay_color` | `Color` | `0x99000000` | Dimmed backdrop scrim color. |
+| `options.title_color` | `Color` | `0xFFFFFFFF` | Title text font color. |
+| `options.subtitle_color` | `Color` | `0xFF94A3B8` | Subtitle text font color. |
+| `options.icon_badge_bg` | `Color` | `0x2E38BDF8` | Icon badge background fill color. |
+| `options.icon_badge_fg` | `Color` | `0xFF38BDF8` | Icon badge foreground tint color. |
+| `options.on_opened` | `std::function<void()>` | `nullptr` | Callback when modal finishes entrance animation. |
+| `options.on_closed` | `std::function<void()>` | `nullptr` | Callback when modal finishes dismissal animation. |
 
 ---
 

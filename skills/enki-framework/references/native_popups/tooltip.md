@@ -52,6 +52,7 @@ struct TooltipOptions {
     float                     border_radius    = 8.0f;
     EdgeInsets                padding          = EdgeInsets::symmetric(6.0f, 12.0f);
     float                     elevation        = 6.0f;
+    Color                     shadow_color     = 0x40000000;
 
     float                     arrow_size       = 6.0f;       ///< Pointer arrow tail size
     TooltipPosition           position         = TooltipPosition::Auto;
@@ -90,13 +91,26 @@ WidgetPtr tooltip(TooltipProps props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `child` | `WidgetPtr` | `nullptr` | Anchor widget hovered or clicked by the user. |
 | `message` | `std::string` | `""` | Plain text tooltip label. |
 | `rich_message` | `WidgetPtr` | `nullptr` | Custom widget layout (icons, multiple text rows, badges). |
-| `options.position`| `TooltipPosition` | `Auto` | Relative placement orientation. |
-| `options.show_delay`| `milliseconds` | `400ms` | Hover duration required before the tooltip reveals. |
-| `options.arrow_size`| `float` | `6.0f` | Height and width of the pointer triangle arrow. |
-| `options.interactive`| `bool` | `false` | When true, allows user to hover and select text inside tooltip. |
+| `options.position` | `TooltipPosition` | `TooltipPosition::Auto` | Relative placement orientation (`Auto`, `Top`, `Bottom`, `Left`, `Right`). |
+| `options.trigger` | `TooltipTrigger` | `TooltipTrigger::Hover` | Event activating tooltip (`Hover`, `LongPress`, `Tap`, `Manual`). |
+| `options.show_delay` | `std::chrono::milliseconds` | `400ms` | Hover duration required before the tooltip reveals. |
+| `options.hide_delay` | `std::chrono::milliseconds` | `150ms` | Delay after cursor leaves before hiding. |
+| `options.arrow_size` | `float` | `6.0f` | Height and width of the pointer triangle arrow. |
+| `options.interactive` | `bool` | `false` | When true, allows user to hover and select text inside tooltip. |
+| `options.background_color` | `Color` | `0xEE0F172A` | Background fill color of tooltip surface. |
+| `options.text_color` | `Color` | `0xFFF8FAFC` | Primary text label color. |
+| `options.border_color` | `Color` | `0x3394A3B8` | Outline border color. |
+| `options.border_width` | `float` | `1.0f` | Outline border thickness. |
+| `options.border_radius` | `float` | `8.0f` | Tooltip container corner rounding radius. |
+| `options.padding` | `EdgeInsets` | `EdgeInsets::symmetric(6, 12)` | Padding around text or content. |
+| `options.elevation` | `float` | `6.0f` | Shadow elevation depth. |
+| `options.shadow_color` | `Color` | `0x40000000` | Shadow tint color. |
+| `options.font_size` | `float` | `13.0f` | Text font size for plain message tooltips. |
+| `options.custom_shader` | `std::string` | `""` | Optional SkSL shader code for glassmorphism/effects. |
 
 ---
 

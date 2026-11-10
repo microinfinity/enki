@@ -1,6 +1,6 @@
 # Draggable
 
-> An ultra-high-performance drag-and-drop source widget for Enki, featuring zero-rebuild  floating feedback overlays, typed `std::any` payloads, and semantic tag filtering.
+> An ultra-high-performance drag-and-drop source widget for Enki, featuring zero-rebuild 60 FPS floating feedback overlays, typed `std::any` payloads, and semantic tag filtering.
 
 - **Header File**: `#include "enki/widgets/draggable.hpp"`
 - **C++ Class**: `enki::DraggableWidget` (inherits from `enki::StatefulWidget`)
@@ -76,14 +76,16 @@ public:
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `tag` | `std::string` | `""` | Type tag matched against `DragTarget.accepted_tag`. |
+| `preview_label` | `std::string` | `""` | Accessibility / HUD preview label for dragged element. |
 | `data` | `std::any` | `{}` | Payload object passed into the target's `on_accept` callback. |
 | `child` | `WidgetPtr` | `nullptr` | The normal widget rendered when not dragging. |
 | `feedback` | `WidgetPtr` | `nullptr` | Floating card painted under the cursor during drag operations. |
 | `child_when_dragging`| `WidgetPtr` | `nullptr` | Optional placeholder widget shown in the original position while dragging. |
-| `on_drag_started` | `function<void()>` | `nullptr` | Fired when pointer movement exceeds drag threshold. |
-| `on_drag_completed` | `function<void()>` | `nullptr` | Fired when dropped successfully into an accepting `DragTarget`. |
-| `on_drag_end` | `function<void()>` | `nullptr` | Fired when the drag terminates (accepted or cancelled). |
+| `on_drag_started` | `std::function<void()>` | `nullptr` | Fired when pointer movement exceeds drag threshold. |
+| `on_drag_completed` | `std::function<void()>` | `nullptr` | Fired when dropped successfully into an accepting `DragTarget`. |
+| `on_drag_end` | `std::function<void()>` | `nullptr` | Fired when the drag terminates (accepted or cancelled). |
 
 ---
 

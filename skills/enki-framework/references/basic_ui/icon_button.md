@@ -53,13 +53,18 @@ struct IconButton {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
 | `icon` | `WidgetPtr` | `nullptr` | The target icon widget to display inside the button. |
 | `on_pressed` | `ButtonCallback` | `nullptr` | Callback invoked on click. Disables the button if `nullptr`. |
-| `size` | `float` | `48.0f` | Width and height of the clickable bounding box (provides a 48px touch/click target). |
+| `disabled` | `bool` | `false` | Explicitly disables interaction. |
+| `normal_color` | `Color` | `0x00000000` | Resting background color (transparent by default). |
 | `hover_color` | `Color` | `0x1A000000` | Highlight background color displayed when hovered. |
 | `pressed_color` | `Color` | `0x33000000` | Background color displayed while clicked. |
+| `disabled_color` | `Color` | `0x00000000` | Background color when disabled. |
+| `size` | `float` | `48.0f` | Width and height of the clickable bounding box (provides a 48px touch/click target). |
+| `padding` | `EdgeInsets` | `EdgeInsets::all(8.0f)` | Inset padding between the outer bounding box and icon glyph. |
 | `enable_ripple` | `bool` | `true` | Enables visual circular ripple feedback on click. |
-| `padding` | `EdgeInsets` | `all(8.0f)` | Inset padding between the outer bounding box and icon glyph. |
+| `ripple_color` | `Color` | `0x40000000` | Color of the animated click ripple wave. |
 
 ---
 

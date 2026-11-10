@@ -95,6 +95,11 @@ struct DropdownMenu {
     bool                                          close_on_select = true;
     DropdownPlacement                             placement       = DropdownPlacement::Bottom;
 
+    std::string                                   placeholder     = "Select an option...";
+    std::string                                   selected_id     = "";
+    float                                         trigger_width   = 220.0f;
+    float                                         trigger_height  = 38.0f;
+
     // Anchor Trigger Positioning
     float                                         anchor_x        = 0.0f;
     float                                         anchor_y        = 0.0f;
@@ -102,12 +107,21 @@ struct DropdownMenu {
     // Theming Colors
     Color                                         background_color = 0xFF1E293B;
     Color                                         border_color     = 0xFF334155;
+    Color                                         trigger_bg       = 0xFF0F172A;
+    Color                                         trigger_border   = 0xFF334155;
     Color                                         hover_color      = 0x2238BDF8;
     Color                                         text_color       = 0xFFF1F5F9;
+    Color                                         subtitle_color   = 0xFF94A3B8;
+    Color                                         shortcut_color   = 0xFF64748B;
+    Color                                         header_color     = 0xFF38BDF8;
+    Color                                         divider_color    = 0xFF334155;
+    Color                                         danger_color     = 0xFFEF4444;
 
     // Callbacks
     std::function<void(const DropdownMenuItem&)>  on_selected      = nullptr;
     std::function<void(const std::string&, bool)> on_toggle_checked= nullptr;
+    std::function<void()>                         on_opened        = nullptr;
+    std::function<void()>                         on_closed        = nullptr;
 
     operator WidgetPtr() const;
 };
@@ -121,12 +135,37 @@ struct DropdownMenu {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `body` | `WidgetPtr` | `nullptr` | Application page content wrapped by the overlay stack. |
-| `items` | `std::vector<DropdownMenuItem>`| `{}` | Collection of menu items, headers, and dividers. |
-| `controller` | `shared_ptr<DropdownMenuController>`| `nullptr`| Controller to toggle menu visibility programmatically. |
-| `placement` | `DropdownPlacement` | `Bottom` | Opening direction relative to anchor trigger. |
+| `items` | `std::vector<DropdownMenuItem>` | `{}` | Collection of menu items, headers, and dividers. |
+| `custom_trigger` | `WidgetPtr` | `nullptr` | Custom trigger widget replacing default select button. |
+| `controller` | `std::shared_ptr<DropdownMenuController>` | `nullptr` | Controller to toggle menu visibility programmatically. |
 | `menu_width` | `float` | `240.0f` | Width of the floating dropdown panel in pixels. |
-| `close_on_select`| `bool` | `true` | Closes the menu automatically when an item is selected. |
+| `max_menu_height` | `float` | `340.0f` | Maximum viewport height for scrollable items. |
+| `border_radius` | `float` | `8.0f` | Menu container corner rounding radius. |
+| `close_on_select` | `bool` | `true` | Closes the menu automatically when an item is selected. |
+| `placement` | `DropdownPlacement` | `DropdownPlacement::Bottom` | Opening direction (`Auto`, `Bottom`, `Top`). |
+| `placeholder` | `std::string` | `"Select an option..."` | Label shown when no item is selected. |
+| `selected_id` | `std::string` | `""` | Currently selected item ID. |
+| `trigger_width` | `float` | `220.0f` | Width of the default select trigger button. |
+| `trigger_height` | `float` | `38.0f` | Height of the default select trigger button. |
+| `anchor_x` | `float` | `0.0f` | Absolute X coordinate of trigger in window. |
+| `anchor_y` | `float` | `0.0f` | Absolute Y coordinate of trigger in window. |
+| `background_color` | `Color` | `0xFF1E293B` | Menu container background color. |
+| `border_color` | `Color` | `0xFF334155` | Menu container outline border color. |
+| `trigger_bg` | `Color` | `0xFF0F172A` | Default trigger button background color. |
+| `trigger_border` | `Color` | `0xFF334155` | Default trigger button border color. |
+| `hover_color` | `Color` | `0x2238BDF8` | Item hover background tint. |
+| `text_color` | `Color` | `0xFFF1F5F9` | Primary item label font color. |
+| `subtitle_color` | `Color` | `0xFF94A3B8` | Item subtitle font color. |
+| `shortcut_color` | `Color` | `0xFF64748B` | Trailing shortcut font color. |
+| `header_color` | `Color` | `0xFF38BDF8` | Section header font color. |
+| `divider_color` | `Color` | `0xFF334155` | Horizontal separator divider color. |
+| `danger_color` | `Color` | `0xFFEF4444` | Destructive item accent color. |
+| `on_selected` | `std::function<void(const DropdownMenuItem&)>` | `nullptr` | Callback when any item is clicked/selected. |
+| `on_toggle_checked` | `std::function<void(const std::string&, bool)>` | `nullptr` | Callback when checkbox/radio state toggles. |
+| `on_opened` | `std::function<void()>` | `nullptr` | Callback when dropdown opens. |
+| `on_closed` | `std::function<void()>` | `nullptr` | Callback when dropdown closes. |
 
 ---
 

@@ -79,13 +79,16 @@ inline std::shared_ptr<CodeBlockWidget> codeBlock(CodeBlockProps props);
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `code` | `string` | `""` | Source code string to format and highlight. |
-| `language` | `string` | `"cpp"` | Language syntax lexer (`"cpp"`, `"json"`, `"python"`). |
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `code` | `std::string` | `""` | Source code string to format and highlight. |
+| `language` | `std::string` | `"cpp"` | Language syntax lexer (`"cpp"`, `"json"`, `"python"`). |
 | `show_line_numbers` | `bool` | `true` | Renders a left gutter with line count numerals. |
 | `show_copy_button` | `bool` | `true` | Displays a copy-to-clipboard button in the header. |
 | `show_header` | `bool` | `true` | Displays the top header bar showing language and tools. |
-| `highlighted_lines`| `vector<int>` | `{}` | List of line numbers (1-based) to visually emphasize. |
-| `theme` | `CodeTheme` | `oneDark()`| Syntax palette (`oneDark()`, `dracula()`, `vsCodeDark()`, `githubDark()`). |
+| `highlighted_lines`| `std::vector<int>` | `{}` | List of line numbers (1-based) to visually emphasize. |
+| `theme` | `CodeTheme` | `oneDark()` | Syntax palette (`oneDark()`, `dracula()`, `vsCodeDark()`, `githubDark()`). |
+| `font_size` | `float` | `13.0f` | Font size in points for code text. |
+| `font_family` | `std::string` | `"monospace"` | Monospace typeface family name. |
 
 ---
 

@@ -55,6 +55,7 @@ struct Slider {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Optional widget identification key. |
 | `value` | `float` | `0.0f` | Current numeric position on the slider. |
 | `on_change` | `SliderCallback` | `nullptr` | Callback invoked with the new value continuously during dragging. |
 | `min_value` | `float` | `0.0f` | Minimum bound of the range. |
@@ -64,7 +65,9 @@ struct Slider {
 | `active_color` | `Color` | `0xFF3B82F6` | Color of the track to the left of the thumb. |
 | `inactive_color`| `Color` | `0xFFCBD5E1` | Color of the track to the right of the thumb. |
 | `thumb_color` | `Color` | `0xFFFFFFFF` | Fill color of the circular thumb handle. |
+| `shadow_color` | `Color` | `0x40000000` | Drop shadow color under the thumb handle. |
 | `shadow_blur` | `float` | `4.0f` | Blur radius of the drop shadow under the thumb. |
+| `shadow_offset_dy`| `float`| `2.0f` | Vertical offset of the thumb drop shadow. |
 
 ---
 

@@ -66,19 +66,50 @@ public:
     // Semantic Convenience Helpers
     void showSuccess(std::string msg, std::string title = "Success",
                      std::optional<SnackbarAction> action = std::nullopt,
-                     SnackbarPlacement placement = SnackbarPlacement::BottomRight);
+                     SnackbarPlacement placement = SnackbarPlacement::BottomCenter);
 
     void showError(std::string msg, std::string title = "Error Occurred",
                    std::optional<SnackbarAction> action = std::nullopt,
-                   SnackbarPlacement placement = SnackbarPlacement::BottomRight);
+                   SnackbarPlacement placement = SnackbarPlacement::BottomCenter);
 
     void showWarning(std::string msg, std::string title = "Warning",
                      std::optional<SnackbarAction> action = std::nullopt,
-                     SnackbarPlacement placement = SnackbarPlacement::BottomRight);
+                     SnackbarPlacement placement = SnackbarPlacement::BottomCenter);
 
     void showInfo(std::string msg, std::string title = "Information",
                   std::optional<SnackbarAction> action = std::nullopt,
-                  SnackbarPlacement placement = SnackbarPlacement::BottomRight);
+                  SnackbarPlacement placement = SnackbarPlacement::BottomCenter);
+};
+
+struct SnackbarOptions {
+    SnackbarType                  type              = SnackbarType::Standard;
+    SnackbarPlacement             placement         = SnackbarPlacement::BottomCenter;
+
+    int                           duration_ms       = 4000;  ///< Auto-dismiss duration in ms (0 = persistent)
+    bool                          show_progress_bar = true;  ///< Animated countdown progress bar
+    bool                          pause_on_hover    = true;  ///< Freeze countdown on mouse hover
+    bool                          show_close_button = true;  ///< Show ✕ dismiss button
+
+    float                         width             = 420.0f;
+    float                         border_radius     = 10.0f;
+    float                         margin            = 24.0f; ///< Viewport edge margin
+
+    std::string                   icon              = "";    ///< Leading emoji/icon (e.g. ✅, ❌, ⚠️)
+    std::string                   title             = "";
+    std::string                   message           = "";
+    std::optional<SnackbarAction> action;
+
+    // Styling Colors
+    Color                         background_color  = 0xFF1E293B; // Slate 800
+    Color                         border_color      = 0xFF334155; // Slate 700
+    Color                         title_color       = 0xFFFFFFFF; // White
+    Color                         message_color     = 0xFFCBD5E1; // Slate 300
+    Color                         accent_color      = 0xFF38BDF8; // Sky 400
+    Color                         progress_bar_col  = 0xFF38BDF8;
+
+    // Callbacks
+    std::function<void()>         on_shown          = nullptr;
+    std::function<void()>         on_dismissed      = nullptr;
 };
 
 } // namespace enki
@@ -106,13 +137,36 @@ struct Snackbar {
 
 | Property | Type | Default | Description |
 |---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
 | `body` | `WidgetPtr` | `nullptr` | Application page content wrapped by the toast layer. |
-| `controller` | `shared_ptr<SnackbarController>`| `nullptr`| Handle for dispatching notifications from anywhere in the app. |
-| `options.placement` | `SnackbarPlacement` | `BottomCenter`| Viewport anchor location (e.g. `BottomRight`, `TopRight`). |
-| `options.duration_ms` | `int` | `4000` | Auto-dismiss countdown in milliseconds (0 = persistent). |
-| `options.show_progress_bar`| `bool`| `true` | Renders animated countdown bar along bottom card edge. |
-| `options.pause_on_hover`| `bool` | `true` | Freezes the countdown timer while mouse cursor is over toast. |
-| `options.action` | `optional<SnackbarAction>`| `nullopt` | Interactive action button (e.g. "Undo", "Retry"). |
+| `controller` | `std::shared_ptr<SnackbarController>` | `nullptr` | Handle for dispatching notifications from anywhere in the app. |
+| `initial_options` | `SnackbarOptions` | `{}` | Optional initial toast presented upon widget mount. |
+
+### `SnackbarOptions` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `type` | `SnackbarType` | `SnackbarType::Standard` | Semantic preset (`Standard`, `Success`, `Error`, `Warning`, `Info`, `Loading`). |
+| `placement` | `SnackbarPlacement` | `SnackbarPlacement::BottomCenter` | Viewport anchor location (e.g. `BottomRight`, `TopCenter`). |
+| `duration_ms` | `int` | `4000` | Auto-dismiss countdown in milliseconds (0 = persistent). |
+| `show_progress_bar` | `bool` | `true` | Renders animated countdown bar along bottom card edge. |
+| `pause_on_hover` | `bool` | `true` | Freezes countdown timer while cursor is hovered over toast. |
+| `show_close_button` | `bool` | `true` | Shows ✕ dismiss button in top-right corner. |
+| `width` | `float` | `420.0f` | Toast card width in pixels. |
+| `border_radius` | `float` | `10.0f` | Toast card corner rounding radius. |
+| `margin` | `float` | `24.0f` | Distance from viewport edges. |
+| `icon` | `std::string` | `""` | Leading emoji or icon string. |
+| `title` | `std::string` | `""` | Optional header title text. |
+| `message` | `std::string` | `""` | Primary toast notification message body text. |
+| `action` | `std::optional<SnackbarAction>` | `std::nullopt` | Interactive action button (e.g. "UNDO", "RETRY"). |
+| `background_color` | `Color` | `0xFF1E293B` | Toast card background color. |
+| `border_color` | `Color` | `0xFF334155` | Toast card outline border color. |
+| `title_color` | `Color` | `0xFFFFFFFF` | Title text font color. |
+| `message_color` | `Color` | `0xFFCBD5E1` | Message text font color. |
+| `accent_color` | `Color` | `0xFF38BDF8` | Accent highlight color. |
+| `progress_bar_col` | `Color` | `0xFF38BDF8` | Countdown timer progress bar fill color. |
+| `on_shown` | `std::function<void()>` | `nullptr` | Callback when toast completes entrance animation. |
+| `on_dismissed` | `std::function<void()>` | `nullptr` | Callback when toast completes dismissal. |
 
 ---
 

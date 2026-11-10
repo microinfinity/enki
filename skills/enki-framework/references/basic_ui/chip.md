@@ -77,6 +77,45 @@ struct ChipGroup {
 
 ---
 
+## Properties Reference
+
+### `Chip`
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `type` | `ChipType` | `ChipType::Action` | Functional behavior type (`Action`, `Filter`, `Choice`, `Input`, `Status`). |
+| `variant` | `ChipVariant` | `ChipVariant::Filled` | Visual styling variant (`Filled`, `Outlined`, `Elevated`). |
+| `size` | `ChipSize` | `ChipSize::Medium` | Height and typography size scale (`Small`, `Medium`, `Large`). |
+| `label` | `std::string` | `""` | Main text label displayed in the chip. |
+| `avatar_icon` | `std::string` | `""` | Leading emoji, icon glyph, or short symbol. |
+| `leading` | `WidgetPtr` | `nullptr` | Custom leading widget (e.g. `Avatar` or `Icon`). Overrides `avatar_icon`. |
+| `trailing` | `WidgetPtr` | `nullptr` | Custom trailing widget placed at the far right. |
+| `selected` | `bool` | `false` | Active selection state for `Filter` and `Choice` chips. |
+| `enabled` | `bool` | `true` | Interactivity flag. When false, interactions and clicks are ignored. |
+| `deletable` | `bool` | `false` | Shows a trailing 'X' icon button to trigger deletion. |
+| `pulsing_dot` | `bool` | `false` | Displays a live animated status dot before the label. |
+| `background_color` | `Color` | `0xFF1E293B` | Base background fill color. |
+| `selected_color` | `Color` | `0xFF0284C7` | Background color when `selected == true`. |
+| `border_color` | `Color` | `0xFF334155` | Outline stroke color (prominent in `Outlined` variant). |
+| `text_color` | `Color` | `0xFFFFFFFF` | Color of the text label. |
+| `status_color` | `Color` | `0xFF10B981` | Accent color for the status indicator dot. |
+| `on_tap` | `std::function<void()>` | `nullptr` | Callback invoked when the chip is clicked. |
+| `on_selected` | `std::function<void(bool)>` | `nullptr` | Callback invoked when selection toggles. |
+| `on_deleted` | `std::function<void()>` | `nullptr` | Callback invoked when the delete 'X' button is clicked. |
+
+### `ChipGroup`
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Unique widget identifier for tree reconciliation. |
+| `chips` | `std::vector<WidgetPtr>` | `{}` | List of child `Chip` widgets contained in the group. |
+| `single_choice` | `bool` | `false` | If true, acts as a mutually exclusive radio-like group; otherwise allows multi-select filter behavior. |
+| `gap` | `float` | `8.0f` | Spacing in pixels between adjacent chips. |
+| `on_choice_changed` | `std::function<void(int)>` | `nullptr` | Callback invoked with the newly selected chip's index. |
+
+---
+
 ## Chip Enums
 
 ### `ChipType`

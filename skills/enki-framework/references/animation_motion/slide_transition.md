@@ -45,7 +45,8 @@ inline std::shared_ptr<SlideTransitionWidget> slideTransition(const SlideTransit
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `position` | `shared_ptr<AnimationController>`| `nullptr` | Driving animation controller (`0.0f` to `1.0f`). |
+| `key` | `Key` | `Key::none()` | Widget key identifier. |
+| `position` | `std::shared_ptr<AnimationController>`| `nullptr` | Driving animation controller (`0.0f` to `1.0f`). |
 | `begin` | `Point` | `{0.0f, 0.0f}` | Fractional offset corresponding to controller value `0.0`. |
 | `end` | `Point` | `{1.0f, 0.0f}` | Fractional offset corresponding to controller value `1.0`. |
 | `curve` | `const Curve*` | `&Curves::linear` | Easing curve applied to the linear progression of `position`. |

@@ -110,6 +110,45 @@ struct Menu {
 
 ---
 
+## Properties Reference
+
+### `MenuBar` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `entries` | `std::vector<MenuEntry>` | `{}` | Top-level menu categories (e.g. File, Edit, View). |
+| `options` | `MenuOptions` | `{}` | Styling and visual appearance options for the menus. |
+
+### `Menu` Properties
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | `Key` | `Key::none()` | Identifier for widget diffing and state preservation. |
+| `child` | `WidgetPtr` | `nullptr` | Anchor trigger widget that opens the menu popup on click. |
+| `items` | `std::vector<MenuItem>` | `{}` | List of menu items, checkboxes, radios, dividers, and submenus. |
+| `options` | `MenuOptions` | `{}` | Styling and visual appearance options for the popup. |
+
+### `MenuOptions` Reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `background_color` | `Color` | `0xFA1E293B` | Menu popup background color. |
+| `border_color` | `Color` | `0xFF334155` | Menu popup outline border color. |
+| `item_hover_color` | `Color` | `0xFF334155` | Background color for hovered items. |
+| `text_color` | `Color` | `0xFFF1F5F9` | Primary item label text color. |
+| `text_sec_color` | `Color` | `0xFF94A3B8` | Shortcut text and subtitle color. |
+| `accent_color` | `Color` | `0xFF38BDF8` | Checkmark and radio dot accent color. |
+| `disabled_color` | `Color` | `0xFF64748B` | Text color for disabled items. |
+| `border_width` | `float` | `1.0f` | Border stroke thickness. |
+| `border_radius` | `float` | `8.0f` | Corner rounding radius for menu popup surface. |
+| `elevation` | `float` | `12.0f` | Drop shadow elevation depth. |
+| `min_width` | `float` | `190.0f` | Minimum width of menu popup. |
+| `padding` | `EdgeInsets` | `EdgeInsets::all(6.0f)` | Interior content padding. |
+| `auto_dismiss` | `bool` | `true` | Automatically dismisses when clicking outside. |
+
+---
+
 ## Code Examples (From `widgets_demo/menu_demo/main.cpp`)
 
 ### 1. Desktop Application MenuBar

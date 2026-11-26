@@ -97,7 +97,6 @@ subdir('feedback_status_demo')
 subdir('utility_demo')
 subdir('typography_demo')
 subdir('lottie_demo')
-subdir('skia_canvas_demo')
 if pulse_dep.found() or host_machine.system() == 'windows'
   subdir('audio_waveform_demo')
 endif

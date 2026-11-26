@@ -7,7 +7,7 @@
 - **Props Struct**: `enki::RichTextProps`
 - **Span Types**: `enki::TextSpan`, `enki::InlineSpan`
 - **Helpers**: `richText(...)`, `span(...)`
-- **Underlying Engine**: Skia `SkParagraph` with rich span tree construction
+- **Underlying Engine**: `enki::TextParagraphBuilder` with rich span tree construction
 
 ---
 

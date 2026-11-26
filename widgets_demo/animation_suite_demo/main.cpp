@@ -32,6 +32,7 @@
 #include "enki/widgets/svg_morph.hpp"
 #include "enki/widgets/hero.hpp"
 #include "enki/widgets/particle_emitter.hpp"
+#include "enki/widgets/detail/canvas_painter.hpp"
 
 #include <iostream>
 #include <memory>
@@ -192,7 +193,7 @@ public:
 
         // Visual spring puck
         float puck_x = 40.0f + spring_val * 480.0f;
-        auto springCanvas = skiaCanvas(SkiaCanvasProps{
+        auto springCanvas = detail::canvasPainter({
             .painter = [puck_x](Canvas& canvas, Size size) {
                 // Draw track
                 Paint track_paint;
@@ -475,7 +476,7 @@ public:
             }
         });
 
-        auto particleCanvas = skiaCanvas(SkiaCanvasProps{
+        auto particleCanvas = detail::canvasPainter({
             .painter = [this](Canvas& canvas, Size size) {
                 if (particle_sys_) {
                     particle_sys_->render(canvas, Rect{0, 0, size.width, size.height});

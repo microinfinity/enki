@@ -156,7 +156,7 @@ inline std::shared_ptr<ContainerWidget> centerBox(WidgetPtr child);
 
 ## SkSL Shader Architecture
 
-When you pass an SkSL fragment code string to `background_shader` or `border_shader`, Enki's `RenderDecoratedBox` compiles it on the GPU using `SkRuntimeEffect`.
+When you pass an SkSL fragment code string to `background_shader` or `border_shader`, Enki's `RenderDecoratedBox` compiles it through `enki::RuntimeEffect` on the active GPU backend.
 
 ### Built-in Uniforms
 Enki inspects your SkSL code and automatically injects standard uniforms:

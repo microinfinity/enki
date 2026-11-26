@@ -10,7 +10,7 @@ The Basic UI category provides essential graphical user interface primitives for
 
 | # | Widget | Primary Type / Helper | Header | Description |
 |---|---|---|---|---|
-| 1 | [**Text**](./text.md) | `class Text`, `text(...)` | `<enki/widgets/text.hpp>` | Typography display with Skia SkParagraph, ellipsis overflow, BiDi, and text selection. |
+| 1 | [**Text**](./text.md) | `class Text`, `text(...)` | `<enki/widgets/text.hpp>` | Typography display via `enki::TextParagraph`, ellipsis overflow, BiDi, and text selection. |
 | 2 | [**RichText**](./rich_text.md) | `class RichText`, `richText(...)`, `span(...)` | `<enki/widgets/text.hpp>` | Multi-style formatted inline text runs with individual colors, weights, and click/hover events. |
 | 3 | [**Icon**](./icon.md) | `struct Icon`, `class IconWidget`, `icon(...)` | `<enki/widgets/icon.hpp>` | Vector icon display supporting Material Design font glyphs and custom SVG paths. |
 | 4 | [**Image**](./image.md) | `struct ImageProps`, `class ImageWidget`, `image(...)` | `<enki/widgets/image.hpp>` | Hardware-accelerated image display with in-memory caching, BoxFit scaling, and clipping. |

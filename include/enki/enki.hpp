@@ -169,7 +169,6 @@
 #include "enki/widgets/avatar.hpp"
 #include "enki/widgets/card.hpp"
 // Note: video_player.hpp and audio_waveform.hpp are excluded from the master header as they require dedicated media engines/runtimes.
-#include "enki/widgets/skia_canvas.hpp"
 #include "enki/widgets/lottie.hpp"
 #include "enki/widgets/svg_morph.hpp"
 #include "enki/widgets/paint_effects.hpp"

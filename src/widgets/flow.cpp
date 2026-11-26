@@ -247,9 +247,9 @@ void FlowPaintingContext::paintChild(size_t index, const Matrix4& transform, flo
     canvas.translate(paint_context_.offset.x, paint_context_.offset.y);
 
     // Apply the child's 3x3/4x4 transformation matrix
-    float sk_matrix[9];
-    transform.toSkMatrix9(sk_matrix);
-    canvas.concat(sk_matrix);
+    float matrix9[9];
+    transform.toMatrix3x3(matrix9);
+    canvas.concat(matrix9);
 
     // Apply opacity via offscreen layer if needed
     bool has_alpha = (opacity < 0.999f && opacity >= 0.0f);

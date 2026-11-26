@@ -4,12 +4,8 @@
 #include "enki/widgets/container.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
+#include "enki/rendering/runtime_shader.hpp"
 #include "enki/animation/ticker.hpp"
-
-#include <include/effects/SkRuntimeEffect.h>
-#include <include/core/SkShader.h>
-#include <include/core/SkMatrix.h>
-#include <include/core/SkString.h>
 
 #include <algorithm>
 #include <cmath>
@@ -24,17 +20,34 @@ inline double getCurrentTimeSeconds() {
     return std::chrono::duration_cast<std::chrono::microseconds>(duration).count() / 1000000.0;
 }
 
-class CustomShaderWrapper : public Shader {
-public:
-    explicit CustomShaderWrapper(sk_sp<SkShader> shader) : shader_(std::move(shader)) {}
-    void* getNativeHandle() const override { return shader_.get(); }
-private:
-    sk_sp<SkShader> shader_;
-};
+static std::shared_ptr<RuntimeEffect> compileContainerShader(const std::string& source, const char* label) {
+    if (source.empty()) {
+        return nullptr;
+    }
+    std::string err;
+    auto eff = RuntimeEffect::compile(source, &err);
+    if (!eff) {
+        std::cerr << "Container SkSL " << label << " Compile Error: " << err << "\n";
+    }
+    return eff;
+}
+
+static std::shared_ptr<Shader> buildContainerRuntimeShader(const std::shared_ptr<RuntimeEffect>& effect,
+                                                           double start_time,
+                                                           const Rect& bounds) {
+    if (!effect) {
+        return nullptr;
+    }
+    double current_time = getCurrentTimeSeconds() - start_time;
+    RuntimeShaderBuilder builder(effect);
+    builder.setUniform("time", static_cast<float>(current_time));
+    builder.setUniform("resolution", bounds.width, bounds.height);
+    return builder.makeShader(bounds.x, bounds.y);
+}
 
 struct RenderDecoratedBox::ShaderData {
-    sk_sp<SkRuntimeEffect> bg_effect;
-    sk_sp<SkRuntimeEffect> border_effect;
+    std::shared_ptr<RuntimeEffect> bg_effect;
+    std::shared_ptr<RuntimeEffect> border_effect;
     std::shared_ptr<SvgDocument> bg_svg;
     std::shared_ptr<SvgDocument> border_svg;
     std::unique_ptr<Ticker> ticker;
@@ -69,30 +82,10 @@ void RenderDecoratedBox::updateShaders() {
     }
 
     // 1. Background shader
-    if (!decoration_.background_shader.empty()) {
-        auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(decoration_.background_shader.c_str()));
-        if (!eff) {
-            std::cerr << "Container SkSL background_shader Compile Error: " << err.c_str() << "\n";
-            shader_data_->bg_effect = nullptr;
-        } else {
-            shader_data_->bg_effect = eff;
-        }
-    } else {
-        shader_data_->bg_effect = nullptr;
-    }
+    shader_data_->bg_effect = compileContainerShader(decoration_.background_shader, "background_shader");
 
     // 2. Border shader
-    if (!decoration_.border_shader.empty()) {
-        auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(decoration_.border_shader.c_str()));
-        if (!eff) {
-            std::cerr << "Container SkSL border_shader Compile Error: " << err.c_str() << "\n";
-            shader_data_->border_effect = nullptr;
-        } else {
-            shader_data_->border_effect = eff;
-        }
-    } else {
-        shader_data_->border_effect = nullptr;
-    }
+    shader_data_->border_effect = compileContainerShader(decoration_.border_shader, "border_shader");
 
     // 3. Background SVG
     if (!decoration_.background_svg.empty()) {
@@ -110,10 +103,10 @@ void RenderDecoratedBox::updateShaders() {
 
     // 5. Animation ticker if any shader uses 'time'
     bool needs_ticker = false;
-    if (shader_data_->bg_effect && shader_data_->bg_effect->findUniform("time")) {
+    if (shader_data_->bg_effect && shader_data_->bg_effect->hasUniform("time")) {
         needs_ticker = true;
     }
-    if (shader_data_->border_effect && shader_data_->border_effect->findUniform("time")) {
+    if (shader_data_->border_effect && shader_data_->border_effect->hasUniform("time")) {
         needs_ticker = true;
     }
 
@@ -189,21 +182,10 @@ void RenderDecoratedBox::paintBackground(PaintContext& context, const Rect& boun
     // 0. Background SVG (Vector injection)
     if (shader_data_ && shader_data_->bg_svg) {
         std::unique_ptr<Paint> shader_override = nullptr;
-        if (shader_data_->bg_effect) {
-            double current_time = getCurrentTimeSeconds() - shader_data_->start_time;
-            SkRuntimeShaderBuilder builder(shader_data_->bg_effect);
-            if (shader_data_->bg_effect->findUniform("time")) builder.uniform("time") = (float)current_time;
-            if (shader_data_->bg_effect->findUniform("resolution")) {
-                float res[2] = {bounds.width, bounds.height};
-                builder.uniform("resolution").set(res, 2);
-            }
-            SkMatrix local_matrix = SkMatrix::Translate(bounds.x, bounds.y);
-            sk_sp<SkShader> shader = builder.makeShader(&local_matrix);
-            if (shader) {
-                shader_override = std::make_unique<Paint>();
-                shader_override->setShader(std::make_shared<CustomShaderWrapper>(std::move(shader)));
-                shader_override->setAntiAlias(true);
-            }
+        if (auto shader = buildContainerRuntimeShader(shader_data_->bg_effect, shader_data_->start_time, bounds)) {
+            shader_override = std::make_unique<Paint>();
+            shader_override->setShader(std::move(shader));
+            shader_override->setAntiAlias(true);
         }
 
         if (decoration_.svg_slice.has_value()) {
@@ -215,22 +197,9 @@ void RenderDecoratedBox::paintBackground(PaintContext& context, const Rect& boun
     }
 
     if (shader_data_ && shader_data_->bg_effect) {
-        double current_time = getCurrentTimeSeconds() - shader_data_->start_time;
-        SkRuntimeShaderBuilder builder(shader_data_->bg_effect);
-
-        if (shader_data_->bg_effect->findUniform("time")) {
-            builder.uniform("time") = (float)current_time;
-        }
-        if (shader_data_->bg_effect->findUniform("resolution")) {
-            float res[2] = {bounds.width, bounds.height};
-            builder.uniform("resolution").set(res, 2);
-        }
-
-        SkMatrix local_matrix = SkMatrix::Translate(bounds.x, bounds.y);
-        sk_sp<SkShader> shader = builder.makeShader(&local_matrix);
-        if (shader) {
+        if (auto shader = buildContainerRuntimeShader(shader_data_->bg_effect, shader_data_->start_time, bounds)) {
             Paint bg_paint;
-            bg_paint.setShader(std::make_shared<CustomShaderWrapper>(std::move(shader)));
+            bg_paint.setShader(std::move(shader));
             bg_paint.setAntiAlias(true);
 
             if (decoration_.shape == BoxShape::Circle) {
@@ -302,23 +271,12 @@ void RenderDecoratedBox::paintBorder(PaintContext& context, const Rect& bounds, 
     // 0. Border SVG (Vector injection)
     if (shader_data_ && shader_data_->border_svg) {
         std::unique_ptr<Paint> shader_override = nullptr;
-        if (shader_data_->border_effect) {
-            double current_time = getCurrentTimeSeconds() - shader_data_->start_time;
-            SkRuntimeShaderBuilder builder(shader_data_->border_effect);
-            if (shader_data_->border_effect->findUniform("time")) builder.uniform("time") = (float)current_time;
-            if (shader_data_->border_effect->findUniform("resolution")) {
-                float res[2] = {bounds.width, bounds.height};
-                builder.uniform("resolution").set(res, 2);
-            }
-            SkMatrix local_matrix = SkMatrix::Translate(bounds.x, bounds.y);
-            sk_sp<SkShader> shader = builder.makeShader(&local_matrix);
-            if (shader) {
-                shader_override = std::make_unique<Paint>();
-                shader_override->setShader(std::make_shared<CustomShaderWrapper>(std::move(shader)));
-                shader_override->setAntiAlias(true);
-                if (decoration_.border.has_value() && decoration_.border->width > 0.0f) {
-                    shader_override->setStrokeWidth(decoration_.border->width);
-                }
+        if (auto shader = buildContainerRuntimeShader(shader_data_->border_effect, shader_data_->start_time, bounds)) {
+            shader_override = std::make_unique<Paint>();
+            shader_override->setShader(std::move(shader));
+            shader_override->setAntiAlias(true);
+            if (decoration_.border.has_value() && decoration_.border->width > 0.0f) {
+                shader_override->setStrokeWidth(decoration_.border->width);
             }
         } else if (decoration_.border.has_value() && decoration_.border->color != Colors::Transparent) {
             shader_override = std::make_unique<Paint>();
@@ -346,25 +304,10 @@ void RenderDecoratedBox::paintBorder(PaintContext& context, const Rect& bounds, 
     border_paint.setStrokeWidth(border_width);
     border_paint.setAntiAlias(true);
 
-    if (shader_data_ && shader_data_->border_effect) {
-        double current_time = getCurrentTimeSeconds() - shader_data_->start_time;
-        SkRuntimeShaderBuilder builder(shader_data_->border_effect);
-
-        if (shader_data_->border_effect->findUniform("time")) {
-            builder.uniform("time") = (float)current_time;
-        }
-        if (shader_data_->border_effect->findUniform("resolution")) {
-            float res[2] = {bounds.width, bounds.height};
-            builder.uniform("resolution").set(res, 2);
-        }
-
-        SkMatrix local_matrix = SkMatrix::Translate(bounds.x, bounds.y);
-        sk_sp<SkShader> shader = builder.makeShader(&local_matrix);
-        if (shader) {
-            border_paint.setShader(std::make_shared<CustomShaderWrapper>(std::move(shader)));
-        } else if (decoration_.border.has_value()) {
-            border_paint.setColor(decoration_.border->color);
-        }
+    if (auto shader = buildContainerRuntimeShader(shader_data_ ? shader_data_->border_effect : nullptr,
+                                                  shader_data_ ? shader_data_->start_time : 0.0,
+                                                  bounds)) {
+        border_paint.setShader(std::move(shader));
     } else if (decoration_.border.has_value()) {
         border_paint.setColor(decoration_.border->color);
     }

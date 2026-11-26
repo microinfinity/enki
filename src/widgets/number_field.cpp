@@ -14,22 +14,7 @@
 
 #include "enki/rendering/paint.hpp"
 #include "enki/rendering/path.hpp"
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/DartTypes.h>
+#include "enki/rendering/paragraph.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -42,34 +27,6 @@ namespace enki {
 
 class NumberFieldState;
 static NumberFieldState* g_focused_numberfield = nullptr;
-
-static sk_sp<skia::textlayout::FontCollection> getNumberFieldFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(m, "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(m, "Segoe UI");
-#else
-        fc->setDefaultFontManager(m);
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
 
 // ════════════════════════════════════════════════════════════════
 // Expression Evaluation Engine (Supports +, -, *, /, (), %, decimals)
@@ -240,9 +197,9 @@ public:
 
     int hovered_button = 0; // 0=none, 1=up/plus, 2=down/minus
 
-    std::unique_ptr<skia::textlayout::Paragraph> text_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> prefix_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> suffix_paragraph_;
+    std::unique_ptr<TextParagraph> text_paragraph_;
+    std::unique_ptr<TextParagraph> prefix_paragraph_;
+    std::unique_ptr<TextParagraph> suffix_paragraph_;
 
     RenderNumberFieldBox(std::shared_ptr<NumberFieldController> ctrl, NumberFieldProps opt, std::string text_val)
         : controller(std::move(ctrl)), options(std::move(opt)), edit_text(std::move(text_val)) {
@@ -256,56 +213,51 @@ public:
         applyFlexboxStyle(anuNode(), st);
     }
 
-    void layoutParagraphs() {
-        auto fc = getNumberFieldFontCollection();
-        if (!fc) return;
+    static std::unique_ptr<TextParagraph> makeSingleLineParagraph(std::string_view text,
+                                                                  float font_size,
+                                                                  Color color,
+                                                                  float layout_w,
+                                                                  std::string_view font_family = {}) {
+        ParagraphStyle p_style;
+        p_style.text_align = ParagraphAlign::Left;
+        auto builder = TextParagraphBuilder::make(p_style);
+        if (!builder) return nullptr;
+        ParagraphTextStyle ts;
+        ts.font_size = font_size;
+        ts.color = color;
+        if (!font_family.empty()) {
+            ts.font_families.emplace_back(font_family);
+        }
+        builder->pushStyle(ts);
+        builder->addText(text);
+        auto para = builder->build();
+        if (para) {
+            para->layout(layout_w);
+        }
+        return para;
+    }
 
+    void layoutParagraphs() {
         float font_sz = options.style.font_size > 0 ? options.style.font_size : 14.0f;
         if (options.size == NumberFieldSize::Small && options.style.font_size <= 0) font_sz = 12.5f;
         if (options.size == NumberFieldSize::Large && options.style.font_size <= 0) font_sz = 16.0f;
 
-        skia::textlayout::ParagraphStyle p_style;
-        p_style.setTextAlign(skia::textlayout::TextAlign::kLeft);
-
         // 1. Prefix Paragraph
         if (!options.prefix_text.empty()) {
-            auto b_prefix = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_pref;
-            t_pref.setFontSize(font_sz);
-            t_pref.setColor(static_cast<SkColor>(options.prefix_suffix_color));
-            b_prefix->pushStyle(t_pref);
-            b_prefix->addText(options.prefix_text.c_str(), options.prefix_text.length());
-            prefix_paragraph_ = b_prefix->Build();
-            prefix_paragraph_->layout(100.0f);
+            prefix_paragraph_ = makeSingleLineParagraph(options.prefix_text, font_sz, options.prefix_suffix_color, 100.0f);
         } else {
             prefix_paragraph_.reset();
         }
 
         // 2. Main Numeric / Edit Text Paragraph
-        auto b_main = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-        skia::textlayout::TextStyle t_main;
-        t_main.setFontSize(font_sz);
-        t_main.setColor(static_cast<SkColor>(options.style.color != 0 ? options.style.color : 0xFFF1F5F9));
-        if (!options.style.font_family.empty()) {
-            std::vector<SkString> font_fams = {SkString(options.style.font_family.c_str())};
-            t_main.setFontFamilies(font_fams);
-        }
-        b_main->pushStyle(t_main);
         std::string display_str = is_focused ? edit_text : formatNumberValue(controller->getValue(), options);
-        b_main->addText(display_str.c_str(), display_str.length());
-        text_paragraph_ = b_main->Build();
-        text_paragraph_->layout(size_.width > 0 ? size_.width : 300.0f);
+        Color main_col = options.style.color != 0 ? options.style.color : 0xFFF1F5F9;
+        text_paragraph_ = makeSingleLineParagraph(
+            display_str, font_sz, main_col, size_.width > 0 ? size_.width : 300.0f, options.style.font_family);
 
         // 3. Suffix Paragraph
         if (!options.suffix_text.empty()) {
-            auto b_suffix = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_suff;
-            t_suff.setFontSize(font_sz);
-            t_suff.setColor(static_cast<SkColor>(options.prefix_suffix_color));
-            b_suffix->pushStyle(t_suff);
-            b_suffix->addText(options.suffix_text.c_str(), options.suffix_text.length());
-            suffix_paragraph_ = b_suffix->Build();
-            suffix_paragraph_->layout(100.0f);
+            suffix_paragraph_ = makeSingleLineParagraph(options.suffix_text, font_sz, options.prefix_suffix_color, 100.0f);
         } else {
             suffix_paragraph_.reset();
         }
@@ -457,7 +409,7 @@ public:
         float text_y = ctx.offset.y + (size_.height - (text_paragraph_ ? text_paragraph_->getHeight() : 16.0f)) * 0.5f;
 
         if (prefix_paragraph_) {
-            canvas.drawParagraph(prefix_paragraph_.get(), text_x, text_y);
+            prefix_paragraph_->paint(canvas, text_x, text_y);
             text_x += prefix_paragraph_->getMaxIntrinsicWidth() + 3.0f;
         }
 
@@ -466,28 +418,25 @@ public:
             if (is_focused && selection_start != selection_end) {
                 size_t s = std::min(selection_start, selection_end);
                 size_t e = std::max(selection_start, selection_end);
-                auto rects = text_paragraph_->getRectsForRange(s, e,
-                    skia::textlayout::RectHeightStyle::kTight,
-                    skia::textlayout::RectWidthStyle::kTight);
+                auto rects = text_paragraph_->getRectsForRange(s, e);
 
                 Paint sel_paint;
                 sel_paint.setColor(Color(options.selection_color));
                 for (const auto& r : rects) {
-                    canvas.drawRect(Rect(text_x + r.rect.fLeft, text_y + r.rect.fTop, r.rect.width(), r.rect.height()), sel_paint);
+                    canvas.drawRect(Rect(text_x + r.x, text_y + r.y, r.width, r.height), sel_paint);
                 }
             }
 
-            canvas.drawParagraph(text_paragraph_.get(), text_x, text_y);
+            text_paragraph_->paint(canvas, text_x, text_y);
 
             // 5. Draw Blinking Cursor
             if (is_focused && show_cursor && !options.read_only && selection_start == selection_end) {
                 float c_x = 0;
                 float c_h = text_paragraph_->getHeight();
                 if (cursor_pos > 0) {
-                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos,
-                        skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos);
                     if (!prev_rects.empty()) {
-                        c_x = prev_rects.back().rect.fRight;
+                        c_x = prev_rects.back().right();
                     }
                 }
                 Paint cur_paint;
@@ -500,7 +449,7 @@ public:
 
         // 6. Draw Suffix
         if (suffix_paragraph_) {
-            canvas.drawParagraph(suffix_paragraph_.get(), text_x, text_y);
+            suffix_paragraph_->paint(canvas, text_x, text_y);
         }
 
         canvas.restore();
@@ -552,8 +501,8 @@ public:
         if (prefix_paragraph_) content_x += prefix_paragraph_->getMaxIntrinsicWidth() + 3.0f;
 
         float target_x = std::max(0.0f, local_x - content_x);
-        auto pos = text_paragraph_->getGlyphPositionAtCoordinate(target_x, 5.0f);
-        return std::min(static_cast<size_t>(pos.position), edit_text.length());
+        size_t pos = text_paragraph_->getGlyphIndexAtCoordinate(target_x, 5.0f);
+        return std::min(pos, edit_text.length());
     }
 };
 

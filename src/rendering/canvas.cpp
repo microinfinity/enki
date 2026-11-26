@@ -28,7 +28,9 @@
 #include <include/core/SkMatrix.h>
 #include <include/core/SkImage.h>
 #include <include/core/SkSamplingOptions.h>
+#include <modules/skparagraph/include/FontCollection.h>
 #include <modules/skparagraph/include/Paragraph.h>
+#include "enki/rendering/font_manager.hpp"
 #include "enki/rendering/image.hpp"
 #include <algorithm>
 
@@ -97,7 +99,16 @@ sk_sp<SkTypeface> getTypeface(const char* family, bool bold) {
     SkFontStyle style = bold ? SkFontStyle::Bold() : SkFontStyle::Normal();
     sk_sp<SkTypeface> result;
 
-    if (mgr) {
+    if (family && family[0] != '\0') {
+        if (auto* fc = static_cast<skia::textlayout::FontCollection*>(FontManager::getNativeFontCollection())) {
+            auto matched = fc->findTypefaces({SkString(family)}, style);
+            if (!matched.empty() && matched[0]) {
+                result = matched[0];
+            }
+        }
+    }
+
+    if (!result && mgr) {
         if (family && family[0] != '\0') {
             if (auto tf = mgr->matchFamilyStyle(family, style)) {
                 result = sk_sp<SkTypeface>(tf);
@@ -474,6 +485,17 @@ public:
         auto tf = getTypeface(font_family, bold);
         SkFont font(tf, font_size);
         return font.measureText(text.data(), text.size(), SkTextEncoding::kUTF8);
+    }
+
+    Rect measureTextBounds(std::string_view text, float font_size,
+                           const char* font_family, bool bold) override {
+        if (text.empty()) return Rect{};
+        auto tf = getTypeface(font_family, bold);
+        SkFont font(tf, font_size);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        SkRect bounds;
+        font.measureText(text.data(), text.size(), SkTextEncoding::kUTF8, &bounds);
+        return Rect::fromLTRB(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
     }
 
     void drawArc(const Rect& rect, float startAngle, float sweepAngle,

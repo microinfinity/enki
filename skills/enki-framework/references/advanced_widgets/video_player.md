@@ -153,5 +153,4 @@ controller->seek(45.0); // Jump to 45 seconds
 
 ## See Also
 - [**AudioWaveform**](./audio_waveform.md) — Real-time audio spectrum and mic waveform visualizer.
-- [**SkiaCanvas**](./skia_canvas.md) — Custom 2D graphics canvas.
 - [**Image**](../Basic%20UI/image.md) — Static raster and SVG image display.

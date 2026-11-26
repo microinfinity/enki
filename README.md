@@ -169,9 +169,12 @@ Compiler baseline: **GCC 13+ / Clang 16+ / MSVC 2022**, C++20, Meson ≥ 1.1.
 │                 Three-Tree Core:  Widget → Element → RenderObject        │
 │                 Reconciler · Keys · BuildContext · Gesture Recognizers   │
 ├───────────────────────────────┬──────────────────────────────────────────┤
-│  Anu Layout Engine (Flexbox)  │  Rendering (Canvas · Paint · Path · SVG) │
+│  Anu Layout Engine (Flexbox)  │  Rendering Abstractions (Canvas · Paint  │
+│                               │  Path · Image · SVG · TextParagraph ·    │
+│                               │  RuntimeEffect · FontManager)            │
 ├───────────────────────────────┴──────────────────────────────────────────┤
-│                  Skia GPU Backend (Ganesh · SkParagraph · Skottie)       │
+│             Pluggable 2D Rendering Backend (Currently Skia;              │
+│             Nisaba integration planned in v0.3.0)                        │
 ├──────────────────────────────────────────────────────────────────────────┤
 │  Platform Abstraction: X11 │ Wayland │ DRM/KMS │ Win32 │ Android │ WASM  │
 └──────────────────────────────────────────────────────────────────────────┘
@@ -201,10 +204,9 @@ A self-contained Flexbox implementation (`core/layout_engine`) with:
 - Intrinsic sizing, overflow and limited boxes, custom multi-child layouts, `Flow`.
 
 ### 5.3 Rendering
-- `Canvas`, `Paint`, `Path`, `Color`, `Image`, `SVG`, `FontManager` abstractions over **Skia**.
+- `Canvas`, `Paint`, `Path`, `Color`, `Image`, `SVG`, `FontManager`, `TextParagraph`, `RuntimeEffect`, `RasterSurface` — clean backend-agnostic abstractions over the active 2D engine (**Skia** currently, with widgets and unit tests decoupled from direct Skia calls).
 - Paint effects: backdrop blur (glassmorphism), shader masks, color filters, clip rect/rrect/oval/path, decorated boxes.
-- `SkiaCanvas` widget for direct custom drawing.
-- Lottie vector animations via Skottie.
+- Lottie vector animations via `LottieComposition`.
 
 ### 5.4 State Management
 - `Cubit<S>`, `Bloc`, `Stream`, `BlocProvider`, `BlocBuilder`, `BlocListener`, global `BlocObserver`.
@@ -221,7 +223,7 @@ A self-contained Flexbox implementation (`core/layout_engine`) with:
 - See [Localization guide](docs/i18n/localization.md).
 
 ### 5.7 Desktop Shell Subsystem
-- `ShellApp`, `SurfaceHost`, `NativePopup` — build **panels, docks, overlays, launchers and window managers' shells** on Wayland layer-shell.
+- `SurfaceHost`, `NativePopup` (managed via `App`) — build **panels, docks, overlays, launchers and window managers' shells** on Wayland layer-shell.
 - Foreign-toplevel management (taskbars/docks), output monitoring, clipboard & drag-and-drop.
 - Client-side decorations: `WindowFrame` and `TitleBar` with a resize engine.
 
@@ -261,9 +263,9 @@ ENKI ships well over **130 production widgets**, each documented in [`docs/enki`
 | **Paint & Visual Effects** | BackdropFilter, ShaderMask, ColorFiltered, DecoratedBox, ClipRect/RRect/Oval/Path |
 | **Typography** | SelectableText, CodeBlock, Marquee, RichText |
 | **Motion** | Animated* family, Hero, SVG Morph, Spring Physics, Particle System, Timeline & Stagger |
-| **Advanced / Media** | Lottie, SkiaCanvas, VideoPlayer, AudioWaveform |
+| **Advanced / Media** | Lottie, VideoPlayer, AudioWaveform |
 | **Utility** | Visibility, IgnorePointer |
-| **Desktop Shell** | TitleBar, WindowFrame, ShellApp, SurfaceHost |
+| **Desktop Shell** | TitleBar, WindowFrame, SurfaceHost |
 
 ---
 
@@ -336,7 +338,7 @@ Components: `BlocProvider` (dependency injection via `BuildContext`), `BlocBuild
 
 ## 9. Internationalization
 
-- Arabic, Latin, CJK and other scripts with BiDi-aware text rendering (`SkParagraph` / HarfBuzz / ICU).
+- Arabic, Latin, CJK and other scripts with BiDi-aware text rendering via `TextParagraph`.
 - Thread-safe `I18n` manager with locale fallback cascade.
 - `trPlural("items", n)` selects the grammatically correct form for **any CLDR language**.
 - `I18n::setLocale()` updates the live UI instantly.
@@ -498,7 +500,7 @@ enki/
 | **Paint & Visual Effects** | [docs/enki/Paint & Visual Effects](docs/enki/Paint%20%26%20Visual%20Effects/README.md) |
 | **Typography** | [docs/enki/Typography](docs/enki/Typography/README.md) |
 | **Utility / Behavioral** | [docs/enki/UtilityBehavioral](docs/enki/UtilityBehavioral/README.md) |
-| **Advanced Widgets (Lottie, Skia, Video, Audio)** | [docs/enki/Advancedwidgets](docs/enki/Advancedwidgets/README.md) |
+| **Advanced Widgets (Lottie, Video, Audio)** | [docs/enki/Advancedwidgets](docs/enki/Advancedwidgets/README.md) |
 | **State Management (Cubit)** | [docs/state_management/cubit.md](docs/state_management/cubit.md) |
 | **Internationalization** | [docs/i18n/localization.md](docs/i18n/localization.md) |
 | **Web Technology Host** | [docs/web_technology](docs/web_technology/README.md) |
@@ -512,7 +514,7 @@ enki/
 - **[`real_app/calculator`](real_app/calculator)** — Desktop and Android calculator.
 - **[`real_app/gallery`](real_app/gallery)** — Showcase application with localization and Android packaging.
 - **[`widgets_demo`](widgets_demo)** — 100+ standalone demos, from `button_demo` and `data_grid_demo` to `lottie_demo`, `video_player_demo`, `command_palette_demo` and `benchmark_demo`.
-- **[`examples`](examples)** — `desktop_shell_demo`, `toplevel_dock_demo`, `outputs_monitor_demo`, `overlay_logo_demo`, `csd_window_demo`, `clipboard_dnd_demo`, `web_host_demo`.
+- **[`examples`](examples)** — `toplevel_dock_demo`, `outputs_monitor_demo`, `overlay_logo_demo`, `csd_window_demo`, `clipboard_dnd_demo`, `web_host_demo`.
 
 ---
 

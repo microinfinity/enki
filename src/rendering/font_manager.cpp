@@ -9,6 +9,8 @@
 #include <include/ports/SkFontMgr_android.h>
 #elif defined(_WIN32)
 #include <include/ports/SkTypeface_win.h>
+#elif !defined(__EMSCRIPTEN__)
+#include <include/ports/SkFontMgr_fontconfig.h>
 #endif
 
 namespace enki {
@@ -21,13 +23,17 @@ namespace {
         if (!g_font_collection) {
             g_font_collection = sk_make_sp<skia::textlayout::FontCollection>();
 #if defined(__ANDROID__)
-            g_font_collection->setDefaultFontManager(SkFontMgr_New_Android(nullptr), "Roboto");
+            auto mgr = SkFontMgr_New_Android(nullptr);
+            if (!mgr) mgr = SkFontMgr::RefDefault();
+            g_font_collection->setDefaultFontManager(mgr, "Roboto");
 #elif defined(_WIN32)
             g_font_collection->setDefaultFontManager(SkFontMgr_New_DirectWrite(), "Segoe UI");
 #elif defined(__EMSCRIPTEN__)
             g_font_collection->setDefaultFontManager(SkFontMgr::RefDefault(), "sans-serif");
 #else
-            g_font_collection->setDefaultFontManager(SkFontMgr::RefDefault());
+            auto mgr = SkFontMgr_New_FontConfig(nullptr);
+            if (!mgr) mgr = SkFontMgr::RefDefault();
+            g_font_collection->setDefaultFontManager(mgr);
 #endif
             
             g_custom_font_provider = sk_make_sp<skia::textlayout::TypefaceFontProvider>();
@@ -62,9 +68,9 @@ bool FontManager::loadFontFromMemory(const void* data, size_t size, const std::s
     return true;
 }
 
-sk_sp<skia::textlayout::FontCollection> FontManager::getFontCollection() {
+void* FontManager::getNativeFontCollection() {
     initFontCollection();
-    return g_font_collection;
+    return g_font_collection.get();
 }
 
 } // namespace enki

@@ -2,8 +2,11 @@
 /// @brief Path implementation using Skia.
 
 #include "enki/rendering/path.hpp"
+#include <include/core/SkMatrix.h>
 #include <include/core/SkPath.h>
 #include <include/core/SkRRect.h>
+#include <include/utils/SkParsePath.h>
+#include <string>
 
 namespace enki {
 
@@ -59,8 +62,38 @@ void Path::addRoundRect(const Rect& rect, const BorderRadius& radius) {
     impl_->path.addRRect(rrect);
 }
 
+std::optional<Path> Path::fromSvgString(std::string_view svg_d) {
+    if (svg_d.empty()) return std::nullopt;
+    Path out;
+    std::string s(svg_d);
+    if (!SkParsePath::FromSVGString(s.c_str(), &out.impl_->path)) {
+        return std::nullopt;
+    }
+    return out;
+}
+
+void Path::reset() {
+    impl_->path.reset();
+}
+
+void Path::transform(float sx, float sy, float tx, float ty) {
+    SkMatrix m;
+    m.setScale(sx, sy);
+    m.postTranslate(tx, ty);
+    impl_->path.transform(m);
+}
+
+bool Path::isEmpty() const {
+    return impl_->path.isEmpty();
+}
+
 Rect Path::getBounds() const {
     const SkRect& b = impl_->path.getBounds();
+    return Rect::fromLTRB(b.left(), b.top(), b.right(), b.bottom());
+}
+
+Rect Path::computeTightBounds() const {
+    const SkRect b = impl_->path.computeTightBounds();
     return Rect::fromLTRB(b.left(), b.top(), b.right(), b.bottom());
 }
 

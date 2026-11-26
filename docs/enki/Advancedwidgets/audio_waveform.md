@@ -212,5 +212,4 @@ WidgetPtr buildFluidRhythm() {
 
 ## See Also
 - [**VideoPlayer**](./video_player.md) — Hardware-accelerated media and video playback.
-- [**SkiaCanvas**](./skia_canvas.md) — Direct low-level Skia GPU custom rendering.
 - [**ParticleSystem**](../Animation%20&%20Motion/particle_system.md) — 2D particle simulation.

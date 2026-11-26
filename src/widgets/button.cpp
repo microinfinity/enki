@@ -7,23 +7,13 @@
 #include "enki/tree/render_object.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
-
-#include <include/effects/SkRuntimeEffect.h>
-#include <include/core/SkShader.h>
+#include "enki/rendering/runtime_shader.hpp"
 
 #include <chrono>
 #include <vector>
 #include <iostream>
 
 namespace enki {
-
-class ButtonShaderWrapper : public Shader {
-public:
-    explicit ButtonShaderWrapper(sk_sp<SkShader> shader) : shader_(std::move(shader)) {}
-    void* getNativeHandle() const override { return shader_.get(); }
-private:
-    sk_sp<SkShader> shader_;
-};
 
 inline double getCurrentTimeSeconds() {
     auto now = std::chrono::steady_clock::now();
@@ -61,7 +51,7 @@ public:
     double start_time;
     Point last_mouse_pos;
 
-    sk_sp<SkRuntimeEffect> effect;
+    std::shared_ptr<RuntimeEffect> effect;
 
     RenderButtonBackground(const ButtonProps& opt, bool disabled, float hover, float press, 
                            const std::vector<RippleState>& rips, double st, Point mouse)
@@ -69,11 +59,10 @@ public:
           ripples(rips), start_time(st), last_mouse_pos(mouse) {
         
         if (!options.custom_shader.empty()) {
-            auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(options.custom_shader.c_str()));
-            if (!eff) {
-                std::cerr << "SkSL Shader Compile Error: " << err.c_str() << "\n";
-            } else {
-                effect = eff;
+            std::string err;
+            effect = RuntimeEffect::compile(options.custom_shader, &err);
+            if (!effect) {
+                std::cerr << "SkSL Shader Compile Error: " << err << "\n";
             }
         }
     }
@@ -137,8 +126,7 @@ public:
                 {size_.width, size_.height}
             };
             
-            sk_sp<SkData> uniform_data = SkData::MakeWithCopy(&uniforms, sizeof(Uniforms));
-            bg_paint.setShader(std::make_shared<ButtonShaderWrapper>(effect->makeShader(uniform_data, nullptr, 0)));
+            bg_paint.setShader(effect->makeShader(&uniforms, sizeof(Uniforms)));
             canvas.drawRRect(rect, radius, bg_paint);
         } else {
             Color current_bg;

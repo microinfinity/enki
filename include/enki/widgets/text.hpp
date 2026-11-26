@@ -19,6 +19,8 @@
 
 namespace enki {
 
+class TextParagraph;
+
 // ════════════════════════════════════════════════════════════════
 // Typography Enumerations
 // ════════════════════════════════════════════════════════════════
@@ -278,7 +280,7 @@ public:
 
 protected:
     void layoutParagraph(float availableWidth);
-    void* getNativeParagraph() const;
+    TextParagraph* getParagraph() const;
 
 private:
 

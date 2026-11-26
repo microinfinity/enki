@@ -1,15 +1,11 @@
 #pragma once
 /// @file font_manager.hpp
-/// @brief Manages custom font loading for SkParagraph.
+/// @brief Manages custom font loading and font collections.
 ///
 /// @copyright ENKI Framework — Apache 2.0 License
 
+#include <cstddef>
 #include <string>
-#include <memory>
-
-// Forward declarations
-namespace skia { namespace textlayout { class FontCollection; } }
-template <typename T> class sk_sp;
 
 namespace enki {
 
@@ -28,8 +24,8 @@ public:
     /// @return true if successful.
     static bool loadFontFromMemory(const void* data, size_t size, const std::string& alias);
 
-    /// @brief Get the global FontCollection used for SkParagraph.
-    static sk_sp<skia::textlayout::FontCollection> getFontCollection();
+    /// @brief Get the underlying native font collection handle.
+    static void* getNativeFontCollection();
 };
 
 } // namespace enki

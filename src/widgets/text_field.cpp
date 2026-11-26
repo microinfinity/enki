@@ -6,9 +6,8 @@
 #include "enki/tree/element.hpp"
 #include "enki/tree/build_context.hpp"
 #include "enki/rendering/canvas.hpp"
+#include "enki/rendering/paragraph.hpp"
 #include "enki/app/app.hpp"
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/DartTypes.h>
 #include "enki/rendering/paint.hpp"
 #include <algorithm>
 #include <iostream>
@@ -34,7 +33,7 @@ public:
     }
 
     void paint(PaintContext& ctx) override {
-        auto* p = static_cast<skia::textlayout::Paragraph*>(getNativeParagraph());
+        auto* p = getParagraph();
         if (!p) return;
 
         layoutParagraph(size_.width);
@@ -44,41 +43,41 @@ public:
             size_t start = std::min(controller->selection_start, controller->selection_end);
             size_t end = std::max(controller->selection_start, controller->selection_end);
             
-            auto rects = p->getRectsForRange(start, end, skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+            auto rects = p->getRectsForRange(start, end);
             
             Paint sel_paint;
             sel_paint.setColor(options.selection_color);
             
             ctx.canvas.save();
             ctx.canvas.translate(ctx.offset.x, ctx.offset.y);
-            for (const auto& tb : rects) {
-                ctx.canvas.drawRect(Rect{tb.rect.fLeft, tb.rect.fTop, tb.rect.width(), tb.rect.height()}, sel_paint);
+            for (const auto& r : rects) {
+                ctx.canvas.drawRect(r, sel_paint);
             }
             ctx.canvas.restore();
         }
 
         // 2. Draw Text (via base class)
-        ctx.canvas.drawParagraph(p, ctx.offset.x, ctx.offset.y);
+        p->paint(ctx.canvas, ctx.offset.x, ctx.offset.y);
 
         // 3. Draw Cursor
         if (is_focused && show_cursor && !controller->hasSelection() && !options.read_only) {
-            auto rects = p->getRectsForRange(controller->selection_start, controller->selection_start + 1, skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+            auto rects = p->getRectsForRange(controller->selection_start, controller->selection_start + 1);
             
             float cursor_x = 0;
             float cursor_y = 0;
             float cursor_h = options.style.font_size * 1.2f;
 
             if (!rects.empty()) {
-                cursor_x = rects[0].rect.fLeft;
-                cursor_y = rects[0].rect.fTop;
-                cursor_h = rects[0].rect.height();
+                cursor_x = rects[0].x;
+                cursor_y = rects[0].y;
+                cursor_h = rects[0].height;
             } else if (controller->selection_start > 0) {
                 // End of line/text
-                auto prev_rects = p->getRectsForRange(controller->selection_start - 1, controller->selection_start, skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                auto prev_rects = p->getRectsForRange(controller->selection_start - 1, controller->selection_start);
                 if (!prev_rects.empty()) {
-                    cursor_x = prev_rects.back().rect.fRight;
-                    cursor_y = prev_rects.back().rect.fTop;
-                    cursor_h = prev_rects.back().rect.height();
+                    cursor_x = prev_rects.back().right();
+                    cursor_y = prev_rects.back().y;
+                    cursor_h = prev_rects.back().height;
                 }
             }
 
@@ -93,12 +92,11 @@ public:
     }
 
     size_t getIndexAtCoordinate(float x, float y) {
-        auto* p = static_cast<skia::textlayout::Paragraph*>(getNativeParagraph());
+        auto* p = getParagraph();
         if (!p) return 0;
         layoutParagraph(size_.width);
         
-        auto pos = p->getGlyphPositionAtCoordinate(x, y);
-        return pos.position;
+        return p->getGlyphIndexAtCoordinate(x, y);
     }
 };
 

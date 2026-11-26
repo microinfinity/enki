@@ -15,22 +15,7 @@
 #include "enki/app/app.hpp"
 
 #include "enki/rendering/paint.hpp"
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/DartTypes.h>
+#include "enki/rendering/paragraph.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -108,34 +93,6 @@ bool TextAreaController::pasteFromClipboard() {
 class TextAreaState;
 static TextAreaState* g_focused_textarea = nullptr;
 
-static sk_sp<skia::textlayout::FontCollection> getTextAreaFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(m, "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(m, "Segoe UI");
-#else
-        fc->setDefaultFontManager(m);
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
-
 // ════════════════════════════════════════════════════════════════
 // Custom RenderBox for Multi-line Text Area
 // ════════════════════════════════════════════════════════════════
@@ -149,7 +106,7 @@ public:
     float scroll_y = 0.0f;
     float total_content_height = 0.0f;
 
-    std::unique_ptr<skia::textlayout::Paragraph> paragraph_;
+    std::unique_ptr<TextParagraph> paragraph_;
 
     RenderTextAreaBox(std::shared_ptr<TextAreaController> ctrl, TextAreaProps opt, float scroll)
         : controller(std::move(ctrl)), options(std::move(opt)), scroll_y(scroll) {
@@ -164,40 +121,35 @@ public:
     void layoutParagraph(float available_width) {
         if (available_width <= 0.0f) return;
 
-        auto fc = getTextAreaFontCollection();
-        if (!fc) return;
+        ParagraphStyle p_style;
+        p_style.text_align = ParagraphAlign::Left;
+        p_style.text_direction = ParagraphDirection::LTR;
 
-        skia::textlayout::ParagraphStyle p_style;
-        p_style.setTextAlign(skia::textlayout::TextAlign::kLeft);
-        p_style.setTextDirection(skia::textlayout::TextDirection::kLtr);
-
-        auto builder = skia::textlayout::ParagraphBuilder::make(p_style, fc);
+        auto builder = TextParagraphBuilder::make(p_style);
         if (!builder) return;
 
-        skia::textlayout::TextStyle t_style;
-        t_style.setFontSize(options.style.font_size > 0 ? options.style.font_size : 14.0f);
-        t_style.setColor(static_cast<SkColor>(options.style.color != 0 ? options.style.color : 0xFFF1F5F9));
-        
-        std::vector<SkString> font_families;
+        ParagraphTextStyle t_style;
+        t_style.font_size = options.style.font_size > 0 ? options.style.font_size : 14.0f;
+        t_style.color = options.style.color != 0 ? options.style.color : 0xFFF1F5F9;
+
         if (!options.style.font_family.empty()) {
-            font_families.emplace_back(options.style.font_family.c_str());
+            t_style.font_families.push_back(options.style.font_family);
         } else {
-            font_families.emplace_back("sans-serif");
+            t_style.font_families.push_back("sans-serif");
         }
-        t_style.setFontFamilies(font_families);
 
         builder->pushStyle(t_style);
 
         std::string display_str = controller->text;
         if (display_str.empty() && !is_focused) {
-            t_style.setColor(static_cast<SkColor>(0xFF64748B));
+            t_style.color = 0xFF64748B;
             builder->pushStyle(t_style);
-            builder->addText(options.hint_text.c_str(), options.hint_text.length());
+            builder->addText(options.hint_text);
         } else {
-            builder->addText(display_str.c_str(), display_str.length());
+            builder->addText(display_str);
         }
 
-        paragraph_ = builder->Build();
+        paragraph_ = builder->build();
         if (paragraph_) {
             paragraph_->layout(available_width);
             total_content_height = paragraph_->getHeight();
@@ -250,24 +202,26 @@ public:
             float line_h = (options.style.font_size > 0 ? options.style.font_size : 14.0f) * 1.45f;
             size_t total_lines = controller->getLineCount();
 
-            auto fc = getTextAreaFontCollection();
-            skia::textlayout::ParagraphStyle p_style;
-            p_style.setTextAlign(skia::textlayout::TextAlign::kRight);
+            ParagraphStyle p_style;
+            p_style.text_align = ParagraphAlign::Right;
 
             for (size_t i = 1; i <= total_lines; ++i) {
                 float y_pos = ctx.offset.y + options.padding.top + (i - 1) * line_h - scroll_y;
                 if (y_pos + line_h < ctx.offset.y || y_pos > ctx.offset.y + size_.height) continue;
 
-                auto num_builder = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                skia::textlayout::TextStyle num_style;
-                num_style.setFontSize(11.0f);
-                num_style.setColor(options.line_number_color);
+                auto num_builder = TextParagraphBuilder::make(p_style);
+                if (!num_builder) continue;
+                ParagraphTextStyle num_style;
+                num_style.font_size = 11.0f;
+                num_style.color = options.line_number_color;
                 num_builder->pushStyle(num_style);
                 std::string num_str = std::to_string(i);
-                num_builder->addText(num_str.c_str(), num_str.length());
-                auto num_para = num_builder->Build();
-                num_para->layout(gutter_w - 10.0f);
-                canvas.drawParagraph(num_para.get(), ctx.offset.x, y_pos);
+                num_builder->addText(num_str);
+                auto num_para = num_builder->build();
+                if (num_para) {
+                    num_para->layout(gutter_w - 10.0f);
+                    num_para->paint(canvas, ctx.offset.x, y_pos);
+                }
             }
         }
 
@@ -281,23 +235,21 @@ public:
                 size_t start = std::min(controller->selection_start, controller->selection_end);
                 size_t end = std::max(controller->selection_start, controller->selection_end);
 
-                auto rects = paragraph_->getRectsForRange(start, end,
-                    skia::textlayout::RectHeightStyle::kTight,
-                    skia::textlayout::RectWidthStyle::kTight);
+                auto rects = paragraph_->getRectsForRange(start, end);
 
                 Paint sel_paint;
                 sel_paint.setColor(options.selection_color);
 
                 canvas.save();
                 canvas.translate(text_origin_x, text_origin_y);
-                for (const auto& tb : rects) {
-                    canvas.drawRect(Rect{tb.rect.fLeft, tb.rect.fTop, tb.rect.width(), tb.rect.height()}, sel_paint);
+                for (const auto& r : rects) {
+                    canvas.drawRect(r, sel_paint);
                 }
                 canvas.restore();
             }
 
             // Draw Paragraph Content
-            canvas.drawParagraph(paragraph_.get(), text_origin_x, text_origin_y);
+            paragraph_->paint(canvas, text_origin_x, text_origin_y);
 
             // 5. Draw Blinking Cursor
             if (is_focused && show_cursor && !controller->hasSelection() && !options.read_only) {
@@ -305,20 +257,18 @@ public:
                 float cursor_y = 0;
                 float cursor_h = (options.style.font_size > 0 ? options.style.font_size : 14.0f) * 1.3f;
 
-                auto rects = paragraph_->getRectsForRange(controller->selection_start, controller->selection_start + 1,
-                    skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                auto rects = paragraph_->getRectsForRange(controller->selection_start, controller->selection_start + 1);
 
                 if (!rects.empty()) {
-                    cursor_x = rects[0].rect.fLeft;
-                    cursor_y = rects[0].rect.fTop;
-                    cursor_h = rects[0].rect.height();
+                    cursor_x = rects[0].x;
+                    cursor_y = rects[0].y;
+                    cursor_h = rects[0].height;
                 } else if (controller->selection_start > 0) {
-                    auto prev_rects = paragraph_->getRectsForRange(controller->selection_start - 1, controller->selection_start,
-                        skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                    auto prev_rects = paragraph_->getRectsForRange(controller->selection_start - 1, controller->selection_start);
                     if (!prev_rects.empty()) {
-                        cursor_x = prev_rects.back().rect.fRight;
-                        cursor_y = prev_rects.back().rect.fTop;
-                        cursor_h = prev_rects.back().rect.height();
+                        cursor_x = prev_rects.back().right();
+                        cursor_y = prev_rects.back().y;
+                        cursor_h = prev_rects.back().height;
                     }
                 }
 
@@ -366,8 +316,8 @@ public:
         float target_x = std::max(0.0f, local_x - gutter_w - options.padding.left);
         float target_y = std::max(0.0f, local_y - options.padding.top + scroll_y);
 
-        auto pos = paragraph_->getGlyphPositionAtCoordinate(target_x, target_y);
-        return std::min(static_cast<size_t>(pos.position), controller->text.length());
+        size_t pos = paragraph_->getGlyphIndexAtCoordinate(target_x, target_y);
+        return std::min(pos, controller->text.length());
     }
 };
 

@@ -97,17 +97,14 @@ v0.3.0 is entirely focused on executing this migration smoothly without disrupti
 
 ## Phase 4: Sovereign Typography & Text Layout Subsystem
 
-- [ ] **4.1 Retarget `RenderParagraph`** ([`text.cpp`](file:///home/x/enki/src/widgets/text.cpp)):
-  - Replace `skia::textlayout::Paragraph` in `RenderParagraph::Impl` with `nisaba::text::Buffer`.
-  - Configure `nisaba::text::FontSystem` to discover and load system TTF/OTF fonts.
-- [ ] **4.2 Anu Flexbox Measurement Integration**:
-  - Connect `RenderParagraph::measureText` callback directly to `nisaba::text::BufferLine::shape_and_layout()`.
-  - Accurately report intrinsic text dimensions (width, height, baseline).
+- [x] **4.1 Retarget `RenderParagraph` via `TextParagraph` Abstraction** ([`paragraph.hpp`](file:///home/x/enki/include/enki/rendering/paragraph.hpp), [`text.cpp`](file:///home/x/enki/src/widgets/text.cpp)):
+  - Decoupled `RenderParagraph` and all text widgets (`TextField`, `TextArea`, `SearchField`, `NumberField`, `PasswordField`, `DataGrid`, `Timeline`, `Marquee`) into backend-agnostic `enki::TextParagraph` / `enki::TextParagraphBuilder` and `FontManager::getNativeFontCollection()`.
+- [ ] **4.2 Wire `TextParagraph` Backend to Nisaba Typography** ([`paragraph.cpp`](file:///home/x/enki/src/rendering/paragraph.cpp), [`font_manager.cpp`](file:///home/x/enki/src/rendering/font_manager.cpp)):
+  - Implement `nisaba::text::Buffer` + `FontSystem` inside `paragraph.cpp` and `font_manager.cpp` (with zero changes needed in `src/widgets/*`).
 - [ ] **4.3 Bidirectional (BiDi) & Arabic Text Support**:
   - Leverage `nisaba::text::bidi` to provide native Right-to-Left (RTL) text shaping and cursor traversal.
 - [ ] **4.4 Text Selection, Mouse Gestures & Hit Testing**:
-  - Map pointer coordinates to character offsets using `nisaba::text::Cursor`.
-  - Paint selection highlights using `GpuCanvas::fill_rect` before rendering glyph runs.
+  - Wire `TextParagraph::getGlyphIndexAtCoordinate`, `getRectsForRange`, and `getWordBoundary` to Nisaba text metrics.
 
 ---
 
@@ -121,39 +118,22 @@ v0.3.0 is entirely focused on executing this migration smoothly without disrupti
   - Connect tick progression to ENKI's `SchedulerBinding` and `Ticker`.
 - [ ] **5.3 Vector Path Morphing** ([`path_morph.cpp`](file:///home/x/enki/src/animation/path_morph.cpp)):
   - Replace `SkPathMeasure` with Nisaba's native path perimeter sampling in `nisaba::path_geometry`.
-- [ ] **5.4 Hardware Particle Simulation** ([`particle_system.cpp`](file:///home/x/enki/src/animation/particle_system.cpp)):
-  - Integrate `nisaba::animation::ParticleSystem` for GPU-accelerated batch particle simulation.
+- [x] **5.4 Hardware Particle Simulation** ([`particle_system.cpp`](file:///home/x/enki/src/animation/particle_system.cpp)):
+  - Migrated `ParticleSystem::render` from direct Skia calls to `enki::Canvas` / `enki::Paint`; GPU batching with `nisaba::animation::ParticleSystem` can be plugged behind `enki::Canvas`.
 
 ---
 
-## Phase 6: Widget Subsystem Audit & Cleanup
+## Phase 6: Widget & Test Abstraction Audit (Completed)
 
-Systematic elimination of direct `ctx.canvas.getNativeHandle()` calls (`static_cast<SkCanvas*>`) across the entire widget catalog:
+Direct Skia `#include`s and symbols (`Sk*`, `Gr*`, `sk_sp`, `skia::textlayout`) have been eliminated from **all widgets** (`src/widgets/*`), **all public widget/rendering headers** (`include/enki/widgets/*`, `include/enki/rendering/*`), and **all unit tests** (`tests/*`):
 
-### Buttons & Inputs
-- [ ] **Button** (`src/widgets/button.cpp`) — Replace manual `SkMaskFilter` shadow with `draw_round_rect_shadow`.
-- [ ] **Slider & RangeSlider** (`src/widgets/slider.cpp`, `range_slider.cpp`) — Replace `SkRRect` with native Nisaba primitives.
-- [ ] **SegmentedControl** (`src/widgets/segmented_control.cpp`) — Migrate sliding indicator to `GpuCanvas`.
-- [ ] **Knob & RatingBar** (`src/widgets/knob.cpp`, `rating_bar.cpp`) — Migrate rotary and star painters to `GpuCanvas`.
-- [ ] **TextField, TextArea, PasswordField, NumberField, SearchField** (`src/widgets/*_field.cpp`) — Connect selection and cursor rendering to Nisaba text layout.
-
-### Progress & Status Indicators
-- [ ] **ProgressBar & ProgressRing** (`src/widgets/progress_*.cpp`) — Replace SkSL runtime shader with Nisaba conical/linear gradients or procedural GLSL.
-- [ ] **Spinner** (`src/widgets/spinner.cpp`) — Migrate rotation arcs and glow effects to `GpuCanvas`.
-- [ ] **FeedbackStatus & Skeleton** (`src/widgets/feedback_status.cpp`) — Retarget shimmer animation to `GpuCanvas`.
-
-### Menus, Overlays & Popups
-- [ ] **ContextMenu, Menu, Popover, Popup, Tooltip, Dialog** (`src/widgets/*.cpp`) — Utilize `draw_glass_panel` and `draw_round_rect_shadow` for unified aero/glass design.
-
-### Complex Displays
-- [ ] **DataGrid** (`src/widgets/data_grid.cpp`) — Migrate cell clip rects and zebra striping to `GpuCanvas`.
-- [ ] **Timeline** (`src/widgets/timeline.cpp`) — Migrate stepper lines and indicator nodes to `GpuCanvas`.
-- [ ] **FileDropZone & FilePicker** (`src/widgets/file_*.cpp`) — Migrate dashed border stroke to `nisaba::Stroke::Dash`.
-
-### Canvas Widget Modernization
-- [ ] **SkiaCanvas ➔ CustomCanvas / NisabaCanvas** ([`skia_canvas.hpp`](file:///home/x/enki/include/enki/widgets/skia_canvas.hpp)):
-  - Deprecate `skia_painter(SkCanvas*)` with graceful transition.
-  - Introduce `nisaba_painter(nisaba::gpu::GpuCanvas*)` and standard `painter(enki::Canvas&)`.
+- [x] **Icon & Lottie** ([`icon.cpp`](file:///home/x/enki/src/widgets/icon.cpp), [`lottie.cpp`](file:///home/x/enki/src/widgets/lottie.cpp)) — Migrated to `enki::Path::fromSvgString`, `Canvas::measureTextBounds`, `FontManager`, and `LottieComposition`.
+- [x] **Runtime Shaders** ([`runtime_shader.hpp`](file:///home/x/enki/include/enki/rendering/runtime_shader.hpp), [`runtime_shader.cpp`](file:///home/x/enki/src/rendering/runtime_shader.cpp)) — Abstracted `RuntimeEffect` and `RuntimeShaderBuilder` across `Container`, `Button`, `Spinner`, `ProgressBar`, and `ProgressRing` (ready to bind to Nisaba GL shaders inside `runtime_shader.cpp`).
+- [x] **Paragraphs & Inputs** ([`paragraph.hpp`](file:///home/x/enki/include/enki/rendering/paragraph.hpp), [`font_manager.hpp`](file:///home/x/enki/include/enki/rendering/font_manager.hpp)) — Decoupled `Text`, `RichText`, `TextField`, `TextArea`, `SearchField`, `NumberField`, `PasswordField`, `DataGrid`, `Timeline`, and `Marquee` from `skia::textlayout`.
+- [x] **Offscreen Test Surfaces** ([`raster_surface.hpp`](file:///home/x/enki/include/enki/rendering/raster_surface.hpp)) — Abstracted `RasterSurface` for all 6 offscreen rendering tests (`test_rendering`, `test_container`, `test_flow`, `test_stack`, `test_paint_effects`, `test_text`).
+- [x] **Decommission `SkiaCanvas` & `ShellApp`**:
+  - Removed `SkiaCanvas` (`skia_canvas.hpp`/`.cpp`) and `skia_canvas_demo`; `ParticleEmitter` and `svgMorph` now use the lightweight pure-`enki::Canvas` helper ([`canvas_painter.hpp`](file:///home/x/enki/include/enki/widgets/detail/canvas_painter.hpp)).
+  - Removed legacy `ShellApp` (`shell_app.hpp`/`.cpp`) and `desktop_shell_demo`; `NativePopup` routes directly through `App::instance()`, while [`surface_host.hpp`](file:///home/x/enki/include/enki/shell/surface_host.hpp) stays ready for direct Nisaba GPU binding in Phase 3.
 
 ---
 

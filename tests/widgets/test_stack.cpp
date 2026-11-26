@@ -6,8 +6,7 @@
 #include "enki/widgets/flexbox.hpp"
 #include "enki/tree/element.hpp"
 #include "enki/rendering/canvas.hpp"
-#include <include/core/SkCanvas.h>
-#include <include/core/SkSurface.h>
+#include "enki/rendering/raster_surface.hpp"
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -260,11 +259,9 @@ void test_stack_hit_testing_order() {
 void test_stack_painting() {
     std::cout << "Testing Stack Painting Pipeline with Clipping..." << std::endl;
 
-    auto surface = SkSurface::MakeRasterN32Premul(400, 400);
+    auto surface = RasterSurface::create(400, 400);
     assert(surface != nullptr);
-    SkCanvas* sk_canvas = surface->getCanvas();
-    auto canvas = createCanvasWrapper(sk_canvas);
-    PaintContext ctx{*canvas, {0.0f, 0.0f}, Rect{0, 0, 400, 400}, 1.0f};
+    PaintContext ctx{surface->canvas(), {0.0f, 0.0f}, Rect{0, 0, 400, 400}, 1.0f};
 
     auto s = stack({
         .children = {

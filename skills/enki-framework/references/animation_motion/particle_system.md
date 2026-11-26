@@ -188,7 +188,7 @@ public:
 ```cpp
 #include "enki/animation/particle_system.hpp"
 #include "enki/widgets/button.hpp"
-#include "enki/widgets/skia_canvas.hpp"
+#include "enki/widgets/detail/canvas_painter.hpp"
 #include "enki/state/state.hpp"
 
 using namespace enki;
@@ -256,8 +256,8 @@ public:
                     }
                 }),
 
-                // Skia Canvas Particle Layer
-                skiaCanvas(SkiaCanvasProps{
+                // Custom ENKI Canvas Particle Layer
+                detail::canvasPainter({
                     .painter = [this](Canvas& canvas, Size size) {
                         if (system_) {
                             system_->render(canvas, Rect{0, 0, size.width, size.height});
@@ -275,6 +275,5 @@ public:
 ---
 
 ## See Also
-- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Direct low-level Skia GPU 2D drawing.
 - [**SpringPhysics**](./spring_physics.md) — Analytical spring-damper dynamics engine.
 - [**AnimatedContainer**](./animated_container.md) — Implicit multi-property tweening.

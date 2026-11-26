@@ -30,7 +30,7 @@ The **ENKI Localization Subsystem** is designed from the ground up to embody the
 2. **Grammar-Accurate Unicode CLDR Pluralization**: Many languages have complex plural systems. For example, Arabic features **6 distinct plural forms** (Zero, One, Two, Few [3–10], Many [11–99], and Other). ENKI implements exact Unicode CLDR rules rather than simple English singular/plural toggles.
 3. **Decoupled Architecture**: Storage of translations is memory-efficient and decoupled from asset I/O. Dictionaries can be embedded directly in C++ source or loaded dynamically from external storage.
 4. **Reactive Signal-Driven Rebuilding**: When the user switches languages, `I18n::onLocaleChanged()` triggers instantaneous subtree reconciliation across the UI without restarting the process or dropping Cubit/BLoC state.
-5. **Zero-Overhead Native RTL & Shaping**: Integrates seamlessly with SkParagraph, HarfBuzz, and ICU for automatic Bidirectional (BiDi) text layout and cursive shaping.
+5. **Zero-Overhead Native RTL & Shaping**: Integrates seamlessly with ENKI's `TextParagraph` engine, HarfBuzz, and ICU for automatic Bidirectional (BiDi) text layout and cursive shaping.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -472,8 +472,8 @@ auto chip = makeClickable(
 4. **Lifecycle-Bound Event Subscriptions**:
    When subscribing to `I18n::onLocaleChanged()`, always store the returned `SlotId` and call `disconnect(slot_id)` inside `State::dispose()` to prevent memory leaks and dangling pointer invocations.
 
-5. **Let Skia Handle BiDi and Cursive Shaping**:
-   Do not manually reverse Arabic characters or insert manual layout markers. SkParagraph handles HarfBuzz shaping and BiDi analysis automatically. Ensure the font configured supports the required Unicode ranges (e.g., Arabic, Latin, Cyrillic).
+5. **Let the Typography Backend Handle BiDi and Cursive Shaping**:
+   Do not manually reverse Arabic characters or insert manual layout markers. ENKI's `TextParagraph` backend handles shaping and BiDi analysis automatically. Ensure the font configured supports the required Unicode ranges (e.g., Arabic, Latin, Cyrillic).
 
 ---
 

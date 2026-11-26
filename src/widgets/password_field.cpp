@@ -16,22 +16,7 @@
 
 #include "enki/rendering/paint.hpp"
 #include "enki/rendering/path.hpp"
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/DartTypes.h>
+#include "enki/rendering/paragraph.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -42,34 +27,6 @@ namespace enki {
 
 class PasswordFieldState;
 static PasswordFieldState* g_focused_passwordfield = nullptr;
-
-static sk_sp<skia::textlayout::FontCollection> getPasswordFieldFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(m, "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(m, "Segoe UI");
-#else
-        fc->setDefaultFontManager(m);
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
 
 // ════════════════════════════════════════════════════════════════
 // Password Validation Rules Implementation
@@ -180,9 +137,9 @@ public:
 
     int hovered_btn = 0; // 0=none, 1=eye, 2=generator, 3=clear
 
-    std::unique_ptr<skia::textlayout::Paragraph> text_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> lock_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> capslock_paragraph_;
+    std::unique_ptr<TextParagraph> text_paragraph_;
+    std::unique_ptr<TextParagraph> lock_paragraph_;
+    std::unique_ptr<TextParagraph> capslock_paragraph_;
 
     RenderPasswordFieldBox(std::shared_ptr<PasswordFieldController> ctrl, PasswordFieldProps opt)
         : controller(std::move(ctrl)), options(std::move(opt)) {
@@ -192,71 +149,63 @@ public:
         applyFlexboxStyle(anuNode(), st);
     }
 
+    static std::unique_ptr<TextParagraph> makeSingleLineParagraph(std::string_view text,
+                                                                  float font_size,
+                                                                  Color color,
+                                                                  float layout_w,
+                                                                  std::string_view font_family = {}) {
+        ParagraphStyle p_style;
+        p_style.text_align = ParagraphAlign::Left;
+        auto builder = TextParagraphBuilder::make(p_style);
+        if (!builder) return nullptr;
+        ParagraphTextStyle ts;
+        ts.font_size = font_size;
+        ts.color = color;
+        if (!font_family.empty()) {
+            ts.font_families.emplace_back(font_family);
+        }
+        builder->pushStyle(ts);
+        builder->addText(text);
+        auto para = builder->build();
+        if (para) {
+            para->layout(layout_w);
+        }
+        return para;
+    }
+
     void layoutParagraphs() {
-        auto fc = getPasswordFieldFontCollection();
-        if (!fc) return;
-
         float font_sz = options.style.font_size > 0 ? options.style.font_size : 14.0f;
-
-        skia::textlayout::ParagraphStyle p_style;
-        p_style.setTextAlign(skia::textlayout::TextAlign::kLeft);
 
         // 1. Lock Icon
         if (options.show_lock_icon) {
-            auto b_lock = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_ic;
-            t_ic.setFontSize(font_sz * 1.05f);
-            t_ic.setColor(static_cast<SkColor>(options.icon_color));
-            b_lock->pushStyle(t_ic);
-            b_lock->addText("🔒", 4);
-            lock_paragraph_ = b_lock->Build();
-            lock_paragraph_->layout(30.0f);
+            lock_paragraph_ = makeSingleLineParagraph("🔒", font_sz * 1.05f, options.icon_color, 30.0f);
         } else {
             lock_paragraph_.reset();
         }
 
         // 2. Main Password (Obscured or Plain) / Placeholder
-        auto b_main = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-        skia::textlayout::TextStyle t_main;
-        t_main.setFontSize(font_sz);
-
-        if (!options.style.font_family.empty()) {
-            std::vector<SkString> font_fams = {SkString(options.style.font_family.c_str())};
-            t_main.setFontFamilies(font_fams);
-        }
-
         const std::string& pwd = controller->getPassword();
         if (pwd.empty() && !is_focused) {
-            t_main.setColor(static_cast<SkColor>(options.placeholder_color));
-            b_main->pushStyle(t_main);
-            b_main->addText(options.placeholder.c_str(), options.placeholder.length());
+            text_paragraph_ = makeSingleLineParagraph(
+                options.placeholder, font_sz, options.placeholder_color,
+                size_.width > 0 ? size_.width : 300.0f, options.style.font_family);
         } else {
-            t_main.setColor(static_cast<SkColor>(options.style.color != 0 ? options.style.color : 0xFFF1F5F9));
-            b_main->pushStyle(t_main);
-
+            Color col = options.style.color != 0 ? options.style.color : 0xFFF1F5F9;
+            std::string display_text;
             if (controller->isObscured()) {
-                std::string masked = "";
                 for (size_t i = 0; i < pwd.length(); ++i) {
-                    masked += options.mask_char;
+                    display_text += options.mask_char;
                 }
-                b_main->addText(masked.c_str(), masked.length());
             } else {
-                b_main->addText(pwd.c_str(), pwd.length());
+                display_text = pwd;
             }
+            text_paragraph_ = makeSingleLineParagraph(
+                display_text, font_sz, col, size_.width > 0 ? size_.width : 300.0f, options.style.font_family);
         }
-        text_paragraph_ = b_main->Build();
-        text_paragraph_->layout(size_.width > 0 ? size_.width : 300.0f);
 
         // 3. CapsLock Warning Badge
         if (options.show_capslock_warning && is_capslock_on && is_focused) {
-            auto b_caps = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_cp;
-            t_cp.setFontSize(10.5f);
-            t_cp.setColor(static_cast<SkColor>(options.warning_color));
-            b_caps->pushStyle(t_cp);
-            b_caps->addText("⇪ CAPS", 8);
-            capslock_paragraph_ = b_caps->Build();
-            capslock_paragraph_->layout(60.0f);
+            capslock_paragraph_ = makeSingleLineParagraph("⇪ CAPS", 10.5f, options.warning_color, 60.0f);
         } else {
             capslock_paragraph_.reset();
         }
@@ -286,7 +235,7 @@ public:
 
         if (lock_paragraph_) {
             float lock_y = cy - lock_paragraph_->getHeight() * 0.5f;
-            canvas.drawParagraph(lock_paragraph_.get(), content_x, lock_y);
+            lock_paragraph_->paint(canvas, content_x, lock_y);
             content_x += lock_paragraph_->getMaxIntrinsicWidth() + 8.0f;
         }
 
@@ -297,31 +246,28 @@ public:
             if (is_focused && selection_start != selection_end) {
                 size_t s = std::min(selection_start, selection_end);
                 size_t e = std::max(selection_start, selection_end);
-                auto rects = text_paragraph_->getRectsForRange(s, e,
-                    skia::textlayout::RectHeightStyle::kTight,
-                    skia::textlayout::RectWidthStyle::kTight);
+                auto rects = text_paragraph_->getRectsForRange(s, e);
 
                 Paint sel_paint;
                 sel_paint.setColor(options.selection_color);
                 canvas.save();
                 canvas.translate(content_x, text_y);
                 for (const auto& r : rects) {
-                    canvas.drawRect(Rect{r.rect.fLeft, r.rect.fTop, r.rect.width(), r.rect.height()}, sel_paint);
+                    canvas.drawRect(r, sel_paint);
                 }
                 canvas.restore();
             }
 
-            canvas.drawParagraph(text_paragraph_.get(), content_x, text_y);
+            text_paragraph_->paint(canvas, content_x, text_y);
 
             // Blinking Caret
             if (is_focused && show_cursor && !options.read_only && selection_start == selection_end) {
                 float c_x = 0;
                 float c_h = text_paragraph_->getHeight();
                 if (cursor_pos > 0) {
-                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos,
-                        skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos);
                     if (!prev_rects.empty()) {
-                        c_x = prev_rects.back().rect.fRight;
+                        c_x = prev_rects.back().right();
                     }
                 }
                 Paint cur_paint;
@@ -345,17 +291,12 @@ public:
                 canvas.drawCircle(Point{eye_cx, eye_cy}, 12.0f, hov_paint);
             }
 
-            auto fc = getPasswordFieldFontCollection();
-            skia::textlayout::ParagraphStyle p_style;
-            auto b_eye = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_eye;
-            t_eye.setFontSize(13.0f);
-            t_eye.setColor(hovered_btn == 1 ? 0xFFFFFFFF : 0xFF94A3B8);
-            b_eye->pushStyle(t_eye);
-            b_eye->addText(controller->isObscured() ? "👁" : "🙈", 4);
-            auto eye_p = b_eye->Build();
-            eye_p->layout(24.0f);
-            canvas.drawParagraph(eye_p.get(), eye_cx - 7.0f, eye_cy - eye_p->getHeight() * 0.5f);
+            if (auto eye_p = makeSingleLineParagraph(controller->isObscured() ? "👁" : "🙈",
+                                                     13.0f,
+                                                     hovered_btn == 1 ? 0xFFFFFFFF : 0xFF94A3B8,
+                                                     24.0f)) {
+                eye_p->paint(canvas, eye_cx - 7.0f, eye_cy - eye_p->getHeight() * 0.5f);
+            }
 
             trail_right -= 28.0f;
         }
@@ -395,17 +336,12 @@ public:
                 canvas.drawCircle(Point{gen_cx, gen_cy}, 12.0f, hov_paint);
             }
 
-            auto fc = getPasswordFieldFontCollection();
-            skia::textlayout::ParagraphStyle p_style;
-            auto b_gen = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_gen;
-            t_gen.setFontSize(13.0f);
-            t_gen.setColor(hovered_btn == 2 ? 0xFFFFFFFF : 0xFF94A3B8);
-            b_gen->pushStyle(t_gen);
-            b_gen->addText("🎲", 4);
-            auto gen_p = b_gen->Build();
-            gen_p->layout(24.0f);
-            canvas.drawParagraph(gen_p.get(), gen_cx - 7.0f, gen_cy - gen_p->getHeight() * 0.5f);
+            if (auto gen_p = makeSingleLineParagraph("🎲",
+                                                     13.0f,
+                                                     hovered_btn == 2 ? 0xFFFFFFFF : 0xFF94A3B8,
+                                                     24.0f)) {
+                gen_p->paint(canvas, gen_cx - 7.0f, gen_cy - gen_p->getHeight() * 0.5f);
+            }
 
             trail_right -= 28.0f;
         }
@@ -423,7 +359,7 @@ public:
             cb_bg.setColor(0x2BF59E0B);
             canvas.drawRRect(cb_rrect, BorderRadius::all(4.0f), cb_bg);
 
-            canvas.drawParagraph(capslock_paragraph_.get(), bx + 5.0f, by + 2.0f);
+            capslock_paragraph_->paint(canvas, bx + 5.0f, by + 2.0f);
         }
 
         canvas.restore();
@@ -484,8 +420,8 @@ public:
         if (lock_paragraph_) content_x += lock_paragraph_->getMaxIntrinsicWidth() + 8.0f;
 
         float target_x = std::max(0.0f, local_x - content_x);
-        auto pos = text_paragraph_->getGlyphPositionAtCoordinate(target_x, 5.0f);
-        return std::min(static_cast<size_t>(pos.position), controller->getPassword().length());
+        size_t pos = text_paragraph_->getGlyphIndexAtCoordinate(target_x, 5.0f);
+        return std::min(pos, controller->getPassword().length());
     }
 };
 

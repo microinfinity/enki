@@ -222,7 +222,7 @@ Every widget has a dedicated documentation file in `references/`:
 | `Button` | `button(ButtonProps)` / `Button{}` | Interactive button with hover, ripple, shaders | [button.md](references/basic_ui/button.md) |
 | `IconButton` | `icon_button(IconButtonProps)` | Icon-only button with hover/press feedback | [icon_button.md](references/basic_ui/icon_button.md) |
 | `FloatingActionButton` | `floating_action_button(...)` | Circular high-priority floating action button | [floating_action_button.md](references/basic_ui/floating_action_button.md) |
-| `Text` | `text(string, TextProps)` | High-precision SkParagraph formatted text | [text.md](references/basic_ui/text.md) |
+| `Text` | `text(string, TextProps)` | High-precision `TextParagraph` formatted text | [text.md](references/basic_ui/text.md) |
 | `RichText` | `rich_text(RichTextProps)` | Multi-style styled text spans | [rich_text.md](references/basic_ui/rich_text.md) |
 | `Icon` | `icon(IconData, IconProps)` | Vector / Material icon glyph | [icon.md](references/basic_ui/icon.md) |
 | `Image` | `image(ImageProps)` | Image loader with fit modes, decoders, caching | [image.md](references/basic_ui/image.md) |
@@ -287,8 +287,7 @@ Every widget has a dedicated documentation file in `references/`:
 | `BackdropFilter` | Glassmorphism, blur, color filter effects | [backdrop_filter.md](references/paint_visual_effects/backdrop_filter.md) |
 | `ClipRRect` | Clips child with rounded corners | [clip_rrect.md](references/paint_visual_effects/clip_rrect.md) |
 | `ShaderMask` | Injects custom SkSL runtime shaders | [shader_mask.md](references/paint_visual_effects/shader_mask.md) |
-| `SkiaCanvas` | Direct immediate-mode Skia 2D rendering | [skia_canvas.md](references/advanced_widgets/skia_canvas.md) |
-| `Lottie` | Vector animations rendered via Skottie | [lottie.md](references/advanced_widgets/lottie.md) |
+| `Lottie` | Vector animations rendered via `LottieComposition` | [lottie.md](references/advanced_widgets/lottie.md) |
 | `AudioWaveform` | Live FFT spectrum analyzer (PulseAudio) | [audio_waveform.md](references/advanced_widgets/audio_waveform.md) |
 | `VideoPlayer` | Hardware VA-API accelerated video player (FFmpeg) | [video_player.md](references/advanced_widgets/video_player.md) |
 

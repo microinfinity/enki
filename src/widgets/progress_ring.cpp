@@ -4,10 +4,7 @@
 #include "enki/tree/render_object.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
-
-#include <include/effects/SkRuntimeEffect.h>
-#include <include/core/SkShader.h>
-#include <include/core/SkMatrix.h>
+#include "enki/rendering/runtime_shader.hpp"
 #include <layout_engine/Anu.h>
 
 #include <chrono>
@@ -17,14 +14,6 @@
 #include <cmath>
 
 namespace enki {
-
-class ProgressRingShaderWrapper : public Shader {
-public:
-    explicit ProgressRingShaderWrapper(sk_sp<SkShader> shader) : shader_(std::move(shader)) {}
-    void* getNativeHandle() const override { return shader_.get(); }
-private:
-    sk_sp<SkShader> shader_;
-};
 
 inline double getSteadyTimeSecs() {
     auto now = std::chrono::steady_clock::now();
@@ -54,7 +43,7 @@ public:
     float anim_time;
     double start_time;
 
-    sk_sp<SkRuntimeEffect> effect;
+    std::shared_ptr<RuntimeEffect> effect;
 
     RenderProgressRing(const ProgressRingWidget* opt, float val, float anim_t, double st)
         : ring_size_(opt->size), stroke_width_(opt->stroke_width),
@@ -67,11 +56,10 @@ public:
         updateAnuStyles();
 
         if (!custom_shader_.empty()) {
-            auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(custom_shader_.c_str()));
-            if (!eff) {
-                std::cerr << "ProgressRing SkSL Shader Compile Error: " << err.c_str() << "\n";
-            } else {
-                effect = eff;
+            std::string err;
+            effect = RuntimeEffect::compile(custom_shader_, &err);
+            if (!effect) {
+                std::cerr << "ProgressRing SkSL Shader Compile Error: " << err << "\n";
             }
         }
     }
@@ -145,12 +133,9 @@ public:
                 {diameter, diameter},
                 std::clamp(value, 0.0f, 1.0f)
             };
-            sk_sp<SkData> uniform_data = SkData::MakeWithCopy(&uniforms, sizeof(Uniforms));
             float top_left_x = cx - radius;
             float top_left_y = cy - radius;
-            SkMatrix local_matrix = SkMatrix::Translate(-top_left_x, -top_left_y);
-            fill_paint.setShader(std::make_shared<ProgressRingShaderWrapper>(
-                effect->makeShader(uniform_data, nullptr, 0)->makeWithLocalMatrix(local_matrix)));
+            fill_paint.setShader(effect->makeShader(&uniforms, sizeof(Uniforms), -top_left_x, -top_left_y));
         } else if (gradient_colors_.size() >= 2) {
             fill_paint.setShader(Gradient::sweep(Point{cx, cy}, gradient_colors_));
         } else {

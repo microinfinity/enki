@@ -16,22 +16,7 @@
 
 #include "enki/rendering/paint.hpp"
 #include "enki/rendering/path.hpp"
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/DartTypes.h>
+#include "enki/rendering/paragraph.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -42,34 +27,6 @@ namespace enki {
 
 class SearchFieldState;
 static SearchFieldState* g_focused_searchfield = nullptr;
-
-static sk_sp<skia::textlayout::FontCollection> getSearchFieldFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(m, "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(m, "Segoe UI");
-#else
-        fc->setDefaultFontManager(m);
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
 
 // Case-insensitive substring finder for highlighting matches
 [[maybe_unused]] static std::vector<std::pair<size_t, size_t>> findMatchRanges(std::string_view text, std::string_view query) {
@@ -106,9 +63,9 @@ public:
     bool hovered_clear = false;
     float spinner_angle = 0.0f;
 
-    std::unique_ptr<skia::textlayout::Paragraph> text_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> icon_paragraph_;
-    std::unique_ptr<skia::textlayout::Paragraph> badge_paragraph_;
+    std::unique_ptr<TextParagraph> text_paragraph_;
+    std::unique_ptr<TextParagraph> icon_paragraph_;
+    std::unique_ptr<TextParagraph> badge_paragraph_;
 
     RenderSearchFieldBox(std::shared_ptr<SearchFieldController> ctrl, SearchFieldProps opt)
         : controller(std::move(ctrl)), props(std::move(opt)) {
@@ -122,64 +79,55 @@ public:
         applyFlexboxStyle(anuNode(), st);
     }
 
-    void layoutParagraphs() {
-        auto fc = getSearchFieldFontCollection();
-        if (!fc) return;
+    static std::unique_ptr<TextParagraph> makeSingleLineParagraph(std::string_view text,
+                                                                  float font_size,
+                                                                  Color color,
+                                                                  float layout_w,
+                                                                  std::string_view font_family = {}) {
+        ParagraphStyle p_style;
+        p_style.text_align = ParagraphAlign::Left;
+        auto builder = TextParagraphBuilder::make(p_style);
+        if (!builder) return nullptr;
+        ParagraphTextStyle ts;
+        ts.font_size = font_size;
+        ts.color = color;
+        if (!font_family.empty()) {
+            ts.font_families.emplace_back(font_family);
+        }
+        builder->pushStyle(ts);
+        builder->addText(text);
+        auto para = builder->build();
+        if (para) {
+            para->layout(layout_w);
+        }
+        return para;
+    }
 
+    void layoutParagraphs() {
         float font_sz = props.style.font_size > 0 ? props.style.font_size : 14.0f;
         if (props.size == SearchFieldSize::Small && props.style.font_size <= 0) font_sz = 12.5f;
         if (props.size == SearchFieldSize::Large && props.style.font_size <= 0) font_sz = 16.0f;
 
-        skia::textlayout::ParagraphStyle p_style;
-        p_style.setTextAlign(skia::textlayout::TextAlign::kLeft);
-
         // 1. Search Icon
         if (props.show_search_icon) {
-            auto b_icon = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_ic;
-            t_ic.setFontSize(font_sz * 1.1f);
-            t_ic.setColor(static_cast<SkColor>(props.icon_color));
-            b_icon->pushStyle(t_ic);
-            b_icon->addText("🔍", 4);
-            icon_paragraph_ = b_icon->Build();
-            icon_paragraph_->layout(30.0f);
+            icon_paragraph_ = makeSingleLineParagraph("🔍", font_sz * 1.1f, props.icon_color, 30.0f);
         } else {
             icon_paragraph_.reset();
         }
 
         // 2. Main Query / Placeholder
-        auto b_main = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-        skia::textlayout::TextStyle t_main;
-        t_main.setFontSize(font_sz);
-
-        if (!props.style.font_family.empty()) {
-            std::vector<SkString> font_fams = {SkString(props.style.font_family.c_str())};
-            t_main.setFontFamilies(font_fams);
-        }
-
         const std::string& q = controller->getQuery();
-        if (q.empty() && !is_focused) {
-            t_main.setColor(static_cast<SkColor>(props.placeholder_color));
-            b_main->pushStyle(t_main);
-            b_main->addText(props.placeholder.c_str(), props.placeholder.length());
-        } else {
-            t_main.setColor(static_cast<SkColor>(props.style.color != 0 ? props.style.color : 0xFFF1F5F9));
-            b_main->pushStyle(t_main);
-            b_main->addText(q.c_str(), q.length());
-        }
-        text_paragraph_ = b_main->Build();
-        text_paragraph_->layout(size_.width > 0 ? size_.width : 300.0f);
+        bool show_placeholder = q.empty() && !is_focused;
+        const std::string& display_text = show_placeholder ? props.placeholder : q;
+        Color display_color = show_placeholder
+            ? props.placeholder_color
+            : (props.style.color != 0 ? props.style.color : 0xFFF1F5F9);
+        text_paragraph_ = makeSingleLineParagraph(
+            display_text, font_sz, display_color, size_.width > 0 ? size_.width : 300.0f, props.style.font_family);
 
         // 3. Shortcut Badge
         if (props.show_shortcut_badge && !props.shortcut_hint.empty() && q.empty() && !is_focused) {
-            auto b_badge = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_bg;
-            t_bg.setFontSize(11.0f);
-            t_bg.setColor(static_cast<SkColor>(props.badge_text_color));
-            b_badge->pushStyle(t_bg);
-            b_badge->addText(props.shortcut_hint.c_str(), props.shortcut_hint.length());
-            badge_paragraph_ = b_badge->Build();
-            badge_paragraph_->layout(80.0f);
+            badge_paragraph_ = makeSingleLineParagraph(props.shortcut_hint, 11.0f, props.badge_text_color, 80.0f);
         } else {
             badge_paragraph_.reset();
         }
@@ -218,7 +166,7 @@ public:
 
         if (icon_paragraph_) {
             float icon_y = cy - icon_paragraph_->getHeight() * 0.5f;
-            canvas.drawParagraph(icon_paragraph_.get(), content_x, icon_y);
+            icon_paragraph_->paint(canvas, content_x, icon_y);
             content_x += icon_paragraph_->getMaxIntrinsicWidth() + 8.0f;
         }
 
@@ -231,28 +179,25 @@ public:
             if (is_focused && selection_start != selection_end) {
                 size_t s = std::min(selection_start, selection_end);
                 size_t e = std::max(selection_start, selection_end);
-                auto rects = text_paragraph_->getRectsForRange(s, e,
-                    skia::textlayout::RectHeightStyle::kTight,
-                    skia::textlayout::RectWidthStyle::kTight);
+                auto rects = text_paragraph_->getRectsForRange(s, e);
 
                 Paint sel_paint;
                 sel_paint.setColor(Color(props.selection_color));
                 for (const auto& r : rects) {
-                    canvas.drawRect(Rect(content_x + r.rect.fLeft, text_y + r.rect.fTop, r.rect.width(), r.rect.height()), sel_paint);
+                    canvas.drawRect(Rect(content_x + r.x, text_y + r.y, r.width, r.height), sel_paint);
                 }
             }
 
-            canvas.drawParagraph(text_paragraph_.get(), content_x, text_y);
+            text_paragraph_->paint(canvas, content_x, text_y);
 
             // Draw Blinking Caret
             if (is_focused && show_cursor && !props.read_only && selection_start == selection_end) {
                 float c_x = 0;
                 float c_h = text_paragraph_->getHeight();
                 if (cursor_pos > 0) {
-                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos,
-                        skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
+                    auto prev_rects = text_paragraph_->getRectsForRange(cursor_pos - 1, cursor_pos);
                     if (!prev_rects.empty()) {
-                        c_x = prev_rects.back().rect.fRight;
+                        c_x = prev_rects.back().right();
                     }
                 }
                 Paint cur_paint;
@@ -315,7 +260,7 @@ public:
             b_bg.setColor(Color(props.badge_bg_color));
             canvas.drawRRect(b_rect, BorderRadius::circular(4.0f), b_bg);
 
-            canvas.drawParagraph(badge_paragraph_.get(), b_x + 5.0f, b_y + 2.0f);
+            badge_paragraph_->paint(canvas, b_x + 5.0f, b_y + 2.0f);
         }
 
         canvas.restore();
@@ -351,8 +296,8 @@ public:
         if (icon_paragraph_) content_x += icon_paragraph_->getMaxIntrinsicWidth() + 8.0f;
 
         float target_x = std::max(0.0f, local_x - content_x);
-        auto pos = text_paragraph_->getGlyphPositionAtCoordinate(target_x, 5.0f);
-        return std::min(static_cast<size_t>(pos.position), controller->getQuery().length());
+        size_t pos = text_paragraph_->getGlyphIndexAtCoordinate(target_x, 5.0f);
+        return std::min(pos, controller->getQuery().length());
     }
 };
 

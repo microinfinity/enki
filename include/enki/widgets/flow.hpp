@@ -106,8 +106,8 @@ struct Matrix4 {
         return res;
     }
 
-    /// @brief Convert this 4x4 matrix to a 9-element 3x3 SkMatrix buffer (row-major).
-    void toSkMatrix9(float out[9]) const {
+    /// @brief Convert this 4x4 matrix to a 9-element 3x3 matrix buffer (row-major).
+    void toMatrix3x3(float out[9]) const {
         out[0] = storage[0];   // scaleX
         out[1] = storage[4];   // skewX
         out[2] = storage[12];  // transX
@@ -117,6 +117,11 @@ struct Matrix4 {
         out[6] = storage[3];   // persp0
         out[7] = storage[7];   // persp1
         out[8] = storage[15];  // persp2
+    }
+
+    /// @brief Alias for toMatrix3x3 (kept for backward compatibility).
+    void toSkMatrix9(float out[9]) const {
+        toMatrix3x3(out);
     }
 
     /// @brief Transform a 2D local point using this matrix.

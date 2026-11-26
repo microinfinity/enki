@@ -167,7 +167,7 @@ public:
 #include "enki/animation/spring_controller.hpp"
 #include "enki/widgets/button.hpp"
 #include "enki/widgets/container.hpp"
-#include "enki/widgets/skia_canvas.hpp"
+#include "enki/widgets/detail/canvas_painter.hpp"
 #include "enki/state/state.hpp"
 
 using namespace enki;
@@ -228,7 +228,7 @@ public:
                 }),
 
                 // Physics Canvas Track
-                skiaCanvas(SkiaCanvasProps{
+                detail::canvasPainter({
                     .painter = [puck_x](Canvas& canvas, Size size) {
                         Paint track_paint;
                         track_paint.setColor(0xFF334155);

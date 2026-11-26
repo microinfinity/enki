@@ -1,6 +1,6 @@
 # Enki Typography & Code Presentation Suite
 
-> Hardware-accelerated text layout via Skia SkParagraph, interactive mouse selection, clipboard copying, auto-scrolling ticker marquees, and syntax-highlighted code blocks.
+> Hardware-accelerated text layout via `enki::TextParagraph`, interactive mouse selection, clipboard copying, auto-scrolling ticker marquees, and syntax-highlighted code blocks.
 
 The **Typography — Extended** category provides dedicated components for advanced desktop text interaction and developer tool displays. Built on Enki's high-performance paragraph layout engine (`RenderParagraph`), these widgets support mouse drag selection, system clipboard integration, continuous smooth ticker animation, and syntax-colored monospace code display.
 
@@ -8,7 +8,7 @@ The **Typography — Extended** category provides dedicated components for advan
 
 ## Architectural Highlights
 
-- **SkParagraph Engine**: Subpixel anti-aliased font rendering, ligature support, bidirectional text (LTR/RTL), and accurate glyph bounding box queries.
+- **TextParagraph Engine**: Subpixel anti-aliased font rendering, ligature support, bidirectional text (LTR/RTL), and accurate glyph bounding box queries through `enki::TextParagraph`.
 - **Interactive Mouse Selection**: `SelectableText` enables mouse drag selection ranges, double-click word selection, triple-click paragraph selection, and clipboard copy operations via `Platform::instance()->setClipboardText()`.
 - **Fading Edge Ticker Tape**: `Marquee` executes continuous single-line horizontal translation at configurable speeds (`velocity`), pausing when the mouse hovers, and applies soft alpha gradient masks to both edges (`fading_edge_length`).
 - **Syntax Lexing & Themes**: `CodeBlock` features built-in tokenizers for C++, JSON, and Python, displaying line numbers, line highlighting, and popular color palettes (`One Dark`, `Dracula`, `VS Code Dark`, `GitHub Dark`).

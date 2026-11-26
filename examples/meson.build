@@ -25,12 +25,6 @@ if not is_windows
     dependencies : example_deps,
     install : false,
   )
-
-  executable('desktop_shell_demo',
-    'desktop_shell_demo.cpp',
-    dependencies : example_deps,
-    install : false,
-  )
 endif
 
 executable('csd_window_demo',

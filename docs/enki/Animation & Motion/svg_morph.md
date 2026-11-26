@@ -238,6 +238,5 @@ WidgetPtr buildCustomMorph(float progress) {
 ---
 
 ## See Also
-- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Custom 2D GPU drawing surface.
 - [**AnimatedRotation**](./animated_rotation.md) — 2D matrix rotation transforms.
 - [**Icon**](../Basic%20UI/icon.md) — Standard static vector and symbol icons.

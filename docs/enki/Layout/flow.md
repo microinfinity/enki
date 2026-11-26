@@ -24,7 +24,7 @@ Because moving or animating children only invalidates the paint phase (`markNeed
 
 ### Key Architectural Behaviors:
 - **Zero-Reflow Performance**: Animations (e.g. expanding radial menus) completely bypass the Anu Flexbox layout tree.
-- **Matrix4 2D/3D Transforms**: Full affine transformation engine supporting translations, Z-rotations, 2D/3D scaling, matrix multiplication (`*`), and direct Skia matrix concatenation (`toSkMatrix9`).
+- **Matrix4 2D/3D Transforms**: Full affine transformation engine supporting translations, Z-rotations, 2D/3D scaling, matrix multiplication (`*`), and 3x3 matrix export (`toMatrix3x3`).
 - **Inverse Matrix Hit-Testing**: Even when children are rotated, scaled, or translated arbitrarily, `Flow` maps incoming pointer clicks back to each child's local coordinates via `Matrix4::mapPointInverse()`, providing 100% accurate hit-testing.
 - **Functional C++20 Lambdas**: Fast declarative setups via `paint_callback`, `size_callback`, and `constraints_callback`.
 
@@ -48,7 +48,7 @@ struct Matrix4 {
     static Matrix4 compose(Point translation, float rotation_rad = 0.0f, float scale_factor = 1.0f);
 
     Matrix4 operator*(const Matrix4& rhs) const;
-    void toSkMatrix9(float out[9]) const;
+    void toMatrix3x3(float out[9]) const;
     [[nodiscard]] Point mapPoint(Point p) const;
     [[nodiscard]] Point mapPointInverse(Point p) const;
 };
@@ -232,4 +232,3 @@ auto waveFlow = flow({
 ## See Also
 - [**CustomMultiChildLayout**](./custom_multi_child_layout.md) — Multi-child layout where children are sized and positioned during layout via ID strings.
 - [**Stack**](./stack.md) — Standard 2.5D multi-layer container.
-- [**SkiaCanvas**](../Advancedwidgets/skia_canvas.md) — Custom immediate-mode Skia 2D drawing.

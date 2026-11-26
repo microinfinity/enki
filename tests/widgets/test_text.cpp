@@ -7,8 +7,7 @@
 #include "enki/tree/element.hpp"
 #include "enki/tree/build_context.hpp"
 #include "enki/rendering/canvas.hpp"
-#include <include/core/SkCanvas.h>
-#include <include/core/SkSurface.h>
+#include "enki/rendering/raster_surface.hpp"
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -219,16 +218,15 @@ void test_text_flexbox_integration() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// Test 6: Paint Rendering to Skia Canvas Surface
+// Test 6: Paint Rendering to RasterSurface
 // ════════════════════════════════════════════════════════════════
 void test_text_paint_rendering() {
-    std::cout << "Testing Text Paint on Skia Canvas..." << std::endl;
+    std::cout << "Testing Text Paint on RasterSurface..." << std::endl;
 
-    auto skSurface = SkSurface::MakeRasterN32Premul(400, 200);
-    assert(skSurface != nullptr);
+    auto surface = RasterSurface::create(400, 200);
+    assert(surface != nullptr);
 
-    auto wrapper = createCanvasWrapper(skSurface->getCanvas());
-    PaintContext ctx(*wrapper);
+    PaintContext ctx(surface->canvas());
 
     auto t = text({
         .text = "Renderable Text",
@@ -281,11 +279,6 @@ void test_text_reconcile_update() {
     std::cout << "✓ Text Reconcile Update Passed!" << std::endl;
 }
 
-#include <include/core/SkImage.h>
-#include <include/core/SkStream.h>
-#include <include/core/SkData.h>
-#include <include/encode/SkPngEncoder.h>
-
 // ════════════════════════════════════════════════════════════════
 // Test 8: Render Full Showcase Snapshot to PNG
 // ════════════════════════════════════════════════════════════════
@@ -294,14 +287,11 @@ void test_text_render_snapshot_png() {
 
     int width = 1080;
     int height = 900;
-    auto skSurface = SkSurface::MakeRasterN32Premul(width, height);
-    assert(skSurface != nullptr);
+    auto surface = RasterSurface::create(width, height);
+    assert(surface != nullptr);
 
-    auto* canvas = skSurface->getCanvas();
-    canvas->clear(0xFF0B0F19); // Dark navy background
-
-    auto wrapper = createCanvasWrapper(canvas);
-    PaintContext ctx(*wrapper);
+    surface->canvas().clear(0xFF0B0F19); // Dark navy background
+    PaintContext ctx(surface->canvas());
 
     // Build rich hierarchy showcase
     auto title = text({
@@ -390,15 +380,10 @@ void test_text_render_snapshot_png() {
     ro->paint(ctx);
 
     // Save PNG snapshot
-    SkPixmap pixmap;
-    if (skSurface->peekPixels(&pixmap)) {
-        std::string path = "/tmp/text_demo_snapshot.png";
-        SkFILEWStream stream(path.c_str());
-        SkPngEncoder::Options opts;
-        bool ok = SkPngEncoder::Encode(&stream, pixmap, opts);
-        std::cout << "  Snapshot written to " << path << " (Success: " << (ok ? "YES" : "NO") << ")" << std::endl;
-        assert(ok);
-    }
+    std::string path = "/tmp/text_demo_snapshot.png";
+    bool ok = surface->savePng(path);
+    std::cout << "  Snapshot written to " << path << " (Success: " << (ok ? "YES" : "NO") << ")" << std::endl;
+    assert(ok);
 
     el->unmount();
     std::cout << "✓ Text Snapshot to PNG Passed!" << std::endl;

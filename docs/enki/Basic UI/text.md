@@ -7,13 +7,13 @@
 - **Props Struct**: `enki::TextProps`
 - **Style Struct**: `enki::TextStyle`
 - **Render Object**: `enki::RenderParagraph`
-- **Underlying Engine**: Skia `SkParagraph` + Anu Layout Engine intrinsic measurement
+- **Underlying Engine**: `enki::TextParagraph` + Anu Layout Engine intrinsic measurement
 
 ---
 
 ## Overview
 
-`Text` is the primary component for rendering text runs in Enki. It delegates layout and font rendering directly to Skia's high-performance `SkParagraph` engine while seamlessly integrating into Anu Flexbox for intrinsic text measurement, line-wrapping, and ellipsis truncation (`...`).
+`Text` is the primary component for rendering text runs in Enki. It delegates layout and font rendering through ENKI's `enki::TextParagraph` abstraction (backed by the active 2D rendering engine) while seamlessly integrating into Anu Flexbox for intrinsic text measurement, line-wrapping, and ellipsis truncation (`...`).
 
 ---
 

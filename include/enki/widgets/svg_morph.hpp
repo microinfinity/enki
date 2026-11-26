@@ -5,13 +5,13 @@
 /// Features:
 ///   - C++20 designated initializer syntax.
 ///   - Smoothly morphs between two SVG paths or iconic presets.
-///   - Integrated with Skia Canvas hardware acceleration.
+///   - Integrated with ENKI Canvas hardware acceleration.
 ///
 /// @copyright ENKI Framework — Apache 2.0 License
 
 #include "enki/core/types.hpp"
 #include "enki/animation/path_morph.hpp"
-#include "enki/widgets/skia_canvas.hpp"
+#include "enki/widgets/detail/canvas_painter.hpp"
 #include <string_view>
 #include <memory>
 #include <unordered_map>
@@ -75,7 +75,7 @@ inline SvgMorph::operator WidgetPtr() const {
     float sw = stroke_width;
     bool stroke = is_stroke;
 
-    return skiaCanvas(SkiaCanvasProps{
+    return detail::canvasPainter({
         .painter = [morph, p, col, sw, stroke](Canvas& canvas, Size size) {
             Paint paint;
             paint.setColor(col);

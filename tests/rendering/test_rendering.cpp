@@ -1,20 +1,14 @@
 /// @file test_rendering.cpp
-/// @brief Unit tests for Skia Rendering wrappers.
+/// @brief Unit tests for ENKI Rendering wrappers.
 
 #include "enki/rendering/canvas.hpp"
+#include "enki/rendering/raster_surface.hpp"
 #include "enki/rendering/path.hpp"
 #include "enki/rendering/color.hpp"
 #include <cassert>
 #include <cstdio>
-#include <include/core/SkBitmap.h>
-#include <include/core/SkCanvas.h>
 
 using namespace enki;
-
-// Extern function to get the wrapper from Skia backend
-namespace enki {
-extern std::unique_ptr<Canvas> createCanvasWrapper(void* sk_canvas);
-}
 
 void test_colors() {
     assert(Colors::White == 0xFFFFFFFF);
@@ -39,30 +33,25 @@ void test_path() {
 }
 
 void test_canvas() {
-    // Create an offscreen Skia surface/bitmap
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(100, 100);
-    SkCanvas sk_canvas(bitmap);
-
-    // Create wrapper
-    auto canvas = createCanvasWrapper(&sk_canvas);
-    assert(canvas != nullptr);
+    // Create an offscreen raster surface
+    auto surface = RasterSurface::create(100, 100);
+    assert(surface != nullptr);
+    Canvas& canvas = surface->canvas();
 
     // Test basic drawing commands (no crash expected)
-    canvas->clear(Colors::White);
+    canvas.clear(Colors::White);
 
     Paint paint;
     paint.setColor(Colors::Red);
-    canvas->drawRect(Rect{10, 10, 50, 50}, paint);
+    canvas.drawRect(Rect{10, 10, 50, 50}, paint);
 
     Path p;
     p.addCircle(50, 50, 20);
-    canvas->drawPath(p, paint);
+    canvas.drawPath(p, paint);
 
     // Verify a pixel
-    SkColor c = bitmap.getColor(15, 15);
-    // SkColor is ARGB. Colors::Red is 0xFFFF0000
-    assert(c == 0xFFFF0000);
+    Color c = surface->readPixel(15, 15);
+    assert(c == Colors::Red);
 
     printf("  [PASS] Canvas drawing\n");
 }

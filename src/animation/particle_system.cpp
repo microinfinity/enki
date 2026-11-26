@@ -2,9 +2,7 @@
 /// @brief 2D Skia Particle Physics Simulation implementation.
 
 #include "enki/animation/particle_system.hpp"
-#include <include/core/SkCanvas.h>
-#include <include/core/SkPaint.h>
-#include <include/core/SkRect.h>
+#include "enki/rendering/paint.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -213,8 +211,9 @@ void ParticleSystem::update(float dt_sec, Size boundary) {
 }
 
 void ParticleSystem::render(Canvas& canvas, const Rect&) const {
-    auto* sk_canvas = static_cast<SkCanvas*>(canvas.getNativeHandle());
-    if (!sk_canvas) return;
+    Paint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(PaintStyle::Fill);
 
     for (const auto& p : pool_) {
         if (!p.alive) continue;
@@ -224,36 +223,31 @@ void ParticleSystem::render(Canvas& canvas, const Rect&) const {
         uint8_t cur_alpha  = static_cast<uint8_t>(base_alpha * norm_life);
 
         Color active_color = (static_cast<Color>(cur_alpha) << 24) | (p.color & 0x00FFFFFF);
-
-        SkPaint sk_paint;
-        sk_paint.setAntiAlias(true);
-        sk_paint.setColor(active_color);
+        paint.setColor(active_color);
 
         switch (config_.shape) {
             case ParticleShape::Circle: {
-                sk_canvas->drawCircle(p.position.x, p.position.y, p.size, sk_paint);
+                canvas.drawCircle(p.position, p.size, paint);
                 break;
             }
             case ParticleShape::Square: {
-                SkRect r = SkRect::MakeXYWH(p.position.x - p.size, p.position.y - p.size,
-                                           p.size * 2.0f, p.size * 2.0f);
-                sk_canvas->drawRect(r, sk_paint);
+                Rect r{p.position.x - p.size, p.position.y - p.size, p.size * 2.0f, p.size * 2.0f};
+                canvas.drawRect(r, paint);
                 break;
             }
             case ParticleShape::ConfettiRibbon: {
                 float flip = std::cos(p.rotation);
-                sk_canvas->save();
-                sk_canvas->translate(p.position.x, p.position.y);
-                sk_canvas->rotate(p.rotation * 57.29578f);
-                SkRect r = SkRect::MakeXYWH(-p.size, -p.size * flip * 0.5f,
-                                           p.size * 2.0f, p.size * std::abs(flip));
-                sk_canvas->drawRect(r, sk_paint);
-                sk_canvas->restore();
+                canvas.save();
+                canvas.translate(p.position.x, p.position.y);
+                canvas.rotate(p.rotation * 57.29578f);
+                Rect r{-p.size, -p.size * flip * 0.5f, p.size * 2.0f, p.size * std::abs(flip)};
+                canvas.drawRect(r, paint);
+                canvas.restore();
                 break;
             }
             case ParticleShape::Star: {
-                // Approximate star with cross/circles for speed
-                sk_canvas->drawCircle(p.position.x, p.position.y, p.size, sk_paint);
+                // Approximate star with circles for speed
+                canvas.drawCircle(p.position, p.size, paint);
                 break;
             }
         }

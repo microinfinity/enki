@@ -16,22 +16,7 @@
 #include "enki/app/app.hpp"
 #include "enki/rendering/paint.hpp"
 #include "enki/rendering/path.hpp"
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/DartTypes.h>
+#include "enki/rendering/paragraph.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -42,32 +27,31 @@
 
 namespace enki {
 
-static sk_sp<skia::textlayout::FontCollection> getDataGridFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(m, "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(m, "Segoe UI");
-#else
-        fc->setDefaultFontManager(m);
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
+static ParagraphAlign toGridParagraphAlign(DataGridAlign align) {
+    if (align == DataGridAlign::Right) return ParagraphAlign::Right;
+    if (align == DataGridAlign::Center) return ParagraphAlign::Center;
+    return ParagraphAlign::Left;
+}
+
+static std::unique_ptr<TextParagraph> buildGridParagraph(std::string_view text,
+                                                         float font_size,
+                                                         Color color,
+                                                         ParagraphAlign align,
+                                                         float layout_w) {
+    ParagraphStyle p_style;
+    p_style.text_align = align;
+    auto builder = TextParagraphBuilder::make(p_style);
+    if (!builder) return nullptr;
+    ParagraphTextStyle t_style;
+    t_style.font_size = font_size;
+    t_style.color = color;
+    builder->pushStyle(t_style);
+    builder->addText(text);
+    auto para = builder->build();
+    if (para) {
+        para->layout(layout_w);
+    }
+    return para;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -326,9 +310,6 @@ public:
         auto& canvas = ctx.canvas;
         if (size_.width <= 0 || size_.height <= 0) return;
 
-        auto fc = getDataGridFontCollection();
-        if (!fc) return;
-
         Rect grid_bounds{ctx.offset.x, ctx.offset.y, size_.width, size_.height};
         BorderRadius grid_rad = BorderRadius::all(options.border_radius);
 
@@ -398,27 +379,16 @@ public:
                 const auto& col = columns[i];
                 if (!col.visible) continue;
 
-                skia::textlayout::ParagraphStyle p_style;
-                p_style.setTextAlign(col.align == DataGridAlign::Right ? skia::textlayout::TextAlign::kRight :
-                                    (col.align == DataGridAlign::Center ? skia::textlayout::TextAlign::kCenter : skia::textlayout::TextAlign::kLeft));
-
-                auto b_hdr = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                skia::textlayout::TextStyle t_hdr;
-                t_hdr.setFontSize(12.5f);
-                t_hdr.setColor(static_cast<SkColor>(options.header_text_color));
-                b_hdr->pushStyle(t_hdr);
-
                 std::string header_title = col.title;
                 auto dir = controller->getSortDirection(col.key);
                 if (dir == DataGridSortDirection::Ascending) header_title += " ▲";
                 else if (dir == DataGridSortDirection::Descending) header_title += " ▼";
 
-                b_hdr->addText(header_title.c_str(), header_title.length());
-                auto p_hdr = b_hdr->Build();
-                p_hdr->layout(col.width - 16.0f);
-
-                float p_y = cur_y + (options.header_height - p_hdr->getHeight()) * 0.5f;
-                canvas.drawParagraph(p_hdr.get(), col_x + 8.0f, p_y);
+                if (auto p_hdr = buildGridParagraph(header_title, 12.5f, options.header_text_color,
+                                                    toGridParagraphAlign(col.align), col.width - 16.0f)) {
+                    float p_y = cur_y + (options.header_height - p_hdr->getHeight()) * 0.5f;
+                    p_hdr->paint(canvas, col_x + 8.0f, p_y);
+                }
 
                 // Divider Line
                 Paint div_paint;
@@ -443,17 +413,10 @@ public:
         size_t end_idx = (page_sz > 0) ? std::min(start_idx + page_sz, filtered_indices.size()) : filtered_indices.size();
 
         if (filtered_indices.empty()) {
-            skia::textlayout::ParagraphStyle p_style;
-            p_style.setTextAlign(skia::textlayout::TextAlign::kCenter);
-            auto b_empty = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-            skia::textlayout::TextStyle t_empty;
-            t_empty.setFontSize(13.0f);
-            t_empty.setColor(0xFF64748B);
-            b_empty->pushStyle(t_empty);
-            b_empty->addText("No matching records found", 25);
-            auto p_empty = b_empty->Build();
-            p_empty->layout(size_.width);
-            canvas.drawParagraph(p_empty.get(), ctx.offset.x, cur_y + options.row_height * 0.7f);
+            if (auto p_empty = buildGridParagraph("No matching records found", 13.0f, 0xFF64748B,
+                                                  ParagraphAlign::Center, size_.width)) {
+                p_empty->paint(canvas, ctx.offset.x, cur_y + options.row_height * 0.7f);
+            }
             cur_y += options.row_height * 2.5f;
         }
 
@@ -518,29 +481,22 @@ public:
 
                     if (col.cell_type == DataGridCellType::Badge && cell.badge_bg != 0) {
                         // Badge Render
-                        skia::textlayout::ParagraphStyle p_style;
-                        p_style.setTextAlign(skia::textlayout::TextAlign::kCenter);
-                        auto b_badge = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                        skia::textlayout::TextStyle t_badge;
-                        t_badge.setFontSize(11.0f);
-                        t_badge.setColor(static_cast<SkColor>(cell.badge_fg != 0 ? cell.badge_fg : 0xFFFFFFFF));
-                        b_badge->pushStyle(t_badge);
-                        b_badge->addText(cell.display_text.c_str(), cell.display_text.length());
-                        auto p_badge = b_badge->Build();
-                        p_badge->layout(col.width);
+                        Color badge_fg = cell.badge_fg != 0 ? cell.badge_fg : 0xFFFFFFFF;
+                        if (auto p_badge = buildGridParagraph(cell.display_text, 11.0f, badge_fg,
+                                                              ParagraphAlign::Center, col.width)) {
+                            float bw = p_badge->getMaxIntrinsicWidth() + 12.0f;
+                            float bh = p_badge->getHeight() + 4.0f;
+                            float bx = col_x + 8.0f;
+                            float by = cur_y + (options.row_height - bh) * 0.5f;
 
-                        float bw = p_badge->getMaxIntrinsicWidth() + 12.0f;
-                        float bh = p_badge->getHeight() + 4.0f;
-                        float bx = col_x + 8.0f;
-                        float by = cur_y + (options.row_height - bh) * 0.5f;
+                            Rect badge_rrect{bx, by, bw, bh};
+                            Paint badge_paint;
+                            badge_paint.setAntiAlias(true);
+                            badge_paint.setColor(cell.badge_bg);
+                            canvas.drawRRect(badge_rrect, BorderRadius::all(4.0f), badge_paint);
 
-                        Rect badge_rrect{bx, by, bw, bh};
-                        Paint badge_paint;
-                        badge_paint.setAntiAlias(true);
-                        badge_paint.setColor(cell.badge_bg);
-                        canvas.drawRRect(badge_rrect, BorderRadius::all(4.0f), badge_paint);
-
-                        canvas.drawParagraph(p_badge.get(), bx + 6.0f, by + 2.0f);
+                            p_badge->paint(canvas, bx + 6.0f, by + 2.0f);
+                        }
                     } else if (col.cell_type == DataGridCellType::Progress) {
                         // Progress Bar Render
                         float pb_x = col_x + 8.0f;
@@ -562,33 +518,17 @@ public:
                         }
 
                         // Progress label
-                        skia::textlayout::ParagraphStyle p_style;
-                        auto b_plab = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                        skia::textlayout::TextStyle t_plab;
-                        t_plab.setFontSize(11.0f);
-                        t_plab.setColor(static_cast<SkColor>(options.text_color));
-                        b_plab->pushStyle(t_plab);
-                        b_plab->addText(cell.display_text.c_str(), cell.display_text.length());
-                        auto p_plab = b_plab->Build();
-                        p_plab->layout(40.0f);
-                        canvas.drawParagraph(p_plab.get(), pb_x + pb_w + 6.0f, cur_y + (options.row_height - p_plab->getHeight()) * 0.5f);
+                        if (auto p_plab = buildGridParagraph(cell.display_text, 11.0f, options.text_color,
+                                                             ParagraphAlign::Start, 40.0f)) {
+                            p_plab->paint(canvas, pb_x + pb_w + 6.0f, cur_y + (options.row_height - p_plab->getHeight()) * 0.5f);
+                        }
                     } else {
                         // Standard Text Render
-                        skia::textlayout::ParagraphStyle p_style;
-                        p_style.setTextAlign(col.align == DataGridAlign::Right ? skia::textlayout::TextAlign::kRight :
-                                            (col.align == DataGridAlign::Center ? skia::textlayout::TextAlign::kCenter : skia::textlayout::TextAlign::kLeft));
-
-                        auto b_cell = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                        skia::textlayout::TextStyle t_cell;
-                        t_cell.setFontSize(12.5f);
-                        t_cell.setColor(static_cast<SkColor>(options.text_color));
-                        b_cell->pushStyle(t_cell);
-                        b_cell->addText(cell.display_text.c_str(), cell.display_text.length());
-                        auto p_cell = b_cell->Build();
-                        p_cell->layout(col.width - 16.0f);
-
-                        float p_y = cur_y + (options.row_height - p_cell->getHeight()) * 0.5f;
-                        canvas.drawParagraph(p_cell.get(), col_x + 8.0f, p_y);
+                        if (auto p_cell = buildGridParagraph(cell.display_text, 12.5f, options.text_color,
+                                                             toGridParagraphAlign(col.align), col.width - 16.0f)) {
+                            float p_y = cur_y + (options.row_height - p_cell->getHeight()) * 0.5f;
+                            p_cell->paint(canvas, col_x + 8.0f, p_y);
+                        }
                     }
                 }
 
@@ -621,21 +561,11 @@ public:
 
                 std::string summary_str = options.summary_calculator(col.key, raw_rows);
                 if (!summary_str.empty()) {
-                    skia::textlayout::ParagraphStyle p_style;
-                    p_style.setTextAlign(col.align == DataGridAlign::Right ? skia::textlayout::TextAlign::kRight :
-                                        (col.align == DataGridAlign::Center ? skia::textlayout::TextAlign::kCenter : skia::textlayout::TextAlign::kLeft));
-
-                    auto b_sum = skia::textlayout::ParagraphBuilder::make(p_style, fc);
-                    skia::textlayout::TextStyle t_sum;
-                    t_sum.setFontSize(12.0f);
-                    t_sum.setColor(0xFF38BDF8);
-                    b_sum->pushStyle(t_sum);
-                    b_sum->addText(summary_str.c_str(), summary_str.length());
-                    auto p_sum = b_sum->Build();
-                    p_sum->layout(col.width - 16.0f);
-
-                    float p_y = cur_y + (options.footer_height - p_sum->getHeight()) * 0.5f;
-                    canvas.drawParagraph(p_sum.get(), col_x + 8.0f, p_y);
+                    if (auto p_sum = buildGridParagraph(summary_str, 12.0f, 0xFF38BDF8,
+                                                        toGridParagraphAlign(col.align), col.width - 16.0f)) {
+                        float p_y = cur_y + (options.footer_height - p_sum->getHeight()) * 0.5f;
+                        p_sum->paint(canvas, col_x + 8.0f, p_y);
+                    }
                 }
                 col_x += col.width;
             }

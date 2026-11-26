@@ -195,7 +195,7 @@ WidgetPtr buildReleaseTimeline() {
                      "Direct hardware GPU rasterization with multi-layer caching.",
                      TimelineItemStatus::Active);
     it2.setIcon("⚡").setBadge("IN PROGRESS", 0x2E38BDF8, 0xFFFFFFFF)
-       .setDetails("• Anti-aliased text via SkParagraph\n• Zero-copy overlay rendering\n• 60+ FPS animations");
+       .setDetails("• Anti-aliased text via TextParagraph\n• Zero-copy overlay rendering\n• 60+ FPS animations");
     items.push_back(it2);
 
     auto ctrl = std::make_shared<TimelineController>(std::move(items));

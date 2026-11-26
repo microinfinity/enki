@@ -6,25 +6,8 @@
 #include "enki/widgets/marquee.hpp"
 #include "enki/platform/platform.hpp"
 #include "enki/rendering/canvas.hpp"
+#include "enki/rendering/paragraph.hpp"
 #include "enki/tree/build_context.hpp"
-#include <include/core/SkColor.h>
-#include <include/core/SkFontStyle.h>
-#include <include/core/SkFontMgr.h>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/DartTypes.h>
 #include <layout_engine/Anu.h>
 #include <algorithm>
 #include <chrono>
@@ -35,82 +18,30 @@ namespace enki {
 
 namespace {
 
-sk_sp<SkFontMgr> getSharedFontMgr() {
-    static sk_sp<SkFontMgr> s_mgr = []() {
-        sk_sp<SkFontMgr> m = nullptr;
-#if defined(__ANDROID__)
-        m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#elif defined(_WIN32)
-        m = SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        m = SkFontMgr::RefDefault();
-#else
-        m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-#endif
-        return m;
-    }();
-    return s_mgr;
-}
+std::unique_ptr<TextParagraph> buildSimpleParagraph(const std::string& text, const TextStyle& style) {
+    ParagraphStyle p_style;
+    p_style.max_lines = 1;
 
-sk_sp<skia::textlayout::FontCollection> getSharedFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(__ANDROID__)
-        fc->setDefaultFontManager(getSharedFontMgr(), "Roboto");
-#elif defined(_WIN32)
-        fc->setDefaultFontManager(getSharedFontMgr(), "Segoe UI");
-#else
-        fc->setDefaultFontManager(getSharedFontMgr());
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
-
-inline SkColor toSkColor(Color c) {
-    return static_cast<SkColor>(c);
-}
-
-skia::textlayout::TextStyle toSkTextStyle(const TextStyle& s) {
-    skia::textlayout::TextStyle sk;
-    sk.setColor(toSkColor(s.color));
-    sk.setFontSize(s.font_size);
-
-    SkFontStyle::Slant slant = (s.font_style == FontStyle::Italic) ? SkFontStyle::kItalic_Slant : SkFontStyle::kUpright_Slant;
-    SkFontStyle fontStyle(static_cast<int>(s.font_weight), SkFontStyle::kNormal_Width, slant);
-    sk.setFontStyle(fontStyle);
-
-    if (!s.font_family.empty()) {
-        sk.setFontFamilies({SkString(s.font_family.c_str())});
-    }
-    if (s.letter_spacing != 0.0f) {
-        sk.setLetterSpacing(s.letter_spacing);
-    }
-    if (s.word_spacing != 0.0f) {
-        sk.setWordSpacing(s.word_spacing);
-    }
-    if (s.height.has_value()) {
-        sk.setHeight(*s.height);
-        sk.setHeightOverride(true);
-    }
-    return sk;
-}
-
-std::unique_ptr<skia::textlayout::Paragraph> buildSimpleParagraph(const std::string& text, const TextStyle& style) {
-    skia::textlayout::ParagraphStyle pStyle;
-    pStyle.setMaxLines(1);
-
-    auto builder = skia::textlayout::ParagraphBuilder::make(pStyle, getSharedFontCollection());
+    auto builder = TextParagraphBuilder::make(p_style);
     if (!builder) return nullptr;
 
-    builder->pushStyle(toSkTextStyle(style));
-    builder->addText(text.c_str(), text.length());
+    ParagraphTextStyle ts;
+    ts.color = style.color;
+    ts.font_size = style.font_size;
+    ts.font_weight = static_cast<int>(style.font_weight);
+    ts.italic = (style.font_style == FontStyle::Italic);
+    if (!style.font_family.empty()) {
+        ts.font_families.push_back(style.font_family);
+    }
+    ts.letter_spacing = style.letter_spacing;
+    ts.word_spacing = style.word_spacing;
+    ts.height = style.height;
+
+    builder->pushStyle(ts);
+    builder->addText(text);
     builder->pop();
 
-    return builder->Build();
+    return builder->build();
 }
 
 } // namespace
@@ -125,7 +56,7 @@ public:
     bool             pause_on_hover_;
     float            fading_edge_length_;
 
-    std::unique_ptr<skia::textlayout::Paragraph> paragraph_;
+    std::unique_ptr<TextParagraph> paragraph_;
     float            offset_x_ = 0.0f;
     bool             is_hovered_ = false;
     double           last_time_ = 0.0;
@@ -258,7 +189,7 @@ public:
         while (start_x < size_.width) {
             if (start_x + text_width > 0.0f) {
                 float text_y = ctx.offset.y + (size_.height - text_height) * 0.5f;
-                ctx.canvas.drawParagraph(paragraph_.get(), ctx.offset.x + start_x, text_y);
+                paragraph_->paint(ctx.canvas, ctx.offset.x + start_x, text_y);
             }
             start_x += cycle_len;
             if (cycle_len <= 0.0f) break;

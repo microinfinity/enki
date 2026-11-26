@@ -2,7 +2,6 @@
 /// @brief Native Compositor-level Popup surface implementation.
 
 #include "enki/shell/native_popup.hpp"
-#include "enki/shell/shell_app.hpp"
 #include "enki/app/app.hpp"
 #include <iostream>
 
@@ -29,11 +28,10 @@ std::shared_ptr<NativePopup> NativePopup::show(
     const PopupOptions& options,
     std::function<WidgetPtr(BuildContext&, std::shared_ptr<NativePopup>)> builder) {
 
-    ShellApp* shell_app = ShellApp::instance();
     App* main_app = App::instance();
 
-    if (!shell_app && !main_app) {
-        std::cerr << "[ENKI NativePopup] No active ShellApp or App instance found\n";
+    if (!main_app) {
+        std::cerr << "[ENKI NativePopup] No active App instance found\n";
         return nullptr;
     }
 
@@ -52,11 +50,7 @@ std::shared_ptr<NativePopup> NativePopup::show(
     // 3. Create independent native surface
     SurfaceHost* parent_host = options.parent_host;
     if (!parent_host && context.element()) {
-        if (shell_app) {
-            parent_host = shell_app->findSurfaceByOwner(context.element()->owner());
-        } else if (main_app) {
-            parent_host = main_app->findSurfaceByOwner(context.element()->owner());
-        }
+        parent_host = main_app->findSurfaceByOwner(context.element()->owner());
     }
 
     WindowConfig win_cfg;
@@ -72,8 +66,7 @@ std::shared_ptr<NativePopup> NativePopup::show(
     win_cfg.transparent       = true;
     win_cfg.mode              = WindowMode::Popup;
 
-    SurfaceHost* host = shell_app ? shell_app->addPopup(parent_host, win_cfg, content)
-                                  : main_app->addPopup(parent_host, win_cfg, content);
+    SurfaceHost* host = main_app->addPopup(parent_host, win_cfg, content);
 
     if (!host) {
         std::cerr << "[ENKI NativePopup] Failed to create native popup surface\n";
@@ -100,11 +93,7 @@ std::shared_ptr<NativePopup> NativePopup::show(
 void NativePopup::close() {
     if (!host_) return;
 
-    ShellApp* shell_app = ShellApp::instance();
-    App* main_app = App::instance();
-    if (shell_app) {
-        shell_app->removeSurface(host_);
-    } else if (main_app) {
+    if (App* main_app = App::instance()) {
         main_app->removeSurface(host_);
     }
     host_ = nullptr;

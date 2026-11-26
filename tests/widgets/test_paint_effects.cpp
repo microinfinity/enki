@@ -8,8 +8,6 @@
 #include "enki/tree/element.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
-#include <include/core/SkCanvas.h>
-#include <include/core/SkSurface.h>
 #include <iostream>
 #include <cassert>
 

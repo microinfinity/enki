@@ -77,6 +77,10 @@ public:
     virtual float measureText(std::string_view text, float font_size,
                               const char* font_family = nullptr, bool bold = false) = 0;
 
+    /// Measure tight glyph bounding box relative to baseline origin (0, 0).
+    virtual Rect measureTextBounds(std::string_view text, float font_size,
+                                   const char* font_family = nullptr, bool bold = false) = 0;
+
     virtual void drawImageRect(std::shared_ptr<Image> image, const Rect& src, const Rect& dst, const Paint* paint = nullptr) = 0;
     virtual void drawDRRect(const Rect& outer, const BorderRadius& outerRadius, 
                             const Rect& inner, const BorderRadius& innerRadius, const Paint& paint) = 0;

@@ -8,9 +8,7 @@
 #include "enki/tree/build_context.hpp"
 #include "enki/tree/render_object.hpp"
 #include "enki/rendering/canvas.hpp"
-
-#include <include/core/SkSurface.h>
-#include <include/core/SkCanvas.h>
+#include "enki/rendering/raster_surface.hpp"
 
 #include <iostream>
 #include <cassert>
@@ -50,13 +48,13 @@ void test_matrix4_operations() {
     assert(approxEqual(inv_s.x, 10.0f));
     assert(approxEqual(inv_s.y, 20.0f));
 
-    // SkMatrix row-major conversion
-    float sk9[9];
-    t.toSkMatrix9(sk9);
-    assert(approxEqual(sk9[0], 1.0f));  // scaleX
-    assert(approxEqual(sk9[2], 50.0f)); // transX
-    assert(approxEqual(sk9[4], 1.0f));  // scaleY
-    assert(approxEqual(sk9[5], 80.0f)); // transY
+    // Matrix3x3 row-major conversion
+    float m9[9];
+    t.toMatrix3x3(m9);
+    assert(approxEqual(m9[0], 1.0f));  // scaleX
+    assert(approxEqual(m9[2], 50.0f)); // transX
+    assert(approxEqual(m9[4], 1.0f));  // scaleY
+    assert(approxEqual(m9[5], 80.0f)); // transY
 
     std::cout << "  ✓ Matrix4 tests passed." << std::endl;
 }
@@ -170,11 +168,10 @@ void test_flow_functional_lambda() {
     assert(approxEqual(ro->size().width, 350.0f));
     assert(approxEqual(ro->size().height, 150.0f));
 
-    // Paint using Skia Surface
-    auto surface = SkSurface::MakeRasterN32Premul(500, 500);
+    // Paint using RasterSurface
+    auto surface = RasterSurface::create(500, 500);
     assert(surface != nullptr);
-    auto canvas = createCanvasWrapper(surface->getCanvas());
-    PaintContext pctx{*canvas, {0.0f, 0.0f}, Rect{0, 0, 500, 500}, 1.0f};
+    PaintContext pctx{surface->canvas(), {0.0f, 0.0f}, Rect{0, 0, 500, 500}, 1.0f};
 
     ro->paint(pctx);
 
@@ -224,10 +221,9 @@ void test_flow_hit_testing_with_transforms() {
     ro->layout(400.0f, 300.0f);
 
     // Must paint once to record transforms
-    auto surface = SkSurface::MakeRasterN32Premul(400, 300);
+    auto surface = RasterSurface::create(400, 300);
     assert(surface != nullptr);
-    auto canvas = createCanvasWrapper(surface->getCanvas());
-    PaintContext pctx{*canvas, {0.0f, 0.0f}, Rect{0, 0, 400, 300}, 1.0f};
+    PaintContext pctx{surface->canvas(), {0.0f, 0.0f}, Rect{0, 0, 400, 300}, 1.0f};
     ro->paint(pctx);
 
     auto* child0_ro = ro->children()[0];

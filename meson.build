@@ -525,6 +525,9 @@ enki_sources = files(
   'src/rendering/image.cpp',
   'src/rendering/svg.cpp',
   'src/rendering/font_manager.cpp',
+  'src/rendering/runtime_shader.cpp',
+  'src/rendering/paragraph.cpp',
+  'src/rendering/raster_surface.cpp',
 
   # Widget Tree
   'src/tree/widget.cpp',
@@ -595,7 +598,6 @@ enki_sources = files(
   'src/widgets/menu.cpp',
   'src/widgets/clip.cpp',
   'src/widgets/paint_effects.cpp',
-  'src/widgets/skia_canvas.cpp',
   'src/widgets/motion.cpp',
   'src/widgets/feedback_status.cpp',
   'src/widgets/utility.cpp',
@@ -674,7 +676,6 @@ enki_sources = files(
 
   # Desktop Shell Subsystem
   'src/shell/surface_host.cpp',
-  'src/shell/shell_app.cpp',
   'src/shell/native_popup.cpp',
 ) + platform_sources
 

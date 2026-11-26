@@ -4,7 +4,6 @@
 
 #include "enki/core/types.hpp"
 #include "enki/platform/layer_surface.hpp"
-#include "enki/shell/shell_app.hpp"
 #include "enki/tree/widget.hpp"
 
 namespace enki {

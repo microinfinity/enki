@@ -1,38 +1,11 @@
 /// @file text.cpp
-/// @brief Advanced Typography & Text Widgets implementation using SkParagraph and Anu Layout.
+/// @brief Advanced Typography & Text Widgets implementation using TextParagraph and Anu Layout.
 
 #include "enki/widgets/text.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
+#include "enki/rendering/paragraph.hpp"
 #include "enki/platform/platform.hpp"
-#include <include/core/SkColor.h>
-#include <include/core/SkFontStyle.h>
-#include <include/core/SkFontMgr.h>
-#include <include/core/SkFont.h>
-#include <include/core/SkFontMetrics.h>
-#include <include/core/SkTypeface.h>
-#include <include/core/SkTextBlob.h>
-#include <include/core/SkCanvas.h>
-#include <sstream>
-#if defined(__ANDROID__)
-#include <include/ports/SkFontMgr_android.h>
-#elif defined(_WIN32)
-#include <include/ports/SkTypeface_win.h>
-#elif defined(__EMSCRIPTEN__)
-// Emscripten uses custom memory fonts or SkFontMgr::RefDefault()
-#else
-#include <include/ports/SkFontMgr_fontconfig.h>
-#endif
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-#include <modules/skparagraph/include/ParagraphBuilder.h>
-#include <modules/skparagraph/include/Paragraph.h>
-#include <modules/skparagraph/include/ParagraphStyle.h>
-#include <modules/skparagraph/include/TextStyle.h>
-#include <modules/skparagraph/include/FontCollection.h>
-#include <modules/skparagraph/include/TextShadow.h>
-#include <modules/skparagraph/include/DartTypes.h>
-#include <modules/skparagraph/include/TypefaceFontProvider.h>
-#endif
 #include <layout_engine/Anu.h>
 #include <algorithm>
 #include <chrono>
@@ -45,155 +18,87 @@ namespace enki {
 namespace {
 
 // ════════════════════════════════════════════════════════════════
-// Font Management & Helpers
+// Paragraph Style Conversion Helpers
 // ════════════════════════════════════════════════════════════════
 
-sk_sp<SkFontMgr> getTextFontMgr() {
-    static sk_sp<SkFontMgr> s_mgr = []() {
-#if defined(__ANDROID__)
-        auto m = SkFontMgr_New_Android(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-        return m;
-#elif defined(_WIN32)
-        return SkFontMgr_New_DirectWrite();
-#elif defined(__EMSCRIPTEN__)
-        return SkFontMgr::RefDefault();
-#else
-        auto m = SkFontMgr_New_FontConfig(nullptr);
-        if (!m) m = SkFontMgr::RefDefault();
-        return m;
-#endif
-    }();
-    return s_mgr;
-}
-
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-sk_sp<skia::textlayout::FontCollection> getSharedFontCollection() {
-    static sk_sp<skia::textlayout::FontCollection> s_fc = []() {
-        auto fc = sk_make_sp<skia::textlayout::FontCollection>();
-#if defined(_WIN32)
-        fc->setDefaultFontManager(getTextFontMgr(), "Segoe UI");
-#else
-        fc->setDefaultFontManager(getTextFontMgr());
-#endif
-        fc->enableFontFallback();
-        return fc;
-    }();
-    return s_fc;
-}
-#endif
-
-inline SkColor toSkColor(Color c) {
-    return static_cast<SkColor>(c);
-}
-
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-skia::textlayout::TextAlign toSkTextAlign(TextAlign align) {
+ParagraphAlign toParagraphAlign(TextAlign align) {
     switch (align) {
-        case TextAlign::Left:    return skia::textlayout::TextAlign::kLeft;
-        case TextAlign::Right:   return skia::textlayout::TextAlign::kRight;
-        case TextAlign::Center:  return skia::textlayout::TextAlign::kCenter;
-        case TextAlign::Justify: return skia::textlayout::TextAlign::kJustify;
-        case TextAlign::Start:   return skia::textlayout::TextAlign::kStart;
-        case TextAlign::End:     return skia::textlayout::TextAlign::kEnd;
+        case TextAlign::Left:    return ParagraphAlign::Left;
+        case TextAlign::Right:   return ParagraphAlign::Right;
+        case TextAlign::Center:  return ParagraphAlign::Center;
+        case TextAlign::Justify: return ParagraphAlign::Justify;
+        case TextAlign::Start:   return ParagraphAlign::Start;
+        case TextAlign::End:     return ParagraphAlign::End;
     }
-    return skia::textlayout::TextAlign::kStart;
+    return ParagraphAlign::Start;
 }
 
-skia::textlayout::TextDirection toSkTextDirection(TextDirection dir) {
-    switch (dir) {
-        case TextDirection::LTR: return skia::textlayout::TextDirection::kLtr;
-        case TextDirection::RTL: return skia::textlayout::TextDirection::kRtl;
-    }
-    return skia::textlayout::TextDirection::kLtr;
+ParagraphDirection toParagraphDirection(TextDirection dir) {
+    return dir == TextDirection::RTL ? ParagraphDirection::RTL : ParagraphDirection::LTR;
 }
 
-skia::textlayout::TextDecoration toSkTextDecoration(TextDecoration d) {
-    unsigned int res = skia::textlayout::TextDecoration::kNoDecoration;
-    if (d & TextDecoration::Underline)   res |= skia::textlayout::TextDecoration::kUnderline;
-    if (d & TextDecoration::Overline)    res |= skia::textlayout::TextDecoration::kOverline;
-    if (d & TextDecoration::LineThrough) res |= skia::textlayout::TextDecoration::kLineThrough;
-    return static_cast<skia::textlayout::TextDecoration>(res);
+uint32_t toParagraphDecoration(TextDecoration d) {
+    uint32_t res = ParagraphDecoration::None;
+    if (d & TextDecoration::Underline)   res |= ParagraphDecoration::Underline;
+    if (d & TextDecoration::Overline)    res |= ParagraphDecoration::Overline;
+    if (d & TextDecoration::LineThrough) res |= ParagraphDecoration::LineThrough;
+    return res;
 }
 
-skia::textlayout::TextDecorationStyle toSkTextDecorationStyle(TextDecorationStyle s) {
+ParagraphDecorationStyle toParagraphDecorationStyle(TextDecorationStyle s) {
     switch (s) {
-        case TextDecorationStyle::Solid:  return skia::textlayout::TextDecorationStyle::kSolid;
-        case TextDecorationStyle::Double: return skia::textlayout::TextDecorationStyle::kDouble;
-        case TextDecorationStyle::Dotted: return skia::textlayout::TextDecorationStyle::kDotted;
-        case TextDecorationStyle::Dashed: return skia::textlayout::TextDecorationStyle::kDashed;
-        case TextDecorationStyle::Wavy:   return skia::textlayout::TextDecorationStyle::kWavy;
+        case TextDecorationStyle::Solid:  return ParagraphDecorationStyle::Solid;
+        case TextDecorationStyle::Double: return ParagraphDecorationStyle::Double;
+        case TextDecorationStyle::Dotted: return ParagraphDecorationStyle::Dotted;
+        case TextDecorationStyle::Dashed: return ParagraphDecorationStyle::Dashed;
+        case TextDecorationStyle::Wavy:   return ParagraphDecorationStyle::Wavy;
     }
-    return skia::textlayout::TextDecorationStyle::kSolid;
+    return ParagraphDecorationStyle::Solid;
 }
 
-skia::textlayout::TextStyle toSkTextStyle(const TextStyle& s) {
-    skia::textlayout::TextStyle sk;
-    sk.setColor(toSkColor(s.color));
-    sk.setFontSize(s.font_size);
+ParagraphTextStyle toParagraphTextStyle(const TextStyle& s) {
+    ParagraphTextStyle pt;
+    pt.color = s.color;
+    pt.font_size = s.font_size;
+    pt.font_weight = static_cast<int>(s.font_weight);
+    pt.italic = (s.font_style == FontStyle::Italic);
 
-    // Font Style (Weight + Slant)
-    SkFontStyle::Slant slant = (s.font_style == FontStyle::Italic) ? SkFontStyle::kItalic_Slant : SkFontStyle::kUpright_Slant;
-    SkFontStyle fontStyle(static_cast<int>(s.font_weight), SkFontStyle::kNormal_Width, slant);
-    sk.setFontStyle(fontStyle);
-
-    // Font Families — only set when custom family/families are requested
     if (!s.font_family.empty() || !s.font_families.empty()) {
-        std::vector<SkString> families;
         if (!s.font_family.empty()) {
-            families.emplace_back(s.font_family.c_str());
+            pt.font_families.push_back(s.font_family);
         }
         for (const auto& fam : s.font_families) {
-            families.emplace_back(fam.c_str());
+            pt.font_families.push_back(fam);
         }
 #if defined(__EMSCRIPTEN__)
-        families.emplace_back("sans-serif");
+        pt.font_families.emplace_back("sans-serif");
 #endif
-        sk.setFontFamilies(families);
     }
 #if defined(_WIN32)
     else {
-        std::vector<SkString> families;
-        families.emplace_back("Segoe UI");
-        sk.setFontFamilies(families);
+        pt.font_families.emplace_back("Segoe UI");
     }
 #elif defined(__EMSCRIPTEN__)
     else {
-        std::vector<SkString> families;
-        families.emplace_back("sans-serif");
-        families.emplace_back("default");
-        sk.setFontFamilies(families);
+        pt.font_families.emplace_back("sans-serif");
+        pt.font_families.emplace_back("default");
     }
 #endif
 
-    // Spacing
-    sk.setLetterSpacing(s.letter_spacing);
-    sk.setWordSpacing(s.word_spacing);
+    pt.letter_spacing = s.letter_spacing;
+    pt.word_spacing = s.word_spacing;
+    pt.height = s.height;
+    pt.decoration = toParagraphDecoration(s.decoration);
+    pt.decoration_color = s.decoration_color;
+    pt.decoration_style = toParagraphDecorationStyle(s.decoration_style);
+    pt.decoration_thickness = s.decoration_thickness;
 
-    // Height
-    if (s.height.has_value()) {
-        sk.setHeight(*s.height);
-        sk.setHeightOverride(true);
-    }
-
-    // Decoration
-    sk.setDecoration(toSkTextDecoration(s.decoration));
-    sk.setDecorationColor(toSkColor(s.decoration_color));
-    sk.setDecorationStyle(toSkTextDecorationStyle(s.decoration_style));
-    sk.setDecorationThicknessMultiplier(s.decoration_thickness);
-
-    // Shadows
     for (const auto& shadow : s.shadows) {
-        sk.addShadow(skia::textlayout::TextShadow(
-            toSkColor(shadow.color),
-            SkPoint::Make(shadow.offset.x, shadow.offset.y),
-            shadow.blur_radius * 0.5f // Convert blur radius to sigma
-        ));
+        pt.shadows.push_back({shadow.color, shadow.offset, shadow.blur_radius * 0.5f});
     }
 
-    return sk;
+    return pt;
 }
-#endif
 
 TextStyle mergeStyles(const TextStyle& parent, const std::optional<TextStyle>& child) {
     if (!child) return parent;
@@ -209,7 +114,6 @@ TextStyle mergeStyles(const TextStyle& parent, const std::optional<TextStyle>& c
 // ParagraphBuilderContext Implementation
 // ════════════════════════════════════════════════════════════════
 
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
 class ParagraphBuilderContext {
 public:
     struct SpanRange {
@@ -218,10 +122,10 @@ public:
         const TextSpan* span;
     };
 
-    explicit ParagraphBuilderContext(skia::textlayout::ParagraphBuilder* b) : builder(b), current_index(0) {}
+    explicit ParagraphBuilderContext(TextParagraphBuilder* b) : builder(b), current_index(0) {}
 
     void pushStyle(const TextStyle& style) {
-        builder->pushStyle(toSkTextStyle(style));
+        builder->pushStyle(toParagraphTextStyle(style));
     }
 
     void popStyle() {
@@ -230,7 +134,7 @@ public:
 
     void addText(const std::string& text, const TextSpan* span = nullptr) {
         if (!text.empty()) {
-            builder->addText(text.c_str(), text.size());
+            builder->addText(text);
             accumulated_text += text;
             size_t end_index = current_index + text.size();
             if (span && (span->on_click || span->on_hover)) {
@@ -240,7 +144,7 @@ public:
         }
     }
 
-    skia::textlayout::ParagraphBuilder* builder;
+    TextParagraphBuilder* builder;
     size_t current_index;
     std::string accumulated_text;
     std::vector<SpanRange> interactive_spans;
@@ -264,11 +168,11 @@ void TextSpan::build(ParagraphBuilderContext& builder, const TextStyle& inherite
 }
 
 // ════════════════════════════════════════════════════════════════
-// RenderParagraph Internal Implementation (Desktop)
+// RenderParagraph Internal Implementation
 // ════════════════════════════════════════════════════════════════
 
 struct RenderParagraph::Impl {
-    std::unique_ptr<skia::textlayout::Paragraph> paragraph;
+    std::unique_ptr<TextParagraph> paragraph;
     float current_layout_width = -1.0f;
     std::string full_text;
     std::vector<ParagraphBuilderContext::SpanRange> interactive_spans;
@@ -281,22 +185,22 @@ struct RenderParagraph::Impl {
                TextOverflow overflow,
                std::optional<size_t> maxLines,
                bool softWrap) {
-        skia::textlayout::ParagraphStyle pStyle;
-        pStyle.setTextAlign(toSkTextAlign(textAlign));
-        pStyle.setTextDirection(toSkTextDirection(textDirection));
-        pStyle.setTextStyle(toSkTextStyle(defaultStyle));
+        ParagraphStyle pStyle;
+        pStyle.text_align = toParagraphAlign(textAlign);
+        pStyle.text_direction = toParagraphDirection(textDirection);
+        pStyle.default_style = toParagraphTextStyle(defaultStyle);
 
         if (maxLines.has_value() && *maxLines > 0) {
-            pStyle.setMaxLines(*maxLines);
+            pStyle.max_lines = *maxLines;
         } else if (!softWrap) {
-            pStyle.setMaxLines(1);
+            pStyle.max_lines = 1;
         }
 
         if (overflow == TextOverflow::Ellipsis) {
-            pStyle.setEllipsis(SkString("..."));
+            pStyle.ellipsis = "...";
         }
 
-        auto builder = skia::textlayout::ParagraphBuilder::make(pStyle, getSharedFontCollection());
+        auto builder = TextParagraphBuilder::make(pStyle);
         if (!builder) {
             paragraph = nullptr;
             full_text.clear();
@@ -310,7 +214,7 @@ struct RenderParagraph::Impl {
 
         full_text = std::move(ctx.accumulated_text);
         interactive_spans = std::move(ctx.interactive_spans);
-        paragraph = builder->Build();
+        paragraph = builder->build();
         current_layout_width = -1.0f;
     }
 
@@ -322,292 +226,6 @@ struct RenderParagraph::Impl {
         }
     }
 };
-
-#else
-
-// ════════════════════════════════════════════════════════════════
-// RenderParagraph Internal Implementation (Android - Core SkFont)
-// ════════════════════════════════════════════════════════════════
-
-class ParagraphBuilderContext {
-public:
-    explicit ParagraphBuilderContext(void*) {}
-};
-
-void TextSpan::build(ParagraphBuilderContext&, const TextStyle&) const {}
-
-struct RenderParagraph::Impl {
-    struct Line {
-        std::string text;
-        float width = 0.0f;
-        float x_offset = 0.0f;
-        float baseline_y = 0.0f;
-    };
-
-    std::string full_text;
-    TextStyle style;
-    TextAlign align = TextAlign::Start;
-    TextDirection direction = TextDirection::LTR;
-    TextOverflow overflow = TextOverflow::Clip;
-    std::optional<size_t> max_lines;
-    bool soft_wrap = true;
-
-    std::vector<Line> lines;
-    float current_layout_width = -1.0f;
-    float calculated_height = 0.0f;
-    float max_intrinsic_width = 0.0f;
-    float longest_line = 0.0f;
-    SkFont font;
-
-    const TextSpan* hovered_span = nullptr;
-
-    Impl() {
-        font.setSize(14.0f);
-        font.setSubpixel(true);
-        font.setEdging(SkFont::Edging::kAntiAlias);
-    }
-
-    void build(const InlineSpan* rootSpan,
-               const TextStyle& defaultStyle,
-               TextAlign textAlign,
-               TextDirection textDirection,
-               TextOverflow textOverflow,
-               std::optional<size_t> maxLinesVal,
-               bool softWrapVal) {
-        style = defaultStyle;
-        align = textAlign;
-        direction = textDirection;
-        overflow = textOverflow;
-        max_lines = maxLinesVal;
-        soft_wrap = softWrapVal;
-
-        // Configure SkFont
-        SkFontStyle::Slant slant = (style.font_style == FontStyle::Italic)
-                                       ? SkFontStyle::kItalic_Slant
-                                       : SkFontStyle::kUpright_Slant;
-        SkFontStyle fontStyle(static_cast<int>(style.font_weight), SkFontStyle::kNormal_Width, slant);
-
-#if defined(__EMSCRIPTEN__)
-        static sk_sp<SkTypeface> s_wasm_reg = nullptr;
-        static sk_sp<SkTypeface> s_wasm_bold = nullptr;
-        static bool s_wasm_init = false;
-        if (!s_wasm_init) {
-            s_wasm_init = true;
-            s_wasm_reg = SkTypeface::MakeFromFile("/assets/fonts/Enki-Regular.ttf");
-            s_wasm_bold = SkTypeface::MakeFromFile("/assets/fonts/Enki-Bold.ttf");
-        }
-        sk_sp<SkTypeface> tf = nullptr;
-        if (fontStyle.weight() >= SkFontStyle::kSemiBold_Weight && s_wasm_bold) {
-            tf = s_wasm_bold;
-        } else if (s_wasm_reg) {
-            tf = s_wasm_reg;
-        }
-#else
-        auto mgr = getTextFontMgr();
-        sk_sp<SkTypeface> tf;
-        if (!style.font_family.empty() && mgr) {
-            if (auto t = mgr->matchFamilyStyle(style.font_family.c_str(), fontStyle)) {
-                tf = sk_sp<SkTypeface>(t);
-            }
-        }
-        if (!tf && mgr) {
-            if (auto t = mgr->matchFamilyStyle("Roboto", fontStyle)) tf = sk_sp<SkTypeface>(t);
-            else if (auto t = mgr->matchFamilyStyle("sans-serif", fontStyle)) tf = sk_sp<SkTypeface>(t);
-            else if (auto t = mgr->matchFamilyStyle(nullptr, fontStyle)) tf = sk_sp<SkTypeface>(t);
-        }
-        if (!tf) {
-            tf = SkTypeface::MakeDefault();
-        }
-#endif
-
-        font.setTypeface(tf);
-        font.setSize(style.font_size > 0.0f ? style.font_size : 14.0f);
-        font.setSubpixel(true);
-        font.setEdging(SkFont::Edging::kAntiAlias);
-
-        // Extract full text from InlineSpan
-        full_text.clear();
-        std::function<void(const InlineSpan*)> collectText = [&](const InlineSpan* s) {
-            if (!s) return;
-            if (auto* ts = dynamic_cast<const TextSpan*>(s)) {
-                full_text += ts->text;
-                for (const auto& child : ts->children) {
-                    if (child) collectText(child.get());
-                }
-            }
-        };
-        if (rootSpan) {
-            collectText(rootSpan);
-        }
-
-        current_layout_width = -1.0f;
-        layout(0.0f);
-    }
-
-    void layout(float width) {
-        float effective_width = std::max(0.0f, width);
-        if (current_layout_width == effective_width && !lines.empty()) {
-            return;
-        }
-        current_layout_width = effective_width;
-        lines.clear();
-        max_intrinsic_width = 0.0f;
-        longest_line = 0.0f;
-
-        SkFontMetrics metrics;
-        font.getMetrics(&metrics);
-        float lineHeight = metrics.fDescent - metrics.fAscent + metrics.fLeading;
-        if (style.height.has_value() && *style.height > 0.0f) {
-            lineHeight = font.getSize() * (*style.height);
-        }
-        float ascent = -metrics.fAscent;
-
-        if (full_text.empty()) {
-            calculated_height = lineHeight;
-            return;
-        }
-
-        // Split by newlines first
-        std::vector<std::string> raw_paragraphs;
-        {
-            std::stringstream ss(full_text);
-            std::string item;
-            while (std::getline(ss, item, '\n')) {
-                raw_paragraphs.push_back(item);
-            }
-            if (!full_text.empty() && full_text.back() == '\n') {
-                raw_paragraphs.push_back("");
-            }
-            if (raw_paragraphs.empty()) {
-                raw_paragraphs.push_back(full_text);
-            }
-        }
-
-        // Measure intrinsic widths
-        for (const auto& p : raw_paragraphs) {
-            float p_w = font.measureText(p.data(), p.size(), SkTextEncoding::kUTF8);
-            if (p_w > max_intrinsic_width) max_intrinsic_width = p_w;
-        }
-
-        // If wrapping is required
-        bool wrap = soft_wrap && (effective_width > 0.0f);
-
-        for (const auto& p : raw_paragraphs) {
-            if (!wrap || font.measureText(p.data(), p.size(), SkTextEncoding::kUTF8) <= effective_width) {
-                Line l;
-                l.text = p;
-                l.width = font.measureText(p.data(), p.size(), SkTextEncoding::kUTF8);
-                lines.push_back(std::move(l));
-            } else {
-                // Word wrapping
-                std::stringstream ss(p);
-                std::string word;
-                std::string current_line;
-                float current_line_width = 0.0f;
-
-                while (ss >> word) {
-                    std::string test_line = current_line.empty() ? word : (current_line + " " + word);
-                    float test_w = font.measureText(test_line.data(), test_line.size(), SkTextEncoding::kUTF8);
-
-                    if (test_w <= effective_width || current_line.empty()) {
-                        current_line = std::move(test_line);
-                        current_line_width = test_w;
-                    } else {
-                        Line l;
-                        l.text = std::move(current_line);
-                        l.width = current_line_width;
-                        lines.push_back(std::move(l));
-
-                        current_line = word;
-                        current_line_width = font.measureText(word.data(), word.size(), SkTextEncoding::kUTF8);
-                    }
-                }
-                if (!current_line.empty()) {
-                    Line l;
-                    l.text = std::move(current_line);
-                    l.width = current_line_width;
-                    lines.push_back(std::move(l));
-                }
-            }
-        }
-
-        // Apply max_lines & ellipsis
-        size_t limit = max_lines.has_value() ? *max_lines : (!soft_wrap ? 1 : 0);
-        if (limit > 0 && lines.size() > limit) {
-            lines.resize(limit);
-            if (overflow == TextOverflow::Ellipsis && !lines.empty()) {
-                auto& last = lines.back();
-                const std::string ellipsis = "...";
-                while (!last.text.empty() && 
-                       font.measureText((last.text + ellipsis).data(), (last.text + ellipsis).size(), SkTextEncoding::kUTF8) > effective_width) {
-                    last.text.pop_back();
-                }
-                last.text += ellipsis;
-                last.width = font.measureText(last.text.data(), last.text.size(), SkTextEncoding::kUTF8);
-            }
-        }
-
-        // Calculate positions
-        for (size_t i = 0; i < lines.size(); ++i) {
-            auto& l = lines[i];
-            if (l.width > longest_line) longest_line = l.width;
-            l.baseline_y = static_cast<float>(i) * lineHeight + ascent;
-
-            float avail_w = (effective_width > 0.0f) ? effective_width : l.width;
-            if (align == TextAlign::Center) {
-                l.x_offset = std::max(0.0f, (avail_w - l.width) * 0.5f);
-            } else if (align == TextAlign::Right || (align == TextAlign::End && direction == TextDirection::LTR)) {
-                l.x_offset = std::max(0.0f, avail_w - l.width);
-            } else {
-                l.x_offset = 0.0f;
-            }
-        }
-
-        calculated_height = static_cast<float>(lines.size()) * lineHeight;
-    }
-
-    float getMaxIntrinsicWidth() const { return max_intrinsic_width; }
-    float getLongestLine() const { return longest_line; }
-    float getHeight() const { return calculated_height; }
-
-    void paint(PaintContext& ctx) {
-        Paint paint;
-        paint.setColor(style.color);
-        paint.setAntiAlias(true);
-
-        for (const auto& line : lines) {
-            if (line.text.empty()) continue;
-            float x = ctx.offset.x + line.x_offset;
-            float y = ctx.offset.y + line.baseline_y;
-
-            // Shadows
-            for (const auto& shadow : style.shadows) {
-                Paint shadowPaint = paint;
-                shadowPaint.setColor(shadow.color);
-                ctx.canvas.drawText(line.text, Point{x + shadow.offset.x, y + shadow.offset.y}, shadowPaint, style.font_size, style.font_family.c_str());
-            }
-
-            ctx.canvas.drawText(line.text, Point{x, y}, paint, style.font_size, style.font_family.c_str());
-
-            // Decoration
-            if (style.decoration != TextDecoration::None) {
-                Paint decPaint = paint;
-                decPaint.setColor(style.decoration_color != 0 ? style.decoration_color : style.color);
-                decPaint.setStrokeWidth(style.decoration_thickness > 0.0f ? style.decoration_thickness : 1.0f);
-                if (style.decoration & TextDecoration::Underline) {
-                    float ulY = y + 2.0f;
-                    ctx.canvas.drawLine(Point{x, ulY}, Point{x + line.width, ulY}, decPaint);
-                }
-                if (style.decoration & TextDecoration::LineThrough) {
-                    float ltY = y - (style.font_size * 0.35f);
-                    ctx.canvas.drawLine(Point{x, ltY}, Point{x + line.width, ltY}, decPaint);
-                }
-            }
-        }
-    }
-};
-
-#endif
 
 // ════════════════════════════════════════════════════════════════
 // RenderParagraph Implementation
@@ -786,10 +404,7 @@ void RenderParagraph::setOnSelectionChanged(std::function<void(TextSelection)> c
 }
 
 void RenderParagraph::selectAll() {
-    if (!impl_) return;
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-    if (!impl_->paragraph) return;
-#endif
+    if (!impl_ || !impl_->paragraph) return;
     const std::string& all_text = !text_data_.empty() ? text_data_ : impl_->full_text;
     selection_ = TextSelection{0, all_text.length()};
     if (on_selection_changed_) {
@@ -836,12 +451,8 @@ void RenderParagraph::layoutParagraph(float availableWidth) {
     impl_->layout(availableWidth);
 }
 
-void* RenderParagraph::getNativeParagraph() const {
-#if defined(__ANDROID__) || defined(__EMSCRIPTEN__)
-    return nullptr;
-#else
-    return impl_->paragraph.get();
-#endif
+TextParagraph* RenderParagraph::getParagraph() const {
+    return impl_ ? impl_->paragraph.get() : nullptr;
 }
 
 ANUSize RenderParagraph::measureText(ANUNodeConstRef node,
@@ -850,14 +461,9 @@ ANUSize RenderParagraph::measureText(ANUNodeConstRef node,
                                      float height,
                                      ANUMeasureMode heightMode) {
     auto* self = static_cast<RenderParagraph*>(ANUNodeGetContext(node));
-    if (!self || !self->impl_) {
+    if (!self || !self->impl_ || !self->impl_->paragraph) {
         return {0.0f, 0.0f};
     }
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-    if (!self->impl_->paragraph) {
-        return {0.0f, 0.0f};
-    }
-#endif
 
     float constraintWidth = std::numeric_limits<float>::max();
     if (widthMode == ANUMeasureModeExactly || widthMode == ANUMeasureModeAtMost) {
@@ -870,15 +476,9 @@ ANUSize RenderParagraph::measureText(ANUNodeConstRef node,
 
     self->layoutParagraph(constraintWidth);
 
-#if defined(__ANDROID__) || defined(__EMSCRIPTEN__)
-    float maxIntrinsicWidth = self->impl_->getMaxIntrinsicWidth();
-    float longestLineWidth = self->impl_->getLongestLine();
-    float measuredHeight = self->impl_->getHeight();
-#else
     float maxIntrinsicWidth = self->impl_->paragraph->getMaxIntrinsicWidth();
     float longestLineWidth = self->impl_->paragraph->getLongestLine();
     float measuredHeight = self->impl_->paragraph->getHeight();
-#endif
 
     float contentWidth = (constraintWidth < maxIntrinsicWidth) ? longestLineWidth : maxIntrinsicWidth;
 
@@ -899,13 +499,7 @@ ANUSize RenderParagraph::measureText(ANUNodeConstRef node,
 }
 
 void RenderParagraph::paint(PaintContext& ctx) {
-    if (!impl_) return;
-
-#if defined(__ANDROID__) || defined(__EMSCRIPTEN__)
-    layoutParagraph(size_.width);
-    impl_->paint(ctx);
-#else
-    if (!impl_->paragraph) return;
+    if (!impl_ || !impl_->paragraph) return;
 
     // Layout paragraph to the exact allocated box width
     layoutParagraph(size_.width);
@@ -914,32 +508,25 @@ void RenderParagraph::paint(PaintContext& ctx) {
     if (selectable_ && selection_.isValid() && !selection_.isCollapsed()) {
         size_t s = selection_.start();
         size_t e = selection_.end();
-        auto rect_boxes = impl_->paragraph->getRectsForRange(
-            s, e,
-            skia::textlayout::RectHeightStyle::kTight,
-            skia::textlayout::RectWidthStyle::kTight
-        );
+        auto rects = impl_->paragraph->getRectsForRange(s, e);
 
         Paint sel_paint;
         sel_paint.setColor(selection_color_);
 
-        for (const auto& box : rect_boxes) {
+        for (const auto& box : rects) {
             Rect r = Rect::fromLTWH(
-                ctx.offset.x + box.rect.fLeft,
-                ctx.offset.y + box.rect.fTop,
-                box.rect.width(),
-                box.rect.height()
+                ctx.offset.x + box.x,
+                ctx.offset.y + box.y,
+                box.width,
+                box.height
             );
             ctx.canvas.drawRRect(r, BorderRadius::circular(3.0f), sel_paint);
         }
     }
 
-    // Draw via canvas drawParagraph interface
-    ctx.canvas.drawParagraph(impl_->paragraph.get(), ctx.offset.x, ctx.offset.y);
-#endif
+    impl_->paragraph->paint(ctx.canvas, ctx.offset.x, ctx.offset.y);
 }
 
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
 const TextSpan* findSpanAtPosition(const std::vector<ParagraphBuilderContext::SpanRange>& spans, size_t position) {
     for (const auto& range : spans) {
         if (position >= range.start && position < range.end) {
@@ -948,29 +535,24 @@ const TextSpan* findSpanAtPosition(const std::vector<ParagraphBuilderContext::Sp
     }
     return nullptr;
 }
-#endif
 
 bool RenderParagraph::hitTestSelf(Point localPoint) const {
     if (localPoint.x >= 0 && localPoint.x <= size_.width &&
         localPoint.y >= 0 && localPoint.y <= size_.height) {
         if (selectable_) return true;
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
         if (impl_ && impl_->paragraph && !impl_->interactive_spans.empty()) {
-            auto pos = impl_->paragraph->getGlyphPositionAtCoordinate(localPoint.x, localPoint.y);
-            const TextSpan* span = findSpanAtPosition(impl_->interactive_spans, pos.position);
+            size_t pos = impl_->paragraph->getGlyphIndexAtCoordinate(localPoint.x, localPoint.y);
+            const TextSpan* span = findSpanAtPosition(impl_->interactive_spans, pos);
             return span != nullptr;
         }
-#endif
     }
     return false;
 }
 
 void RenderParagraph::handlePointerDown(const PointerEvent& e) {
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
     if (selectable_ && impl_ && impl_->paragraph) {
         layoutParagraph(size_.width);
-        auto pos = impl_->paragraph->getGlyphPositionAtCoordinate(e.localPosition.x, e.localPosition.y);
-        size_t char_pos = static_cast<size_t>(pos.position);
+        size_t char_pos = impl_->paragraph->getGlyphIndexAtCoordinate(e.localPosition.x, e.localPosition.y);
 
         auto now = std::chrono::steady_clock::now();
         float dist = std::hypot(e.localPosition.x - last_click_pos_.x, e.localPosition.y - last_click_pos_.y);
@@ -985,9 +567,9 @@ void RenderParagraph::handlePointerDown(const PointerEvent& e) {
         last_click_time_ = now;
 
         if (click_count_ == 2) {
-            auto range = impl_->paragraph->getWordBoundary(char_pos);
-            selection_ = TextSelection{range.start, range.end};
-            selection_anchor_ = range.start;
+            auto [start, end] = impl_->paragraph->getWordBoundary(char_pos);
+            selection_ = TextSelection{start, end};
+            selection_anchor_ = start;
             is_dragging_ = true;
         } else if (click_count_ >= 3) {
             selectAll();
@@ -1003,31 +585,26 @@ void RenderParagraph::handlePointerDown(const PointerEvent& e) {
         }
         markNeedsPaint();
     }
-#endif
 }
 
 void RenderParagraph::handlePointerUp(const PointerEvent& e) {
     if (selectable_) {
         is_dragging_ = false;
     }
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
     if (!impl_ || !impl_->paragraph) return;
-    auto pos = impl_->paragraph->getGlyphPositionAtCoordinate(e.localPosition.x, e.localPosition.y);
-    const TextSpan* span = findSpanAtPosition(impl_->interactive_spans, pos.position);
+    size_t pos = impl_->paragraph->getGlyphIndexAtCoordinate(e.localPosition.x, e.localPosition.y);
+    const TextSpan* span = findSpanAtPosition(impl_->interactive_spans, pos);
     if (span && span->on_click) {
         span->on_click();
     }
-#endif
 }
 
 void RenderParagraph::handlePointerMove(const PointerEvent& e) {
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
     if (!impl_ || !impl_->paragraph) return;
 
     if (selectable_ && is_dragging_) {
         layoutParagraph(size_.width);
-        auto pos = impl_->paragraph->getGlyphPositionAtCoordinate(e.localPosition.x, e.localPosition.y);
-        size_t char_pos = static_cast<size_t>(pos.position);
+        size_t char_pos = impl_->paragraph->getGlyphIndexAtCoordinate(e.localPosition.x, e.localPosition.y);
 
         TextSelection new_sel{selection_anchor_, char_pos};
         if (new_sel != selection_) {
@@ -1044,8 +621,8 @@ void RenderParagraph::handlePointerMove(const PointerEvent& e) {
     
     const TextSpan* new_hovered = nullptr;
     if (is_in_bounds && !impl_->interactive_spans.empty()) {
-        auto pos = impl_->paragraph->getGlyphPositionAtCoordinate(e.localPosition.x, e.localPosition.y);
-        new_hovered = findSpanAtPosition(impl_->interactive_spans, pos.position);
+        size_t pos = impl_->paragraph->getGlyphIndexAtCoordinate(e.localPosition.x, e.localPosition.y);
+        new_hovered = findSpanAtPosition(impl_->interactive_spans, pos);
     }
     
     if (impl_->hovered_span != new_hovered) {
@@ -1057,7 +634,6 @@ void RenderParagraph::handlePointerMove(const PointerEvent& e) {
             impl_->hovered_span->on_hover(true);
         }
     }
-#endif
 }
 
 void RenderParagraph::handlePointerExit(const PointerEvent& e) {

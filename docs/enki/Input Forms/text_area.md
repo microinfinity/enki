@@ -7,7 +7,7 @@
 - **Declarative Struct**: `enki::TextArea` (converts implicitly to `WidgetPtr`)
 - **Props Struct**: `enki::TextAreaProps`
 - **Controller**: `enki::TextAreaController`
-- **Underlying Engine**: Skia `SkParagraph` multi-line layout with scroll offset calculation
+- **Underlying Engine**: `enki::TextParagraph` multi-line layout with scroll offset calculation
 
 ---
 

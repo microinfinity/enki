@@ -7,9 +7,6 @@
 #include "enki/state/state.hpp"
 #include "enki/rendering/canvas.hpp"
 
-#include <include/core/SkCanvas.h>
-#include <include/core/SkRRect.h>
-
 #include <algorithm>
 #include <cmath>
 #include <iostream>

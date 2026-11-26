@@ -4,10 +4,7 @@
 #include "enki/tree/render_object.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
-
-#include <include/effects/SkRuntimeEffect.h>
-#include <include/core/SkShader.h>
-#include <include/core/SkMatrix.h>
+#include "enki/rendering/runtime_shader.hpp"
 #include <layout_engine/Anu.h>
 
 #include <chrono>
@@ -17,14 +14,6 @@
 #include <cmath>
 
 namespace enki {
-
-class SpinnerShaderWrapper : public Shader {
-public:
-    explicit SpinnerShaderWrapper(sk_sp<SkShader> shader) : shader_(std::move(shader)) {}
-    void* getNativeHandle() const override { return shader_.get(); }
-private:
-    sk_sp<SkShader> shader_;
-};
 
 inline double getSteadyTimeSecs() {
     auto now = std::chrono::steady_clock::now();
@@ -55,7 +44,7 @@ public:
     float anim_time;
     double start_time;
 
-    sk_sp<SkRuntimeEffect> effect;
+    std::shared_ptr<RuntimeEffect> effect;
 
     RenderSpinner(const SpinnerWidget* opt, float anim_t, double st)
         : style_(opt->style), spinner_size_(opt->size), color_(opt->color),
@@ -69,11 +58,10 @@ public:
         updateAnuStyles();
 
         if (!custom_shader_.empty() || style_ == SpinnerStyle::CustomShader) {
-            auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(custom_shader_.c_str()));
-            if (!eff) {
-                std::cerr << "Spinner SkSL Shader Compile Error: " << err.c_str() << "\n";
-            } else {
-                effect = eff;
+            std::string err;
+            effect = RuntimeEffect::compile(custom_shader_, &err);
+            if (!effect) {
+                std::cerr << "Spinner SkSL Shader Compile Error: " << err << "\n";
             }
         }
     }
@@ -134,13 +122,8 @@ public:
             Paint shader_paint;
             shader_paint.setAntiAlias(true);
 
-            sk_sp<SkData> uniform_data = SkData::MakeWithCopy(&uniforms, sizeof(Uniforms));
-            
-            SkMatrix local_matrix = SkMatrix::Translate(top_left_x, top_left_y);
-            auto shader_base = effect->makeShader(uniform_data, nullptr, 0);
-            if (shader_base) {
-                auto shader = shader_base->makeWithLocalMatrix(local_matrix);
-                shader_paint.setShader(std::make_shared<SpinnerShaderWrapper>(std::move(shader)));
+            if (auto shader = effect->makeShader(&uniforms, sizeof(Uniforms), top_left_x, top_left_y)) {
+                shader_paint.setShader(std::move(shader));
 
                 Rect rect{top_left_x, top_left_y, diameter, diameter};
                 canvas.drawRect(rect, shader_paint);

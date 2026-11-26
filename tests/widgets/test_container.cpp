@@ -5,8 +5,7 @@
 #include "enki/widgets/flexbox.hpp"
 #include "enki/tree/element.hpp"
 #include "enki/rendering/canvas.hpp"
-#include <include/core/SkCanvas.h>
-#include <include/core/SkSurface.h>
+#include "enki/rendering/raster_surface.hpp"
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -272,20 +271,15 @@ void test_hit_testing() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// Test 7: Painting Pipeline Verification via Mock Skia Surface
+// Test 7: Painting Pipeline Verification via RasterSurface
 // ════════════════════════════════════════════════════════════════
 void test_painting_pipeline() {
     std::cout << "Testing Painting Pipeline..." << std::endl;
 
-    auto surface = SkSurface::MakeRasterN32Premul(400, 400);
+    auto surface = RasterSurface::create(400, 400);
     assert(surface != nullptr);
-    SkCanvas* sk_canvas = surface->getCanvas();
 
-    // Create Canvas wrapper
-    auto canvas = createCanvasWrapper(sk_canvas);
-    assert(canvas != nullptr);
-
-    PaintContext ctx{*canvas, {20.0f, 20.0f}, Rect{0, 0, 400, 400}, 1.0f};
+    PaintContext ctx{surface->canvas(), {20.0f, 20.0f}, Rect{0, 0, 400, 400}, 1.0f};
 
     // Container with Shadows, Borders, and Rounded Corners
     auto c = container({

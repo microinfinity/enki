@@ -6,10 +6,7 @@
 #include "enki/tree/render_object.hpp"
 #include "enki/rendering/canvas.hpp"
 #include "enki/rendering/paint.hpp"
-
-#include <include/effects/SkRuntimeEffect.h>
-#include <include/core/SkShader.h>
-#include <include/core/SkMatrix.h>
+#include "enki/rendering/runtime_shader.hpp"
 #include <layout_engine/Anu.h>
 
 #include <chrono>
@@ -19,14 +16,6 @@
 #include <cmath>
 
 namespace enki {
-
-class ProgressBarShaderWrapper : public Shader {
-public:
-    explicit ProgressBarShaderWrapper(sk_sp<SkShader> shader) : shader_(std::move(shader)) {}
-    void* getNativeHandle() const override { return shader_.get(); }
-private:
-    sk_sp<SkShader> shader_;
-};
 
 inline double getSteadyTimeSeconds() {
     auto now = std::chrono::steady_clock::now();
@@ -57,7 +46,7 @@ public:
     float anim_time;
     double start_time;
 
-    sk_sp<SkRuntimeEffect> effect;
+    std::shared_ptr<RuntimeEffect> effect;
 
     RenderProgressBar(const ProgressBarWidget* opt, float val, float anim_t, double st)
         : height_(opt->height), border_radius_(opt->border_radius),
@@ -71,11 +60,10 @@ public:
         updateAnuStyles();
 
         if (!custom_shader_.empty()) {
-            auto [eff, err] = SkRuntimeEffect::MakeForShader(SkString(custom_shader_.c_str()));
-            if (!eff) {
-                std::cerr << "ProgressBar SkSL Shader Compile Error: " << err.c_str() << "\n";
-            } else {
-                effect = eff;
+            std::string err;
+            effect = RuntimeEffect::compile(custom_shader_, &err);
+            if (!effect) {
+                std::cerr << "ProgressBar SkSL Shader Compile Error: " << err << "\n";
             }
         }
     }
@@ -147,8 +135,7 @@ public:
                     {size_.width, size_.height},
                     0.5f
                 };
-                sk_sp<SkData> uniform_data = SkData::MakeWithCopy(&uniforms, sizeof(Uniforms));
-                fill_paint.setShader(std::make_shared<ProgressBarShaderWrapper>(effect->makeShader(uniform_data, nullptr, 0)));
+                fill_paint.setShader(effect->makeShader(&uniforms, sizeof(Uniforms)));
             } else {
                 fill_paint.setShader(Gradient::linear(
                     Point{ctx.offset.x + start_x, ctx.offset.y},
@@ -187,10 +174,7 @@ public:
                         {size_.width, size_.height},
                         clamped_val
                     };
-                    sk_sp<SkData> uniform_data = SkData::MakeWithCopy(&uniforms, sizeof(Uniforms));
-                    SkMatrix local_matrix = SkMatrix::Translate(-ctx.offset.x, -ctx.offset.y);
-                    fill_paint.setShader(std::make_shared<ProgressBarShaderWrapper>(
-                        effect->makeShader(uniform_data, nullptr, 0)->makeWithLocalMatrix(local_matrix)));
+                    fill_paint.setShader(effect->makeShader(&uniforms, sizeof(Uniforms), -ctx.offset.x, -ctx.offset.y));
                 } else if (gradient_colors_.size() >= 2) {
                     fill_paint.setShader(Gradient::linear(
                         Point{ctx.offset.x, ctx.offset.y},

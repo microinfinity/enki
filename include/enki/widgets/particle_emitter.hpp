@@ -10,7 +10,7 @@
 #include "enki/core/types.hpp"
 #include "enki/animation/particle_system.hpp"
 #include "enki/animation/ticker.hpp"
-#include "enki/widgets/skia_canvas.hpp"
+#include "enki/widgets/detail/canvas_painter.hpp"
 #include "enki/widgets/stack.hpp"
 #include "enki/state/state.hpp"
 #include <memory>
@@ -93,7 +93,7 @@ public:
     WidgetPtr build(BuildContext&) override {
         auto* w = static_cast<const ParticleEmitterWidget*>(widget());
 
-        auto canvas_layer = skiaCanvas(SkiaCanvasProps{
+        auto canvas_layer = detail::canvasPainter({
             .painter = [this](Canvas& canvas, Size size) {
                 if (system_) {
                     system_->render(canvas, Rect{0, 0, size.width, size.height});
